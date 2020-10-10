@@ -120,7 +120,7 @@ def optimized_basic_baseline(true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TP
         result = [np.nan] * (M + 1)
         for i in range(0, M + 1):
             theta = i / M
-            rounded_m_theta = int(round(M * theta))
+            rounded_m_theta = round(round(M * theta))
             TP_rv = hypergeom(M = M, n = P, N = rounded_m_theta)
             result[i] = sum([(math.sqrt(k * (N - rounded_m_theta + k)/ (P * N))) * TP_rv.pmf(k) if TP_rv.pmf(k) > 0 else 0 for k in range(0, min((P + 1, rounded_m_theta + 1)))])
         return_statistics['Max Expected Value'] = np.nanmax(result)
@@ -157,7 +157,7 @@ def optimized_basic_baseline(true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TP
         result = [np.nan] * (M + 1)
         for i in [1, M - 1]:
             theta = i / M
-            rounded_m_theta = int(round(M * theta))
+            rounded_m_theta = round(M * theta)
             TP_rv = hypergeom(M = M, n = P, N = rounded_m_theta)
             result[i] = sum([((math.sqrt((k / P) * (-(k - rounded_m_theta) / N)) + ((k - rounded_m_theta) / N)) / ((k / P) + ((k - rounded_m_theta) / N))) * TP_rv.pmf(k) if ((k / P) + ((k - rounded_m_theta) / N)) != 0 else 0 for k in range(0, min((P + 1, rounded_m_theta + 1)))])
         return_statistics['Max Expected Value'] = np.nanmax(result)
@@ -176,7 +176,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
     P = sum(true_labels)
     M = len(true_labels)
     N = M - P
-    rounded_m_theta = int(theta * M)
+    rounded_m_theta = round(theta * M)
     theta_star = rounded_m_theta / M
 
     var_tp = (theta_star * (1 - theta_star) * P * N) / (M - 1)
@@ -186,9 +186,9 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
     def generate_hypergeometric_distribution(a,b):
         def pmf_Y(y):
-            TP_rv = hypergeom(M = M, n = P, N = int(theta * M))
+            TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
             # Ik heb int toegevoegd, omdat er kleine afrond foutjes worden gemaakt
-            return(TP_rv.pmf(int((y - b) / a)))
+            return(TP_rv.pmf(round((y - b) / a)))
         return(pmf_Y)
 
     if (measure.upper() in ['TP']):
@@ -333,7 +333,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
     if (measure.upper() in ['GMEAN2', 'G MEAN 2', 'G2']):
         def pmf_Y(y):
-            TP_rv = hypergeom(M = M, n = P, N = int(theta * M))
+            TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
             help_constant = math.sqrt((rounded_m_theta ** 2) - 2 * rounded_m_theta * N + (N ** 2) + 4 * P * N * (y ** 2))
             return(TP_rv.pmf((1/2) * ((- help_constant) + rounded_m_theta - N)) + TP_rv.pmf((1/2) * (help_constant + rounded_m_theta - N)))
         return_statistics['Distribution'] = pmf_Y
@@ -356,7 +356,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
     if (measure.upper() in ['THREAT SCORE', 'CRITICAL SUCCES INDEX', 'TS', 'CSI']):
         def pmf_Y(y):
-            TP_rv = hypergeom(M = M, n = P, N = int(theta * M))
+            TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
             return(TP_rv.pmf((y * (P + rounded_m_theta)) / (1 + y)))
         return_statistics['Distribution'] = pmf_Y
         # return_statistics['Variance'] = (a ** 2) * var_tp    
@@ -367,7 +367,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
     if (measure.upper() in ['PREVALENCE THRESHOLD', 'PT']):
         def pmf_Y(y):
-            TP_rv = hypergeom(M = M, n = P, N = int(theta * M))
+            TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
             return(TP_rv.pmf((rounded_m_theta * P * ((y - 1) ** 2)) / (M * (y ** 2) - 2 * P * y + P)))
         return_statistics['Distribution'] = pmf_Y
         # return_statistics['Variance'] = (a ** 2) * var_tp    
