@@ -187,7 +187,8 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
     def generate_hypergeometric_distribution(a,b):
         def pmf_Y(y):
             TP_rv = hypergeom(M = M, n = P, N = int(theta * M))
-            return(TP_rv.pmf((y - b) / a))
+            # Ik heb int toegevoegd, omdat er kleine afrond foutjes worden gemaakt
+            return(TP_rv.pmf(int((y - b) / a)))
         return(pmf_Y)
 
     if (measure.upper() in ['TP']):
@@ -215,7 +216,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
     if (measure.upper() in ['TNR']):
         a = 1 / N
-        b = N - rounded_m_theta        
+        b = (N - rounded_m_theta) / N       
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
@@ -375,7 +376,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
     return(return_statistics)
         
 # %%
-measure = 'TP'
+measure = 'TNR'
 theta = sum(true_labels) / len(true_labels)
 result = basic_baseline_statistics(theta = theta, measure = measure, true_labels = true_labels)
 print(result)
@@ -383,11 +384,25 @@ distribution_result = result['Distribution']
 # %%
 import scipy.integrate as integrate
 # %%
-sum([(i**2) * distribution_result(i) for i in range(0, P + 2)])
+P = sum(true_labels)
+M = len(true_labels)
+N = M - P
+sum([(i/N) * distribution_result(i/N) for i in range(-len(true_labels), len(true_labels) + 1)])
 # %%
 
-def xfx(x):
-    return np.multiply(distribution_result(int(x)), int(x))
-
-integrate.quad(xfx, a = -np.infty, b = np.infty)
+# %%
+plot_results = [(i/N) * distribution_result(i/N) for i in range(0, N + 1)]
+# %%
+import matplotlib.pyplot as plt
+plt.plot(plot_results)
+# %%
+sum(plot_results)
+# %%
+a = 1 / N
+b = (N - rounded_m_theta) / N    
+possible_y_values = [(a * x) + b for x in range(0, P + 1)]
+# %%
+sum([y * distribution_result(y) for y in possible_y_values])
+# %%
+[(y - b) / a for y in possible_y_values]
 # %%
