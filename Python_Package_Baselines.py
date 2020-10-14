@@ -13,7 +13,7 @@ import math
 from scipy.stats import hypergeom
 import numpy as np
 
-def optimized_basic_baseline(true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TPR', 'NPR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'GMEAN2 APPROX', 'FOWLKES MALLOWS', 'TS', 'PT'), beta = 1):
+def optimized_basic_baseline(true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TPR', 'TNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'GMEAN2 APPROX', 'FOWLKES MALLOWS', 'TS', 'PT'), beta = 1):
     P = sum(true_labels)
     M = len(true_labels)
     N = M - P
@@ -110,9 +110,9 @@ def optimized_basic_baseline(true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TP
         return_statistics['Argmin Expected Value'] = [i/M for i in range(0, M + 1)]
 
     if (measure.upper() in ['GMEAN1', 'G MEAN 1', 'G1']):
-        return_statistics['Max Expected Value'] = math.sqrt(P)
+        return_statistics['Max Expected Value'] = math.sqrt(P / M)
         return_statistics['Argmax Expected Value'] = 1
-        return_statistics['Min Expected Value'] = math.sqrt(P/M)
+        return_statistics['Min Expected Value'] = math.sqrt(P) / M
         return_statistics['Argmin Expected Value'] = 1/M
 
     if (measure.upper() in ['GMEAN2', 'G MEAN 2', 'G2']):
@@ -171,7 +171,14 @@ def optimized_basic_baseline(true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TP
 optimized_basic_baseline(true_labels, measure)
 # %%
 ##################################################################################################
-def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TPR', 'NPR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'FOWLKES MALLOWS', 'TS', 'PT'), beta = 1):
+def round_if_close(x):
+    if math.isclose(x, round(x), abs_tol = 0.000001):
+        return(round(x))
+    else: 
+        return(x)
+
+
+def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TPR', 'TNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'FOWLKES MALLOWS', 'TS', 'PT'), beta = 1):
     
     P = sum(true_labels)
     M = len(true_labels)
@@ -187,8 +194,8 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
     def generate_hypergeometric_distribution(a,b):
         def pmf_Y(y):
             TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
-            # Ik heb int toegevoegd, omdat er kleine afrond foutjes worden gemaakt
-            return(TP_rv.pmf(round((y - b) / a)))
+            # Ik heb round toegevoegd, omdat er kleine afrond foutjes worden gemaakt
+            return(round_if_close((y - b) / a))
         return(pmf_Y)
 
     if (measure.upper() in ['TP']):
@@ -197,7 +204,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp
         return_statistics['Mean'] = (a * mean_tp) + b
-        
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
 
     if (measure.upper() in ['TN']):
         a = 1
@@ -205,6 +212,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
 
     if (measure.upper() in ['TPR']):
         a = 1 / P
@@ -212,6 +220,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
 
 
     if (measure.upper() in ['TNR']):
@@ -220,6 +229,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
 
 
     if (measure.upper() in ['PPV']):
@@ -228,15 +238,17 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
 
         
 
     if (measure.upper() in ['NPV']):
         a = 1 / (M - rounded_m_theta)
-        b = N - rounded_m_theta
+        b = (N - rounded_m_theta) / (M - rounded_m_theta)
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
 
     
 
@@ -246,15 +258,17 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
 
         
 
     if (measure.upper() in ['FOR']):
         a = -1 / (M - rounded_m_theta)
-        b = 1 - N + rounded_m_theta
+        b = 1 -((N - rounded_m_theta) / (M - rounded_m_theta))
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
 
         
 
@@ -264,15 +278,17 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
 
         
 
     if (measure.upper() in ['BACC', 'BALANCED ACCURACY']):
         a = (1 / (2 * P)) + (1 / (2 * N))
-        b = (N - rounded_m_theta) / 2
+        b = (N - rounded_m_theta) / (2 * N)
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
 
         
 
@@ -283,6 +299,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
 
     
 
@@ -292,7 +309,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
-
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
         
 
     if (measure.upper() in ['BM', 'BOOKMAKER INFORMEDNESS', 'INFORMEDNESS']):
@@ -301,16 +318,16 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
-
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
         
 
     if (measure.upper() in ['MARKEDNESS', 'MK']):
         a = (1 / rounded_m_theta) + (1 / (M - rounded_m_theta))
-        b =  - rounded_m_theta / (M - rounded_m_theta)
+        b =  -P / (M - rounded_m_theta)
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
-
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
     
 
     if (measure.upper() in ['COHEN', 'COHENS KAPPA', 'KAPPA']):
@@ -319,7 +336,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
-
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
         
 
     if (measure.upper() in ['GMEAN1', 'G MEAN 1', 'G1']):
@@ -328,17 +345,25 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
-
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
         
 
     if (measure.upper() in ['GMEAN2', 'G MEAN 2', 'G2']):
         def pmf_Y(y):
             TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
             help_constant = math.sqrt((rounded_m_theta ** 2) - 2 * rounded_m_theta * N + (N ** 2) + 4 * P * N * (y ** 2))
-            return(TP_rv.pmf((1/2) * ((- help_constant) + rounded_m_theta - N)) + TP_rv.pmf((1/2) * (help_constant + rounded_m_theta - N)))
+            value_1 = (1/2) * ((- help_constant) + rounded_m_theta - N)
+            value_2 = (1/2) * (help_constant + rounded_m_theta - N)
+            return(TP_rv.pmf(round_if_close(value_1)) + TP_rv.pmf(round_if_close(value_2)))
+        
+        def G_mean_2_given_tp(x):
+            return(math.sqrt((x / P) * ((N - rounded_m_theta + x) / N)))
+
         return_statistics['Distribution'] = pmf_Y
-        # return_statistics['Variance'] = (a ** 2) * var_tp    
-        # return_statistics['Mean'] = (a * mean_tp) + b
+        return_statistics['Mean'] = sum([TP_rv.pmf(x) * G_mean_2_given_tp(x) for x in range(0, P + 1)])
+        return_statistics['Variance'] = sum([TP_rv.pmf(x) * (G_mean_2_given_tp(x) ** 2) for x in range(0, P + 1)])
+        return_statistics['Domain'] = np.unique([G_mean_2_given_tp(x) for x in range(0, P + 1)])
+        
 
         
 
@@ -350,59 +375,60 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
-
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
         
 
 
     if (measure.upper() in ['THREAT SCORE', 'CRITICAL SUCCES INDEX', 'TS', 'CSI']):
         def pmf_Y(y):
             TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
-            return(TP_rv.pmf((y * (P + rounded_m_theta)) / (1 + y)))
-        return_statistics['Distribution'] = pmf_Y
-        # return_statistics['Variance'] = (a ** 2) * var_tp    
-        # return_statistics['Mean'] = (a * mean_tp) + b
+            return(TP_rv.pmf(round_if_close((y * (P + rounded_m_theta)) / (1 + y))))
+        
+        def TS_given_tp(x):
+            return(x / (P + rounded_m_theta - x))
 
+        return_statistics['Distribution'] = pmf_Y
+        return_statistics['Mean'] = sum([TP_rv.pmf(x) * TS_given_tp(x) for x in range(0, P + 1)])
+        return_statistics['Variance'] = sum([TP_rv.pmf(x) * (TS_given_tp(x) ** 2) for x in range(0, P + 1)])
+        return_statistics['Domain'] = np.unique([TS_given_tp(x) for x in range(0, P + 1)])
         
 
 
     if (measure.upper() in ['PREVALENCE THRESHOLD', 'PT']):
         def pmf_Y(y):
             TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
-            return(TP_rv.pmf((rounded_m_theta * P * ((y - 1) ** 2)) / (M * (y ** 2) - 2 * P * y + P)))
+            return(TP_rv.pmf(round_if_close((rounded_m_theta * P * ((y - 1) ** 2)) / (M * (y ** 2) - 2 * P * y + P))))
+
+        def PT_given_tp(x):
+            help_1 = x / P
+            help_2 = (x - rounded_m_theta) / N
+            return((math.sqrt(help_1 * (- help_2)) + help_2)   / (help_1 + help_2))        
+
         return_statistics['Distribution'] = pmf_Y
-        # return_statistics['Variance'] = (a ** 2) * var_tp    
-        # return_statistics['Mean'] = (a * mean_tp) + b
-    
+        return_statistics['Mean'] = sum([TP_rv.pmf(x) * PT_given_tp(x) for x in range(0, P + 1)])
+        return_statistics['Variance'] = sum([TP_rv.pmf(x) * (PT_given_tp(x) ** 2) for x in range(0, P + 1)])
+        return_statistics['Domain'] = np.unique([PT_given_tp(x) for x in range(0, P + 1)])
     return(return_statistics)
         
+
+
+
+
 # %%
-measure = 'TNR'
-theta = sum(true_labels) / len(true_labels)
-result = basic_baseline_statistics(theta = theta, measure = measure, true_labels = true_labels)
-print(result)
-distribution_result = result['Distribution']
-# %%
-import scipy.integrate as integrate
-# %%
-P = sum(true_labels)
-M = len(true_labels)
-N = M - P
-sum([(i/N) * distribution_result(i/N) for i in range(-len(true_labels), len(true_labels) + 1)])
+
+
+measures_list = ['TP', 'TN', 'TPR', 'TNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'FOWLKES MALLOWS', 'TS', 'PT']
+
+theta = 1/4
+mean_list = []
+for i, measure in enumerate(measures_list):
+    result = basic_baseline_statistics(theta = theta, measure = measure, true_labels = true_labels)
+    print(measure + ":" + str(result['Mean']))
+    mean_list.append(result['Mean'])
+
+
 # %%
 
 # %%
-plot_results = [(i/N) * distribution_result(i/N) for i in range(0, N + 1)]
-# %%
-import matplotlib.pyplot as plt
-plt.plot(plot_results)
-# %%
-sum(plot_results)
-# %%
-a = 1 / N
-b = (N - rounded_m_theta) / N    
-possible_y_values = [(a * x) + b for x in range(0, P + 1)]
-# %%
-sum([y * distribution_result(y) for y in possible_y_values])
-# %%
-[(y - b) / a for y in possible_y_values]
+
 # %%
