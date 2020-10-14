@@ -359,6 +359,8 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         def G_mean_2_given_tp(x):
             return(math.sqrt((x / P) * ((N - rounded_m_theta + x) / N)))
 
+        TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
+
         return_statistics['Distribution'] = pmf_Y
         return_statistics['Mean'] = sum([TP_rv.pmf(x) * G_mean_2_given_tp(x) for x in range(0, P + 1)])
         return_statistics['Variance'] = sum([TP_rv.pmf(x) * (G_mean_2_given_tp(x) ** 2) for x in range(0, P + 1)])
@@ -385,7 +387,12 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
             return(TP_rv.pmf(round_if_close((y * (P + rounded_m_theta)) / (1 + y))))
         
         def TS_given_tp(x):
-            return(x / (P + rounded_m_theta - x))
+            if P + rounded_m_theta - x == 0:
+                return(0)
+            else:
+                return(x / (P + rounded_m_theta - x))
+
+        TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
 
         return_statistics['Distribution'] = pmf_Y
         return_statistics['Mean'] = sum([TP_rv.pmf(x) * TS_given_tp(x) for x in range(0, P + 1)])
@@ -402,7 +409,12 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         def PT_given_tp(x):
             help_1 = x / P
             help_2 = (x - rounded_m_theta) / N
-            return((math.sqrt(help_1 * (- help_2)) + help_2)   / (help_1 + help_2))        
+            if help_1 + help_2 == 0:
+                return(0)
+            else: 
+                return((math.sqrt(help_1 * (- help_2)) + help_2)   / (help_1 + help_2))        
+        
+        TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
 
         return_statistics['Distribution'] = pmf_Y
         return_statistics['Mean'] = sum([TP_rv.pmf(x) * PT_given_tp(x) for x in range(0, P + 1)])
@@ -419,7 +431,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
 measures_list = ['TP', 'TN', 'TPR', 'TNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'FOWLKES MALLOWS', 'TS', 'PT']
 
-theta = 1/4
+theta = 1/2
 mean_list = []
 for i, measure in enumerate(measures_list):
     result = basic_baseline_statistics(theta = theta, measure = measure, true_labels = true_labels)
