@@ -192,11 +192,13 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
     return_statistics = {}
 
     def generate_hypergeometric_distribution(a,b):
-        def pmf_Y(y):
+        def pmf_Y(y, theta = theta_star):
             TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
             # Ik heb round toegevoegd, omdat er kleine afrond foutjes worden gemaakt
-            return(round_if_close((y - b) / a))
+            return(TP_rv.pmf(round_if_close((y - b) / a)))
         return(pmf_Y)
+
+
 
     if (measure.upper() in ['TP']):
         a = 1
@@ -205,6 +207,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Variance'] = (a ** 2) * var_tp
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+
 
     if (measure.upper() in ['TN']):
         a = 1
@@ -349,8 +352,9 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         
 
     if (measure.upper() in ['GMEAN2', 'G MEAN 2', 'G2']):
-        def pmf_Y(y):
+        def pmf_Y(y, theta = theta_star):
             TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
+            rounded_m_theta = round(theta * M)
             help_constant = math.sqrt((rounded_m_theta ** 2) - 2 * rounded_m_theta * N + (N ** 2) + 4 * P * N * (y ** 2))
             value_1 = (1/2) * ((- help_constant) + rounded_m_theta - N)
             value_2 = (1/2) * (help_constant + rounded_m_theta - N)
@@ -382,8 +386,9 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
 
     if (measure.upper() in ['THREAT SCORE', 'CRITICAL SUCCES INDEX', 'TS', 'CSI']):
-        def pmf_Y(y):
+        def pmf_Y(y, theta = theta_star):
             TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
+            rounded_m_theta = round(theta * M)
             return(TP_rv.pmf(round_if_close((y * (P + rounded_m_theta)) / (1 + y))))
         
         def TS_given_tp(x):
@@ -402,8 +407,9 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
 
     if (measure.upper() in ['PREVALENCE THRESHOLD', 'PT']):
-        def pmf_Y(y):
+        def pmf_Y(y, theta = theta_star):
             TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
+            rounded_m_theta = round(theta * M)            
             return(TP_rv.pmf(round_if_close((rounded_m_theta * P * ((y - 1) ** 2)) / (M * (y ** 2) - 2 * P * y + P))))
 
         def PT_given_tp(x):
