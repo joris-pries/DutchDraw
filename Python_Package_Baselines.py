@@ -4,8 +4,7 @@ predicted_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
 true_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
 theta = 0.5
 measure = 'PT'
-# def basic_baseline(predicted_labels, true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TPR', 'NPR'), beta = 1):
-    # add more measures
+
  
 # %%
 import statistics
@@ -223,188 +222,350 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return(pmf_Y)
 
 
+    def generate_variance_function(a, b):
+        def variance_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')  
+            theta_star = round(theta * M) / M
+            var_tp = (theta_star * (1 - theta_star) * P * N) / (M - 1)
+            return((a ** 2) * var_tp)
+        return(variance_function)
+
 
     if (measure.upper() in ['TP']):
         a = 1
         b = 0
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            theta_star = round(theta * M) / M
+            return(theta_star * P)
+
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
 
 
     if (measure.upper() in ['TN']):
         a = 1
-        b = N - rounded_m_theta        
+        b = N - rounded_m_theta       
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            theta_star = round(theta * M) / M
+            return((1 - theta_star) * N) 
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
+
 
     if (measure.upper() in ['FP']):
         a = -1
-        b = rounded_m_theta        
+        b = rounded_m_theta   
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            theta_star = round(theta * M) / M
+            return(theta_star * N)      
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
+
 
     if (measure.upper() in ['FN']):
         a = -1
-        b = P  
+        b = P
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            theta_star = round(theta * M) / M
+            return((1 - theta_star) * P)   
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
+
 
     if (measure.upper() in ['TPR']):
         a = 1 / P
-        b = 0        
+        b = 0  
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            theta_star = round(theta * M) / M
+            return(theta_star)       
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
 
+        
 
     if (measure.upper() in ['TNR']):
         a = 1 / N
         b = (N - rounded_m_theta) / N       
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            theta_star = round(theta * M) / M
+            return(1 - theta_star) 
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
 
+        
     if (measure.upper() in ['FPR']):
         a = -1 / N
-        b = rounded_m_theta / N       
+        b = rounded_m_theta / N    
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            theta_star = round(theta * M) / M
+            return(theta_star)    
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
 
+        
     if (measure.upper() in ['FNR']):
         a = -1 / P
-        b = 1   
+        b = 1
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            theta_star = round(theta * M) / M
+            return(1 - theta_star)    
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
 
+        
     if (measure.upper() in ['PPV']):
         a = 1 / rounded_m_theta
         b = 0
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            return(P / M) 
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
 
+        
         
 
     if (measure.upper() in ['NPV']):
         a = 1 / (M - rounded_m_theta)
         b = (N - rounded_m_theta) / (M - rounded_m_theta)
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            return(N / M) 
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
 
+        
     
 
     if (measure.upper() in ['FDR']):
         a =  -1 / rounded_m_theta
         b = 1
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            return(N / M) 
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
 
+        
         
 
     if (measure.upper() in ['FOR']):
         a = -1 / (M - rounded_m_theta)
         b = 1 -((N - rounded_m_theta) / (M - rounded_m_theta))
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            return(P / M) 
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
 
+        
         
 
     if (measure.upper() in ['ACC', 'ACCURACY']):
         a = 2 / M
         b = (N - rounded_m_theta) / M
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            theta_star = round(theta * M) / M
+            return(((1 - theta_star) * N + (theta_star * P)) / M) 
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
 
+        
         
 
     if (measure.upper() in ['BACC', 'BALANCED ACCURACY']):
         a = (1 / (2 * P)) + (1 / (2 * N))
         b = (N - rounded_m_theta) / (2 * N)
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            return(1 / 2) 
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
 
+        
         
 
     if (measure.upper() in ['FBETA', 'FSCORE', 'F', 'F BETA', 'F BETA SCORE', 'FBETA SCORE']):
         beta_squared = beta ** 2
         a = (1 + beta_squared) / (beta_squared * P + M * theta_star)
         b = 0
+        def expectation_function(theta = theta_star, beta = beta):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')            
+            theta_star = round(theta * M) / M
+            beta_squared = beta ** 2
+            return(((1 + beta_squared) * theta_star * P) / (beta_squared * P + M * theta_star)) 
+
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
 
+        
     
 
     if (measure.upper() in ['MCC', 'MATTHEW', 'MATTHEWS CORRELATION COEFFICIENT']):
         a = 1 / (math.sqrt(theta_star * (1 - theta_star) * P * N))
         b = - theta_star * P / (math.sqrt(theta_star * (1 - theta_star) * P * N))
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            return(0) 
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
+
         
 
     if (measure.upper() in ['BM', 'BOOKMAKER INFORMEDNESS', 'INFORMEDNESS']):
         a = (1 / P) + (1 / N)
         b = - rounded_m_theta / N
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            return(0) 
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
-        
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
+
+                
 
     if (measure.upper() in ['MARKEDNESS', 'MK']):
         a = (1 / rounded_m_theta) + (1 / (M - rounded_m_theta))
         b =  -P / (M - rounded_m_theta)
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            return(0) 
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
-    
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
+
+            
 
     if (measure.upper() in ['COHEN', 'COHENS KAPPA', 'KAPPA']):
         a = 2 / ((1 - theta_star) * P + theta_star * N)
         b = - 2 * theta_star * P / ((1 - theta_star) * P + theta_star * N)
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            return(0) 
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
-        
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
+
+                
 
     if (measure.upper() in ['GMEAN1', 'G MEAN 1', 'G1']):
         a = 1 / (math.sqrt(P * rounded_m_theta))
         b = 0
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            theta_star = round(theta * M) / M
+            return(math.sqrt(theta_star * P / M)) 
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
-        
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
+
+                
 
     if (measure.upper() in ['GMEAN2', 'G MEAN 2', 'G2']):
         def pmf_Y(y, theta = theta_star):
@@ -415,27 +576,52 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
             value_2 = (1/2) * (help_constant + rounded_m_theta - N)
             return(TP_rv.pmf(round_if_close(value_1)) + TP_rv.pmf(round_if_close(value_2)))
         
-        def G_mean_2_given_tp(x):
+        def G_mean_2_given_tp(x, theta = theta_star):
+            rounded_m_theta = round(theta * M) 
             return(math.sqrt((x / P) * ((N - rounded_m_theta + x) / N)))
+
+
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
+            return(sum([TP_rv.pmf(x) * G_mean_2_given_tp(x, theta) for x in range(0, P + 1)]))
+
+
+        def variance_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
+            return(sum([TP_rv.pmf(x) * (G_mean_2_given_tp(x, theta) ** 2) for x in range(0, P + 1)]))
 
         TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
 
         return_statistics['Distribution'] = pmf_Y
-        return_statistics['Mean'] = sum([TP_rv.pmf(x) * G_mean_2_given_tp(x) for x in range(0, P + 1)])
-        return_statistics['Variance'] = sum([TP_rv.pmf(x) * (G_mean_2_given_tp(x) ** 2) for x in range(0, P + 1)])
+        return_statistics['Mean'] = expectation_function(theta_star)
+        return_statistics['Variance'] = variance_function(theta_star)
         return_statistics['Domain'] = np.unique([G_mean_2_given_tp(x) for x in range(0, P + 1)])
-        
+        return_statistics['Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = variance_function             
 
         
 
     if (measure.upper() in ['FOWLKES-MALLOWS', 'FOWLKES MALLOWS', 'FOWLKES', 'MALLOWS']):
         a = 1 / (math.sqrt(P * rounded_m_theta))
         b = 0
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            theta_star = round(theta * M) / M
+            return(math.sqrt(theta_star * P / M)) 
+
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp    
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
-        
+        return_statistics['Fast Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = generate_variance_function(a,b)
+
+                
 
 
     if (measure.upper() in ['THREAT SCORE', 'CRITICAL SUCCES INDEX', 'TS', 'CSI']):
@@ -444,20 +630,33 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
             rounded_m_theta = round(theta * M)
             return(TP_rv.pmf(round_if_close((y * (P + rounded_m_theta)) / (1 + y))))
         
-        def TS_given_tp(x):
+        def TS_given_tp(x, theta = theta_star):
+            rounded_m_theta = round(theta * M)
             if P + rounded_m_theta - x == 0:
                 return(0)
             else:
                 return(x / (P + rounded_m_theta - x))
 
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
+            return(sum([TP_rv.pmf(x) * TS_given_tp(x, theta) for x in range(0, P + 1)]))
+
+        def variance_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
+            return(sum([TP_rv.pmf(x) * (TS_given_tp(x, theta) ** 2) for x in range(0, P + 1)]))
+
         TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
 
         return_statistics['Distribution'] = pmf_Y
-        return_statistics['Mean'] = sum([TP_rv.pmf(x) * TS_given_tp(x) for x in range(0, P + 1)])
-        return_statistics['Variance'] = sum([TP_rv.pmf(x) * (TS_given_tp(x) ** 2) for x in range(0, P + 1)])
+        return_statistics['Mean'] = expectation_function(theta_star)
+        return_statistics['Variance'] = variance_function(theta_star)
         return_statistics['Domain'] = np.unique([TS_given_tp(x) for x in range(0, P + 1)])
-        
-
+        return_statistics['Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = variance_function        
 
     if (measure.upper() in ['PREVALENCE THRESHOLD', 'PT']):
         def pmf_Y(y, theta = theta_star):
@@ -465,7 +664,8 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
             rounded_m_theta = round(theta * M)            
             return(TP_rv.pmf(round_if_close((rounded_m_theta * P * ((y - 1) ** 2)) / (M * (y ** 2) - 2 * P * y + P))))
 
-        def PT_given_tp(x):
+        def PT_given_tp(x, theta = theta_star):
+            rounded_m_theta = round(theta * M)
             help_1 = x / P
             help_2 = (x - rounded_m_theta) / N
             if help_1 + help_2 == 0:
@@ -473,12 +673,27 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
             else: 
                 return((math.sqrt(help_1 * (- help_2)) + help_2)   / (help_1 + help_2))        
         
+        def expectation_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
+            return(sum([TP_rv.pmf(x) * PT_given_tp(x, theta) for x in range(0, P + 1)]))
+
+        def variance_function(theta = theta_star):
+            if theta > 1 or theta < 0:
+                raise ValueError('Theta must be in the interval [0,1]')
+            TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
+            return(sum([TP_rv.pmf(x) * (PT_given_tp(x, theta) ** 2) for x in range(0, P + 1)]))
+
         TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
 
         return_statistics['Distribution'] = pmf_Y
-        return_statistics['Mean'] = sum([TP_rv.pmf(x) * PT_given_tp(x) for x in range(0, P + 1)])
-        return_statistics['Variance'] = sum([TP_rv.pmf(x) * (PT_given_tp(x) ** 2) for x in range(0, P + 1)])
+        return_statistics['Mean'] = expectation_function(theta_star)
+        return_statistics['Variance'] = variance_function(theta_star)
         return_statistics['Domain'] = np.unique([PT_given_tp(x) for x in range(0, P + 1)])
+        return_statistics['Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = variance_function        
+
     return(return_statistics)
         
 
