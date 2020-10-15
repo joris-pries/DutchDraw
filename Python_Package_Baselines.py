@@ -12,133 +12,181 @@ import math
 from scipy.stats import hypergeom
 import numpy as np
 
+
+
+# %%
+
+name_dictionary = {
+    'TP' : ['TP'],
+    'TN' : ['TN'],
+    'FP' : ['FP'],
+    'FN' : ['FN'],
+    'TPR' : ['TPR'],
+    'TNR' : ['TNR'],
+    'FPR' : ['FPR'],
+    'FNR' : ['FNR'],
+    'PPV' : ['PPV'],
+    'NPV' : ['NPV'],
+    'FDR' : ['FDR'],
+    'FOR' : ['FOR'],
+    'ACC' : ['ACC', 'ACCURACY'],
+    'BACC' : ['BACC', 'BALANCED ACCURACY'],
+    'FBETA' : ['FBETA', 'FSCORE', 'F', 'F BETA', 'F BETA SCORE', 'FBETA SCORE'],
+    'MCC' : ['MCC', 'MATTHEW', 'MATTHEWS CORRELATION COEFFICIENT'],
+    'BM' : ['BM', 'BOOKMAKER INFORMEDNESS', 'INFORMEDNESS'],
+    'MK' : ['MARKEDNESS', 'MK'],
+    'COHEN' : ['COHEN', 'COHENS KAPPA', 'KAPPA'],
+    'G1' : ['GMEAN1', 'G MEAN 1', 'G1'],
+    'G2' : ['GMEAN2', 'G MEAN 2', 'G2'],
+    'G2 APPROX' : ['GMEAN2 APPROX', 'G MEAN 2 APPROX', 'G2 APPROX'],
+    'FOWLKES': ['FOWLKES-MALLOWS', 'FOWLKES MALLOWS', 'FOWLKES', 'MALLOWS'],
+    'TS' : ['THREAT SCORE', 'CRITICAL SUCCES INDEX', 'TS', 'CSI'],
+    'PT' : ['PREVALENCE THRESHOLD', 'PT']
+}
+
+possible_names =  sum(name_dictionary.values(), []) 
+
+
+
+# %%
+
+
+
+
 def optimized_basic_baseline(true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TPR', 'TNR', 'FPR', 'FNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'GMEAN2 APPROX', 'FOWLKES MALLOWS', 'TS', 'PT'), beta = 1):
+
+    if measure not in possible_names:
+        raise ValueError("This measure name is not recognized.")
+    
+    if not np.array_equal(np.unique(np.array(true_labels)), np.array([0,1])):
+        raise ValueError("true_labels should only contain zeros and ones with at least one of each.")
+
     P = sum(true_labels)
     M = len(true_labels)
     N = M - P
     return_statistics = {}
-    if (measure.upper() in ['TP']):
+    if (measure.upper() in name_dictionary['TP']):
         return_statistics['Max Expected Value'] = P
         return_statistics['Argmax Expected Value'] = 1
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = 0
 
-    if (measure.upper() in ['TN']):
+    if (measure.upper() in name_dictionary['TN']):
         return_statistics['Max Expected Value'] = N
         return_statistics['Argmax Expected Value'] = 0
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = 1
 
-    if (measure.upper() in ['FP']):
+    if (measure.upper() in name_dictionary['FP']):
         return_statistics['Max Expected Value'] = N
         return_statistics['Argmax Expected Value'] = 1
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = 0
 
-    if (measure.upper() in ['FN']):
+    if (measure.upper() in name_dictionary['FN']):
         return_statistics['Max Expected Value'] = P
         return_statistics['Argmax Expected Value'] = 0
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = 1
 
-    if (measure.upper() in ['TPR']):
+    if (measure.upper() in name_dictionary['TPR']):
         return_statistics['Max Expected Value'] = 1
         return_statistics['Argmax Expected Value'] = 1
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = 0
 
-    if (measure.upper() in ['TNR']):
+    if (measure.upper() in name_dictionary['TNR']):
         return_statistics['Max Expected Value'] = 1
         return_statistics['Argmax Expected Value'] = 0
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = 1
 
-    if (measure.upper() in ['FPR']):
+    if (measure.upper() in name_dictionary['FPR']):
         return_statistics['Max Expected Value'] = 1
         return_statistics['Argmax Expected Value'] = 1
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = 0
 
-    if (measure.upper() in ['FNR']):
+    if (measure.upper() in name_dictionary['FNR']):
         return_statistics['Max Expected Value'] = 1
         return_statistics['Argmax Expected Value'] = 0
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = 1
 
-    if (measure.upper() in ['PPV']):
+    if (measure.upper() in name_dictionary['PPV']):
         return_statistics['Max Expected Value'] = P/M
         return_statistics['Argmax Expected Value'] = [i/M for i in range(1, M + 1)]
         return_statistics['Min Expected Value'] = P/M
         return_statistics['Argmin Expected Value'] = [i/M for i in range(1, M + 1)]
 
-    if (measure.upper() in ['NPV']):
+    if (measure.upper() in name_dictionary['NPV']):
         return_statistics['Max Expected Value'] = N/M
         return_statistics['Argmax Expected Value'] = [i/M for i in range(0, M)]
         return_statistics['Min Expected Value'] = N/M
         return_statistics['Argmin Expected Value'] = [i/M for i in range(0, M)]
 
-    if (measure.upper() in ['FDR']):
+    if (measure.upper() in name_dictionary['FDR']):
         return_statistics['Max Expected Value'] = N/M
         return_statistics['Argmax Expected Value'] = [i/M for i in range(1, M + 1)]
         return_statistics['Min Expected Value'] = N/M
         return_statistics['Argmin Expected Value'] = [i/M for i in range(1, M + 1)]
 
-    if (measure.upper() in ['FOR']):
+    if (measure.upper() in name_dictionary['FOR']):
         return_statistics['Max Expected Value'] = P/M
         return_statistics['Argmax Expected Value'] = [i/M for i in range(0, M)]
         return_statistics['Min Expected Value'] = P/M
         return_statistics['Argmin Expected Value'] = [i/M for i in range(0, M)]
 
-    if (measure.upper() in ['ACC', 'ACCURACY']):
+    if (measure.upper() in name_dictionary['ACC']):
         return_statistics['Max Expected Value'] = max((N/M, P/M))
         return_statistics['Argmax Expected Value'] = int((P >= N))
         return_statistics['Min Expected Value'] = min((N/M, P/M))
         return_statistics['Argmin Expected Value'] = int((P < N))
 
-    if (measure.upper() in ['BACC', 'BALANCED ACCURACY']):
+    if (measure.upper() in name_dictionary['BACC']):
         return_statistics['Max Expected Value'] = max((N/M, P/M))
         return_statistics['Argmax Expected Value'] = int((P >= N))
         return_statistics['Min Expected Value'] = min((N/M, P/M))
         return_statistics['Argmin Expected Value'] = int((P < N))
 
-    if (measure.upper() in ['FBETA', 'FSCORE', 'F', 'F BETA', 'F BETA SCORE', 'FBETA SCORE']):
+    if (measure.upper() in name_dictionary['FBETA']):
         beta_squared = beta ** 2
         return_statistics['Max Expected Value'] = (1 + beta_squared) * P / (beta_squared * P + M)
         return_statistics['Argmax Expected Value'] = 1
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = 0
 
-    if (measure.upper() in ['MCC', 'MATTHEW', 'MATTHEWS CORRELATION COEFFICIENT']):
+    if (measure.upper() in name_dictionary['MCC']):
         return_statistics['Max Expected Value'] = 0
         return_statistics['Argmax Expected Value'] = [i/M for i in range(1, M)]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [i/M for i in range(1, M)]
 
-    if (measure.upper() in ['BM', 'BOOKMAKER INFORMEDNESS', 'INFORMEDNESS']):
+    if (measure.upper() in name_dictionary['BM']):
         return_statistics['Max Expected Value'] = 0
         return_statistics['Argmax Expected Value'] = [i/M for i in range(0, M + 1)]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [i/M for i in range(0, M + 1)]
 
-    if (measure.upper() in ['MARKEDNESS', 'MK']):
+    if (measure.upper() in name_dictionary['MK']):
         return_statistics['Max Expected Value'] = 0
         return_statistics['Argmax Expected Value'] = [i/M for i in range(1, M)]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [i/M for i in range(1, M)]
 
-    if (measure.upper() in ['COHEN', 'COHENS KAPPA', 'KAPPA']):
+    if (measure.upper() in name_dictionary['COHEN']):
         return_statistics['Max Expected Value'] = 0
         return_statistics['Argmax Expected Value'] = [i/M for i in range(0, M + 1)]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [i/M for i in range(0, M + 1)]
 
-    if (measure.upper() in ['GMEAN1', 'G MEAN 1', 'G1']):
+    if (measure.upper() in name_dictionary['G1']):
         return_statistics['Max Expected Value'] = math.sqrt(P / M)
         return_statistics['Argmax Expected Value'] = 1
         return_statistics['Min Expected Value'] = math.sqrt(P) / M
         return_statistics['Argmin Expected Value'] = 1/M
 
-    if (measure.upper() in ['GMEAN2', 'G MEAN 2', 'G2']):
+    if (measure.upper() in name_dictionary['G2']):
         print("This baseline has to be calculated. This could take some time for large M. For an approximation: use GMEAN2 APPROX")
         result = [np.nan] * (M + 1)
         for i in range(0, M + 1):
@@ -152,7 +200,7 @@ def optimized_basic_baseline(true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TP
         return_statistics['Argmin Expected Value'] = [0, 1]
 
 
-    if (measure.upper() in ['GMEAN2 APPROX', 'G MEAN 2 APPROX', 'G2 APPROX']):
+    if (measure.upper() in name_dictionary['G2 APPROX']):
         print("Note: the max and argmax are an approximation.")
         return_statistics['Max Expected Value'] = 1/2
         return_statistics['Argmax Expected Value'] = 1/2
@@ -161,22 +209,21 @@ def optimized_basic_baseline(true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TP
 
 
 
-    if (measure.upper() in ['FOWLKES-MALLOWS', 'FOWLKES MALLOWS', 'FOWLKES', 'MALLOWS']):
+    if (measure.upper() in name_dictionary['FOWLKES']):
         return_statistics['Max Expected Value'] = math.sqrt(P / M)
         return_statistics['Argmax Expected Value'] = 1
         return_statistics['Min Expected Value'] = math.sqrt(P) / M
         return_statistics['Argmin Expected Value'] = 1/M
 
 
-    if (measure.upper() in ['THREAT SCORE', 'CRITICAL SUCCES INDEX', 'TS', 'CSI']):
+    if (measure.upper() in name_dictionary['TS']):
         return_statistics['Max Expected Value'] = P / M
         return_statistics['Argmax Expected Value'] = 1
         return_statistics['Min Expected Value'] = P / (P * (M - 1) + M)
         return_statistics['Argmin Expected Value'] = 1 / M
 
 
-    if (measure.upper() in ['PREVALENCE THRESHOLD', 'PT']):
-        #print("This baseline has to be calculated. This could take some time for large M.")
+    if (measure.upper() in name_dictionary['PT']):
         result = [np.nan] * (M + 1)
         for i in [1, M - 1]:
             theta = i / M
@@ -203,6 +250,16 @@ def round_if_close(x):
 
 def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TPR', 'TNR', 'FPR', 'FNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'FOWLKES MALLOWS', 'TS', 'PT'), beta = 1):
     
+    if measure not in possible_names:
+        raise ValueError("This measure name is not recognized.")
+    
+    if not np.array_equal(np.unique(np.array(true_labels)), np.array([0,1])):
+        raise ValueError("true_labels should only contain zeros and ones with at least one of each.")
+
+    if theta > 1 or theta < 0:
+        raise ValueError('Theta must be in the interval [0,1]')
+
+
     P = sum(true_labels)
     M = len(true_labels)
     N = M - P
@@ -232,7 +289,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return(variance_function)
 
 
-    if (measure.upper() in ['TP']):
+    if (measure.upper() in name_dictionary['TP']):
         a = 1
         b = 0
         def expectation_function(theta = theta_star):
@@ -249,7 +306,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Variance Function'] = generate_variance_function(a,b)
 
 
-    if (measure.upper() in ['TN']):
+    if (measure.upper() in name_dictionary['TN']):
         a = 1
         b = N - rounded_m_theta       
         def expectation_function(theta = theta_star):
@@ -260,7 +317,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
 
 
-    if (measure.upper() in ['FP']):
+    if (measure.upper() in name_dictionary['FP']):
         a = -1
         b = rounded_m_theta   
         def expectation_function(theta = theta_star):
@@ -269,7 +326,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
             theta_star = round(theta * M) / M
             return(theta_star * N)      
 
-    if (measure.upper() in ['FN']):
+    if (measure.upper() in name_dictionary['FN']):
         a = -1
         b = P
         def expectation_function(theta = theta_star):
@@ -280,7 +337,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
 
 
-    if (measure.upper() in ['TPR']):
+    if (measure.upper() in name_dictionary['TPR']):
         a = 1 / P
         b = 0  
         def expectation_function(theta = theta_star):
@@ -291,7 +348,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
         
 
-    if (measure.upper() in ['TNR']):
+    if (measure.upper() in name_dictionary['TNR']):
         a = 1 / N
         b = (N - rounded_m_theta) / N       
         def expectation_function(theta = theta_star):
@@ -301,7 +358,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
             return(1 - theta_star) 
 
         
-    if (measure.upper() in ['FPR']):
+    if (measure.upper() in name_dictionary['FPR']):
         a = -1 / N
         b = rounded_m_theta / N    
         def expectation_function(theta = theta_star):
@@ -311,7 +368,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
             return(theta_star)    
 
         
-    if (measure.upper() in ['FNR']):
+    if (measure.upper() in name_dictionary['FNR']):
         a = -1 / P
         b = 1
         def expectation_function(theta = theta_star):
@@ -322,7 +379,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
 
         
-    if (measure.upper() in ['PPV']):
+    if (measure.upper() in name_dictionary['PPV']):
         a = 1 / rounded_m_theta
         b = 0
         def expectation_function(theta = theta_star):
@@ -334,7 +391,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         
         
 
-    if (measure.upper() in ['NPV']):
+    if (measure.upper() in name_dictionary['NPV']):
         a = 1 / (M - rounded_m_theta)
         b = (N - rounded_m_theta) / (M - rounded_m_theta)
         def expectation_function(theta = theta_star):
@@ -344,7 +401,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         
     
 
-    if (measure.upper() in ['FDR']):
+    if (measure.upper() in name_dictionary['FDR']):
         a =  -1 / rounded_m_theta
         b = 1
         def expectation_function(theta = theta_star):
@@ -354,7 +411,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         
         
 
-    if (measure.upper() in ['FOR']):
+    if (measure.upper() in name_dictionary['FOR']):
         a = -1 / (M - rounded_m_theta)
         b = 1 -((N - rounded_m_theta) / (M - rounded_m_theta))
         def expectation_function(theta = theta_star):
@@ -364,7 +421,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         
         
 
-    if (measure.upper() in ['ACC', 'ACCURACY']):
+    if (measure.upper() in name_dictionary['ACC']):
         a = 2 / M
         b = (N - rounded_m_theta) / M
         def expectation_function(theta = theta_star):
@@ -375,7 +432,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         
         
 
-    if (measure.upper() in ['BACC', 'BALANCED ACCURACY']):
+    if (measure.upper() in name_dictionary['BACC']):
         a = (1 / (2 * P)) + (1 / (2 * N))
         b = (N - rounded_m_theta) / (2 * N)
         def expectation_function(theta = theta_star):
@@ -386,7 +443,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         
         
 
-    if (measure.upper() in ['FBETA', 'FSCORE', 'F', 'F BETA', 'F BETA SCORE', 'FBETA SCORE']):
+    if (measure.upper() in name_dictionary['FBETA']):
         beta_squared = beta ** 2
         a = (1 + beta_squared) / (beta_squared * P + M * theta_star)
         b = 0
@@ -400,7 +457,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         
     
 
-    if (measure.upper() in ['MCC', 'MATTHEW', 'MATTHEWS CORRELATION COEFFICIENT']):
+    if (measure.upper() in name_dictionary['MCC']):
         a = 1 / (math.sqrt(theta_star * (1 - theta_star) * P * N))
         b = - theta_star * P / (math.sqrt(theta_star * (1 - theta_star) * P * N))
         def expectation_function(theta = theta_star):
@@ -410,7 +467,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
         
 
-    if (measure.upper() in ['BM', 'BOOKMAKER INFORMEDNESS', 'INFORMEDNESS']):
+    if (measure.upper() in name_dictionary['BM']):
         a = (1 / P) + (1 / N)
         b = - rounded_m_theta / N
         def expectation_function(theta = theta_star):
@@ -420,7 +477,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
                 
 
-    if (measure.upper() in ['MARKEDNESS', 'MK']):
+    if (measure.upper() in name_dictionary['MK']):
         a = (1 / rounded_m_theta) + (1 / (M - rounded_m_theta))
         b =  -P / (M - rounded_m_theta)
         def expectation_function(theta = theta_star):
@@ -430,7 +487,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
             
 
-    if (measure.upper() in ['COHEN', 'COHENS KAPPA', 'KAPPA']):
+    if (measure.upper() in name_dictionary['COHEN']):
         a = 2 / ((1 - theta_star) * P + theta_star * N)
         b = - 2 * theta_star * P / ((1 - theta_star) * P + theta_star * N)
         def expectation_function(theta = theta_star):
@@ -439,7 +496,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
             return(0) 
                 
 
-    if (measure.upper() in ['GMEAN1', 'G MEAN 1', 'G1']):
+    if (measure.upper() in name_dictionary['G1']):
         a = 1 / (math.sqrt(P * rounded_m_theta))
         b = 0
         def expectation_function(theta = theta_star):
@@ -450,7 +507,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
                 
 
-    if (measure.upper() in ['GMEAN2', 'G MEAN 2', 'G2']):
+    if (measure.upper() in name_dictionary['G2']):
         def pmf_Y(y, theta = theta_star):
             TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
             rounded_m_theta = round(theta * M)
@@ -488,7 +545,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
         
 
-    if (measure.upper() in ['FOWLKES-MALLOWS', 'FOWLKES MALLOWS', 'FOWLKES', 'MALLOWS']):
+    if (measure.upper() in name_dictionary['FOWLKES']):
         a = 1 / (math.sqrt(P * rounded_m_theta))
         b = 0
         def expectation_function(theta = theta_star):
@@ -498,7 +555,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
             return(math.sqrt(theta_star * P / M)) 
               
 
-    if (measure.upper() in ['THREAT SCORE', 'CRITICAL SUCCES INDEX', 'TS', 'CSI']):
+    if (measure.upper() in name_dictionary['TS']):
         def pmf_Y(y, theta = theta_star):
             TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
             rounded_m_theta = round(theta * M)
@@ -532,7 +589,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Expectation Function'] = expectation_function
         return_statistics['Variance Function'] = variance_function        
 
-    if (measure.upper() in ['PREVALENCE THRESHOLD', 'PT']):
+    if (measure.upper() in name_dictionary['PT']):
         def pmf_Y(y, theta = theta_star):
             TP_rv = hypergeom(M = M, n = P, N = round(theta * M))
             rounded_m_theta = round(theta * M)            
@@ -569,7 +626,9 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Variance Function'] = variance_function        
 
 
-    if (measure.upper() in ['TP', 'TN', 'FP', 'FN', 'TPR', 'TNR', 'FPR', 'FNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'ACCURACY', 'BACC', 'BALANCED ACCURACY', 'FBETA', 'FSCORE', 'F', 'F BETA', 'F BETA SCORE', 'FBETA SCORE', 'MCC', 'MATTHEW', 'MATTHEWS CORRELATION COEFFICIENT', 'BM', 'BOOKMAKER INFORMEDNESS', 'INFORMEDNESS', 'MARKEDNESS', 'MK', 'COHEN', 'COHENS KAPPA', 'KAPPA', 'GMEAN1', 'G MEAN 1', 'G1', 'FOWLKES-MALLOWS', 'FOWLKES MALLOWS', 'FOWLKES', 'MALLOWS']):
+    allowed_name_keys = set(name_dictionary.keys()) - set(['G2', 'G2 APPROX', 'TS', 'PT'])
+    allowed_names = sum([name_dictionary[key_name] for key_name in allowed_name_keys] , []) 
+    if (measure.upper() in allowed_names):
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp
         return_statistics['Mean'] = (a * mean_tp) + b
