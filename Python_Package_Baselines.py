@@ -202,7 +202,7 @@ def round_if_close(x):
         return(x)
 
 
-def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TPR', 'TNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'FOWLKES MALLOWS', 'TS', 'PT'), beta = 1):
+def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TPR', 'TNR', 'FPR', 'FNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'FOWLKES MALLOWS', 'TS', 'PT'), beta = 1):
     
     P = sum(true_labels)
     M = len(true_labels)
@@ -241,6 +241,22 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
 
+    if (measure.upper() in ['FP']):
+        a = -1
+        b = rounded_m_theta        
+        return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
+        return_statistics['Variance'] = (a ** 2) * var_tp    
+        return_statistics['Mean'] = (a * mean_tp) + b
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+
+    if (measure.upper() in ['FN']):
+        a = -1
+        b = P  
+        return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
+        return_statistics['Variance'] = (a ** 2) * var_tp    
+        return_statistics['Mean'] = (a * mean_tp) + b
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+
     if (measure.upper() in ['TPR']):
         a = 1 / P
         b = 0        
@@ -258,6 +274,21 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Mean'] = (a * mean_tp) + b
         return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
 
+    if (measure.upper() in ['FPR']):
+        a = -1 / N
+        b = rounded_m_theta / N       
+        return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
+        return_statistics['Variance'] = (a ** 2) * var_tp    
+        return_statistics['Mean'] = (a * mean_tp) + b
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
+
+    if (measure.upper() in ['FNR']):
+        a = -1 / P
+        b = 1   
+        return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
+        return_statistics['Variance'] = (a ** 2) * var_tp    
+        return_statistics['Mean'] = (a * mean_tp) + b
+        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
 
     if (measure.upper() in ['PPV']):
         a = 1 / rounded_m_theta
@@ -397,8 +428,6 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
         
 
-
-
     if (measure.upper() in ['FOWLKES-MALLOWS', 'FOWLKES MALLOWS', 'FOWLKES', 'MALLOWS']):
         a = 1 / (math.sqrt(P * rounded_m_theta))
         b = 0
@@ -459,9 +488,9 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 # %%
 
 
-measures_list = ['TP', 'TN', 'TPR', 'TNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'FOWLKES MALLOWS', 'TS', 'PT']
+measures_list = ['TP', 'TN', 'FP', 'FN', 'TPR', 'TNR', 'FPR', 'FNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'FOWLKES MALLOWS', 'TS', 'PT']
 
-theta = 1/2
+theta = 1/4
 mean_list = []
 for i, measure in enumerate(measures_list):
     result = basic_baseline_statistics(theta = theta, measure = measure, true_labels = true_labels)
