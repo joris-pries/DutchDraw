@@ -46,11 +46,11 @@ name_dictionary = {
 
 possible_names =  sum(name_dictionary.values(), []) 
 
-
+def select_names(name_keys):
+    return(sum([name_dictionary[key_name] for key_name in name_keys] , [])) 
+    
 
 # %%
-
-
 
 
 def optimized_basic_baseline(true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TPR', 'TNR', 'FPR', 'FNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'GMEAN2 APPROX', 'FOWLKES MALLOWS', 'TS', 'PT'), beta = 1):
@@ -256,6 +256,14 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
     if not np.array_equal(np.unique(np.array(true_labels)), np.array([0,1])):
         raise ValueError("true_labels should only contain zeros and ones with at least one of each.")
 
+    # TODO: check if other measures also don't deal with theta = 1
+    if theta == 1 and measure in select_names(('NPV', 'FOR', 'MCC', 'MK')):
+        raise ValueError('Theta cannot be 1 with this measure')
+
+    # TODO: check if other measures also don't deal with theta = 0
+    if theta == 1 and measure in select_names(('PPV', 'FDR', 'MCC', 'MK')):
+        raise ValueError('Theta cannot be 0 with this measure')
+
     if theta > 1 or theta < 0:
         raise ValueError('Theta must be in the interval [0,1]')
 
@@ -279,10 +287,10 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return(pmf_Y)
 
 
-    def generate_variance_function(a, b):
+    def generate_variance_function(a, b, include_0 = True, include_1 = True):
         def variance_function(theta = theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')  
+            if (theta > 1 or theta < 0) or (theta == 0 and not include_0) or (theta == 1 and not include_1):
+                raise ValueError('Theta must be in the interval ' + include_0 * '[' + (not include_0) * '(' + '0,1' + include_1 * ']' + (not include_1) * ')')  
             theta_star = round(theta * M) / M
             var_tp = (theta_star * (1 - theta_star) * P * N) / (M - 1)
             return((a ** 2) * var_tp)
@@ -627,7 +635,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 
 
     allowed_name_keys = set(name_dictionary.keys()) - set(['G2', 'G2 APPROX', 'TS', 'PT'])
-    allowed_names = sum([name_dictionary[key_name] for key_name in allowed_name_keys] , []) 
+    allowed_names = select_names(allowed_name_keys) 
     if (measure.upper() in allowed_names):
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp
