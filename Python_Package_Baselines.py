@@ -13,7 +13,7 @@ import math
 from scipy.stats import hypergeom
 import numpy as np
 
-def optimized_basic_baseline(true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TPR', 'TNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'GMEAN2 APPROX', 'FOWLKES MALLOWS', 'TS', 'PT'), beta = 1):
+def optimized_basic_baseline(true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TPR', 'TNR', 'FPR', 'FNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'GMEAN2 APPROX', 'FOWLKES MALLOWS', 'TS', 'PT'), beta = 1):
     P = sum(true_labels)
     M = len(true_labels)
     N = M - P
@@ -30,6 +30,18 @@ def optimized_basic_baseline(true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TP
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = 1
 
+    if (measure.upper() in ['FP']):
+        return_statistics['Max Expected Value'] = N
+        return_statistics['Argmax Expected Value'] = 1
+        return_statistics['Min Expected Value'] = 0
+        return_statistics['Argmin Expected Value'] = 0
+
+    if (measure.upper() in ['FN']):
+        return_statistics['Max Expected Value'] = P
+        return_statistics['Argmax Expected Value'] = 0
+        return_statistics['Min Expected Value'] = 0
+        return_statistics['Argmin Expected Value'] = 1
+
     if (measure.upper() in ['TPR']):
         return_statistics['Max Expected Value'] = 1
         return_statistics['Argmax Expected Value'] = 1
@@ -37,6 +49,18 @@ def optimized_basic_baseline(true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TP
         return_statistics['Argmin Expected Value'] = 0
 
     if (measure.upper() in ['TNR']):
+        return_statistics['Max Expected Value'] = 1
+        return_statistics['Argmax Expected Value'] = 0
+        return_statistics['Min Expected Value'] = 0
+        return_statistics['Argmin Expected Value'] = 1
+
+    if (measure.upper() in ['FPR']):
+        return_statistics['Max Expected Value'] = 1
+        return_statistics['Argmax Expected Value'] = 1
+        return_statistics['Min Expected Value'] = 0
+        return_statistics['Argmin Expected Value'] = 0
+
+    if (measure.upper() in ['FNR']):
         return_statistics['Max Expected Value'] = 1
         return_statistics['Argmax Expected Value'] = 0
         return_statistics['Min Expected Value'] = 0
