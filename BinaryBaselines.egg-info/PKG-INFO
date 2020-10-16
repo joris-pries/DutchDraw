@@ -1,0 +1,43 @@
+Metadata-Version: 2.1
+Name: BinaryBaselines
+Version: 0.0.1
+Summary: Determine (optimal) baselines for binary classification
+Home-page: https://github.com/joris-pries/BinaryBaselines
+Author: Joris Pries
+Author-email: joris.pries@cwi.nl
+License: UNKNOWN
+Description: # BinaryBaselines
+        
+        BinaryBaselines is a Python package for binary classification. 
+        
+        ## Installation
+        
+        Use the package manager [pip](https://pip.pypa.io/en/stable/) to install the package.
+        
+        ```bash
+        pip install BinaryBaselines
+        ```
+        
+        ## Usage
+        
+        ```python
+        import BinaryBaselines
+        
+        foobar.pluralize('word') # returns 'words'
+        foobar.pluralize('goose') # returns 'geese'
+        foobar.singularize('phenomena') # returns 'phenomenon'
+        ```
+        
+        ## Contributing
+        Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+        
+        Please make sure to update tests as appropriate.
+        
+        ## License
+        [MIT](https://choosealicense.com/licenses/mit/)
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
