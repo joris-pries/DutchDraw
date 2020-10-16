@@ -44,16 +44,136 @@ name_dictionary = {
     'PT' : ['PREVALENCE THRESHOLD', 'PT']
 }
 
-possible_names =  sum(name_dictionary.values(), []) 
 
 def select_names(name_keys):
     return(sum([name_dictionary[key_name] for key_name in name_keys] , [])) 
     
+def all_names_except(name_keys):
+    return(sum([name_dictionary[key_name] for key_name in name_dictionary.keys() if key_name not in name_keys] , [])) 
+
+possible_names =  all_names_except([""])
+
+# %%
+# TODO: kan het iets sneller maken door P.predicted = TP + FP en N.predicted = TN + FN te gebruiken
+def measure_score(true_labels, predicted_labels, measure = all_names_except(['G2 APPROX']), beta = 1):
+    if measure not in all_names_except(['G2 APPROX']):
+        raise ValueError("This measure name is not recognized.")
+
+    if measure is possible_names:
+        raise ValueError("Input a measure name.")
+
+    if not np.unique(np.array(true_labels)) in np.array([0,1]):
+        raise ValueError("true_labels should only contain zeros and ones.")
+
+    if not np.unique(np.array(predicted_labels)) in np.array([0,1]):
+        raise ValueError("predicted_labels should only contain zeros and ones.")
+
+    P = sum(true_labels)
+    M = len(true_labels)
+    N = M - P    
+    P.predicted = sum(predicted_labels)
+    #N.predicted = M - P.predicted
+
+    TP = np.dot(true_labels, predicted_labels)
+    FP = P.predicted - TP
+    FN = P - TP
+    TN = N - FP
+
+    if measure in name_dictionary('TP'):
+        return(TP)
+
+    if measure in name_dictionary('TN'):
+        return(TN)
+    
+    if measure in name_dictionary('F'):
+        return(FP)
+    
+    if measure in name_dictionary('FN'):
+        return(FN)
+    
+    if measure in name_dictionary('TPR'):
+        return(TP / P)
+
+    if measure in name_dictionary('TNR'):
+        return(TN / N)
+
+    if measure in name_dictionary('FPR'):
+        return(FP / N)
+
+    if measure in name_dictionary('FNR'):
+        return(FN / P)        
+
+    if measure in name_dictionary('PPV'):
+        return(TP / (TP + FP))    
+
+    if measure in name_dictionary('NPV'):
+        return(TN / (TN + FN))   
+
+    if measure in name_dictionary('FDR'):
+        return(FP / (TP + FP))    
+
+    if measure in name_dictionary('FOR'):
+        return(FN / (TN + FN))  
+
+    if measure in name_dictionary('ACC'):
+        return((TP + TN) / M)  
+
+    if measure in name_dictionary('BACC'):
+        TPR = TP / P
+        TNR = TN / N
+        return((TPR + TNR) / 2) 
+
+    if measure in name_dictionary('FBETA'):
+        beta_squared = beta ** 2
+        return((1 + beta_squared) * TP / (((1 + beta_squared) * TP) + (beta_squared * FN) + FP))      
+
+    if measure in name_dictionary('MCC'):
+        return((TP * TN - FP * FN)/(math.sqrt((TP + FP) * (TN + FN) * P * N)))
+
+    if measure in name_dictionary('BM'):
+        TPR = TP / P
+        TNR = TN / N
+        return(TPR + TNR - 1)
+
+    if measure in name_dictionary('MK'):
+        PPV = TP / (TP + FP)
+        NPV = TN / (TN + FN)
+        return(PPV + NPV - 1)
+
+    if measure in name_dictionary('COHEN'):
+        P_o = (TP + TN) / M
+        P_yes = ((TP + FP) / M) * (P / M)
+        P_no = ((TN + FN) / M) * (N / M)
+        P_e = P_yes + P_no
+        return((P_o - P_e) / (1 - P_e))
+
+    if measure in name_dictionary('G1'): 
+        TPR = TP / P
+        PPV = TP / (TP + FP)
+        return(math.sqrt(TPR * PPV))   
+
+    if measure in name_dictionary('G2'): 
+        TPR = TP / P
+        TNR = TN / N
+        return(math.sqrt(TPR * TNR))   
+
+    if measure in name_dictionary('FOWLKES'): 
+        TPR = TP / P
+        PPV = TP / (TP + FP)
+        return(math.sqrt(TPR * PPV))   
+
+    if measure in name_dictionary('PT'): 
+        TPR = TP / P
+        FPR = FP / N
+        return((math.sqrt(TPR * FPR) - FPR) / (TPR - FPR))      
+
+    if measure in name_dictionary('TS'):
+        return(TP / (TP + FN + FP)) 
 
 # %%
 
 
-def optimized_basic_baseline(true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TPR', 'TNR', 'FPR', 'FNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'GMEAN2 APPROX', 'FOWLKES MALLOWS', 'TS', 'PT'), beta = 1):
+def optimized_basic_baseline(true_labels, measure = possible_names, beta = 1):
 
     if measure not in possible_names:
         raise ValueError("This measure name is not recognized.")
@@ -248,7 +368,7 @@ def round_if_close(x):
         return(x)
 
 
-def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', 'FP', 'TPR', 'TNR', 'FPR', 'FNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'FOWLKES MALLOWS', 'TS', 'PT'), beta = 1):
+def basic_baseline_statistics(theta, true_labels, measure = possible_names, beta = 1):
     
     if measure not in possible_names:
         raise ValueError("This measure name is not recognized.")
@@ -634,9 +754,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
         return_statistics['Variance Function'] = variance_function        
 
 
-    allowed_name_keys = set(name_dictionary.keys()) - set(['G2', 'G2 APPROX', 'TS', 'PT'])
-    allowed_names = select_names(allowed_name_keys) 
-    if (measure.upper() in allowed_names):
+    if (measure.upper() in all_names_except(['G2', 'G2 APPROX', 'TS', 'PT'])):
         return_statistics['Distribution'] = generate_hypergeometric_distribution(a,b)
         return_statistics['Variance'] = (a ** 2) * var_tp
         return_statistics['Mean'] = (a * mean_tp) + b
@@ -655,7 +773,7 @@ def basic_baseline_statistics(theta, true_labels, measure = ('TP', 'TN', 'FN', '
 # %%
 
 
-measures_list = ['TP', 'TN', 'FP', 'FN', 'TPR', 'TNR', 'FPR', 'FNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC', 'BACC', 'FBETA', 'MCC', 'BM', 'MK', 'COHENS KAPPA', 'GMEAN1', 'GMEAN2', 'FOWLKES MALLOWS', 'TS', 'PT']
+measures_list = [i for i in name_dictionary.keys()]
 
 theta = 1/4
 mean_list = []
