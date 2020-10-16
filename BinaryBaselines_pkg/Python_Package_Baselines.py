@@ -48,7 +48,7 @@ def all_names_except(name_keys):
 possible_names =  all_names_except([""])
 
 # %%
-# TODO: kan het iets sneller maken door P.predicted = TP + FP en N.predicted = TN + FN te gebruiken
+# TODO: kan het iets sneller maken door P_predicted = TP + FP en N_predicted = TN + FN te gebruiken
 def measure_score(true_labels, predicted_labels, measure = all_names_except(['G2 APPROX']), beta = 1):
     if measure not in all_names_except(['G2 APPROX']):
         raise ValueError("This measure name is not recognized.")
@@ -65,103 +65,103 @@ def measure_score(true_labels, predicted_labels, measure = all_names_except(['G2
     P = sum(true_labels)
     M = len(true_labels)
     N = M - P    
-    P.predicted = sum(predicted_labels)
-    #N.predicted = M - P.predicted
+    P_predicted = sum(predicted_labels)
+    #N_predicted = M - P_predicted
 
     TP = np.dot(true_labels, predicted_labels)
-    FP = P.predicted - TP
+    FP = P_predicted - TP
     FN = P - TP
     TN = N - FP
 
-    if measure in name_dictionary('TP'):
+    if measure in name_dictionary['TP']:
         return(TP)
 
-    if measure in name_dictionary('TN'):
+    if measure in name_dictionary['TN']:
         return(TN)
     
-    if measure in name_dictionary('F'):
+    if measure in name_dictionary['FP']:
         return(FP)
     
-    if measure in name_dictionary('FN'):
+    if measure in name_dictionary['FN']:
         return(FN)
     
-    if measure in name_dictionary('TPR'):
+    if measure in name_dictionary['TPR']:
         return(TP / P)
 
-    if measure in name_dictionary('TNR'):
+    if measure in name_dictionary['TNR']:
         return(TN / N)
 
-    if measure in name_dictionary('FPR'):
+    if measure in name_dictionary['FPR']:
         return(FP / N)
 
-    if measure in name_dictionary('FNR'):
+    if measure in name_dictionary['FNR']:
         return(FN / P)        
 
-    if measure in name_dictionary('PPV'):
+    if measure in name_dictionary['PPV']:
         return(TP / (TP + FP))    
 
-    if measure in name_dictionary('NPV'):
+    if measure in name_dictionary['NPV']:
         return(TN / (TN + FN))   
 
-    if measure in name_dictionary('FDR'):
+    if measure in name_dictionary['FDR']:
         return(FP / (TP + FP))    
 
-    if measure in name_dictionary('FOR'):
+    if measure in name_dictionary['FOR']:
         return(FN / (TN + FN))  
 
-    if measure in name_dictionary('ACC'):
+    if measure in name_dictionary['ACC']:
         return((TP + TN) / M)  
 
-    if measure in name_dictionary('BACC'):
+    if measure in name_dictionary['BACC']:
         TPR = TP / P
         TNR = TN / N
         return((TPR + TNR) / 2) 
 
-    if measure in name_dictionary('FBETA'):
+    if measure in name_dictionary['FBETA']:
         beta_squared = beta ** 2
         return((1 + beta_squared) * TP / (((1 + beta_squared) * TP) + (beta_squared * FN) + FP))      
 
-    if measure in name_dictionary('MCC'):
+    if measure in name_dictionary['MCC']:
         return((TP * TN - FP * FN)/(math.sqrt((TP + FP) * (TN + FN) * P * N)))
 
-    if measure in name_dictionary('BM'):
+    if measure in name_dictionary['BM']:
         TPR = TP / P
         TNR = TN / N
         return(TPR + TNR - 1)
 
-    if measure in name_dictionary('MK'):
+    if measure in name_dictionary['MK']:
         PPV = TP / (TP + FP)
         NPV = TN / (TN + FN)
         return(PPV + NPV - 1)
 
-    if measure in name_dictionary('COHEN'):
+    if measure in name_dictionary['COHEN']:
         P_o = (TP + TN) / M
         P_yes = ((TP + FP) / M) * (P / M)
         P_no = ((TN + FN) / M) * (N / M)
         P_e = P_yes + P_no
         return((P_o - P_e) / (1 - P_e))
 
-    if measure in name_dictionary('G1'): 
+    if measure in name_dictionary['G1']: 
         TPR = TP / P
         PPV = TP / (TP + FP)
         return(math.sqrt(TPR * PPV))   
 
-    if measure in name_dictionary('G2'): 
+    if measure in name_dictionary['G2']: 
         TPR = TP / P
         TNR = TN / N
         return(math.sqrt(TPR * TNR))   
 
-    if measure in name_dictionary('FOWLKES'): 
+    if measure in name_dictionary['FOWLKES']: 
         TPR = TP / P
         PPV = TP / (TP + FP)
         return(math.sqrt(TPR * PPV))   
 
-    if measure in name_dictionary('PT'): 
+    if measure in name_dictionary['PT']: 
         TPR = TP / P
         FPR = FP / N
         return((math.sqrt(TPR * FPR) - FPR) / (TPR - FPR))      
 
-    if measure in name_dictionary('TS'):
+    if measure in name_dictionary['TS']:
         return(TP / (TP + FN + FP)) 
 
     raise ValueError("Reached the end of the code without returning something.")
@@ -758,10 +758,25 @@ def basic_baseline_statistics(theta, true_labels, measure = possible_names, beta
 
 
 # %%
+random.seed(123)
 predicted_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
 true_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
+
+
+print("Markedness: %6.4f" % measure_score(true_labels, predicted_labels, measure = 'MK'))
+
+# Measuring FBETA for beta = 2:
+print("F2 Score: %6.4f" % measure_score(true_labels, predicted_labels, measure = 'FBETA', beta = 2))
+
+# %%
+
+
 theta = 0.5
 measure = 'PT'
+
+
+
+
 
 optimized_basic_baseline(true_labels, measure)
 

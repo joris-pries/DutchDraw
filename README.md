@@ -33,37 +33,6 @@ If:
 * You want to get statistics of the optimal baseline --> `optimized_basic_baseline(true_labels, measure = possible_names)`
 
 ### List of all included measures
-
-#### Base measures:
-* TP:
-* TN:
-* FP:
-* FN:
-
-##### Other measures
-* TPR: True Positive Rate. Defined as $\frac{TP}{P}$
-* TNR:
-* FPR:
-* FNR:
-* PPV:
-* NPV:
-* FDR:
-* FOR:
-* ACC:
-* BACC:
-* FBETA:
-* MCC:
-* BM:
-* MK:
-* COHEN:
-* G1:
-* G2:
-* G2 APPROX:
-* FOWLKES:
-* TS:
-* PT:
-
-
 |  Measure  | Definition  |
 |---|:---:|
 | TP |TP|
@@ -92,15 +61,36 @@ If:
 
 ## Usage
 
+As example, we first generate the true and predicted labels.
+```python
+import random 
+random.seed(123) # To ensure similar outputs
+
+predicted_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
+true_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
+```
+
+#### Measure performance
+To examine the performance of the predicted labels, we measure the markedness (MK) and F<sub>2</sub> score (FBETA).
 
 ```python
 import BinaryBaselines
 
-foobar.pluralize('word') # returns 'words'
-foobar.pluralize('goose') # returns 'geese'
-foobar.singularize('phenomena') # returns 'phenomenon'
+# Measuring markedness (MK):
+print("Markedness: %6.4f" % measure_score(true_labels, predicted_labels, measure = 'MK'))
+
+# Measuring FBETA for beta = 2:
+print("F2 Score: %6.4f" % measure_score(true_labels, predicted_labels, measure = 'FBETA', beta = 2))
+```
+This returns as output
+```python
+Markedness: 0.0092
+F2 Score: 0.1007
 ```
 
+Note that `FBETA` is the only measure that requires additional parameter values.
+
+#### Get basic baseline
 
 
 ## License
