@@ -66,7 +66,7 @@ If:
 
 |  Measure  | Definition  |
 |---|:---:|
-| TP | $\color{orange} TP$|
+| TP | <img src="https://render.githubusercontent.com/render/math?math=\color{orange} TP">|
 | TN | $\color{orange} TN$|
 | FP | $\color{orange} FP$|
 | FN | $\color{orange} FN$|
