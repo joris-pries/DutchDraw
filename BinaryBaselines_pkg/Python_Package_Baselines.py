@@ -763,6 +763,9 @@ predicted_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
 true_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
 
 
+predicted_labels = np.array([1,0,0,1])
+true_labels = np.array([0,1,1,1])
+
 # Measuring markedness (MK):
 print('Markedness: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure = 'MK')))
 

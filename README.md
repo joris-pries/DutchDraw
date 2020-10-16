@@ -71,6 +71,15 @@ true_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
 ```
 
 #### Measure performance
+In general, to determine the score of a measure, use `measure_score(true_labels, predicted_labels, measure, beta = 1)`.
+
+* `true_labels, predicted_labels` should both be binary lists or vectors with the same length. It is assumed that there is at least one positive and negative.
+* `measure`  should be a string containing one of the measures from the list.
+* `beta` is only used as parameter for `FBETA`.
+
+The function `measure_score` outputs the score of the given measure.
+
+##### Example
 To examine the performance of the predicted labels, we measure the markedness (MK) and F<sub>2</sub> score (FBETA).
 
 ```python
