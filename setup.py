@@ -11,7 +11,7 @@ setuptools.setup(
     description = "Determine (optimal) baselines for binary classification",
     long_description = long_description,
     long_description_content_type = "text/markdown",
-    url = "https://github.com/pypa/sampleproject",
+    url = "https://github.com/joris-pries/BinaryBaselines",
     packages = setuptools.find_packages(),
     classifiers = [
         "Programming Language :: Python :: 3",
