@@ -1,17 +1,11 @@
 #%%
 import random
-predicted_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
-true_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
-theta = 0.5
-measure = 'PT'
-
- 
-# %%
 import statistics
 import math
 from scipy.stats import hypergeom
 import numpy as np
 
+ 
 
 
 # %%
@@ -170,9 +164,8 @@ def measure_score(true_labels, predicted_labels, measure = all_names_except(['G2
     if measure in name_dictionary('TS'):
         return(TP / (TP + FN + FP)) 
 
+    raise ValueError("Reached the end of the code without returning something.")
 # %%
-
-
 def optimized_basic_baseline(true_labels, measure = possible_names, beta = 1):
 
     if measure not in possible_names:
@@ -357,8 +350,6 @@ def optimized_basic_baseline(true_labels, measure = possible_names, beta = 1):
     
     return(return_statistics)
 
-# %%
-optimized_basic_baseline(true_labels, measure)
 # %%
 ##################################################################################################
 def round_if_close(x):
@@ -762,16 +753,17 @@ def basic_baseline_statistics(theta, true_labels, measure = possible_names, beta
         return_statistics['Fast Expectation Function'] = expectation_function
         return_statistics['Variance Function'] = generate_variance_function(a,b)
 
-
-
     return(return_statistics)
         
 
 
-
-
 # %%
+predicted_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
+true_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
+theta = 0.5
+measure = 'PT'
 
+optimized_basic_baseline(true_labels, measure)
 
 measures_list = [i for i in name_dictionary.keys()]
 
@@ -782,9 +774,3 @@ for i, measure in enumerate(measures_list):
     print(measure + ":" + str(result['Mean']))
     mean_list.append(result['Mean'])
 
-
-# %%
-
-# %%
-
-# %%
