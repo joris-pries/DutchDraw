@@ -763,10 +763,11 @@ predicted_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
 true_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
 
 
-print("Markedness: %6.4f" % measure_score(true_labels, predicted_labels, measure = 'MK'))
+# Measuring markedness (MK):
+print('Markedness: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure = 'MK')))
 
 # Measuring FBETA for beta = 2:
-print("F2 Score: %6.4f" % measure_score(true_labels, predicted_labels, measure = 'FBETA', beta = 2))
+print('F2 Score: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure = 'FBETA', beta = 2)))
 
 # %%
 

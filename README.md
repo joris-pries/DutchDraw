@@ -22,7 +22,7 @@ python -m pip install BinaryBaselines
 To properly assess the performance of a binary classification model, the score of a chosen measure should be compared with the score of a 'simple' baseline. E.g. an accuracy of 0.9 isn't that great if a model (without knowledge) attains an accuracy of 0.88. 
 
 ### Basic baseline
-Let $\color{orange} M$  be the total number of samples. Randomly shuffle the samples and label the first $\color{orange} \lfloor \theta \cdot M \rceil$ samples as $\color{orange} 1$ and the rest as $\color{orange} 0$. This gives a baseline for each $\color{orange} \theta \in [0,1]$ . Our package can optimize (maximize and minimize) the baseline.
+Let `M`  be the total number of samples, where `P` are positive and `N` are negative. Randomly shuffle the samples and label the first `round(θ * M)` samples as `1` and the rest as `0`. This gives a baseline for each `θ` in `[0,1]`. Our package can optimize (maximize and minimize) the baseline.
 
 ## Reasons to use
 This package contains multiple functions. Let `true_labels` be the actual labels and `predicted_labels` be the labels predicted by a model.
@@ -77,10 +77,10 @@ To examine the performance of the predicted labels, we measure the markedness (M
 import BinaryBaselines
 
 # Measuring markedness (MK):
-print("Markedness: %6.4f" % measure_score(true_labels, predicted_labels, measure = 'MK'))
+print('Markedness: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure = 'MK')))
 
 # Measuring FBETA for beta = 2:
-print("F2 Score: %6.4f" % measure_score(true_labels, predicted_labels, measure = 'FBETA', beta = 2))
+print('F2 Score: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure = 'FBETA', beta = 2)))
 ```
 This returns as output
 ```python
