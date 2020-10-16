@@ -66,31 +66,29 @@ If:
 
 |  Measure  | Definition  |
 |---|:---:|
-| TP | <img src="https://render.githubusercontent.com/render/math?math=\color{orange} TP">|
-| TN | $\color{orange} TN$|
-| FP | $\color{orange} FP$|
-| FN | $\color{orange} FN$|
-| TPR | $\color{orange} \frac{TP}{P}$|
-| TNR | $\color{orange} \frac{TN}{N}$|
-| FPR | $\color{orange} \frac{FP}{N}$|
-| FNR | $\color{orange} \frac{FN}{P}$|
-| PPV | $\color{orange} \frac{TP}{TN + FN}$|
-| NPV | $\color{orange} $|
-| FDR | $\color{orange} $|
-| FOR | $\color{orange} $|
-| ACC | $\color{orange} $|
-| BACC | $\color{orange} $|
-| FBETA | $\color{orange} $|
-| MCC | $\color{orange} $|
-| BM | $\color{orange} $|
-| MK | $\color{orange} $|
-| COHEN | $\color{orange} $|
-| G1 | $\color{orange} $|
-| G2 | $\color{orange} $|
-| G2 APPROX | $\color{orange} $|
-| FOWLKES | $\color{orange} $|
-| TS | $\color{orange} $|
-| PT | $\color{orange} $|
+| TP |TP|
+| TN | TN|
+| FP | FP|
+| FN | FN|
+| TPR | TP / P|
+| TNR | TN / N|
+| FPR | FP / N|
+| FNR | FN / P|
+| PPV | TP / (TP + FP)|
+| NPV | TN / (TN + FN)|
+| FDR | FP / (TP + FP)|
+| FOR | FN / (TN + FN)|
+| ACC | (TP + TN) / M|
+| BACC |(TPR + TNR) / 2 |
+| FBETA | ((1 + β<sup>2</sup>) * TP) / ((1 + β<sup>2</sup>) * TP + β<sup>2</sup> * FN + FP)|
+| MCC | (TP * TN - FP * FN) / (sqrt((TP + FP) * (TN + FN) * P * N)) |
+| BM | TPR + TNR - 1|
+| MK | PPV + NPV - 1|
+| COHEN | (P<sub>o</sub> - P<sub>e</sub>) / (1 - P<sub>e</sub>) with P<sub>o</sub> = (TP + TN) / M and <br> P<sub>e</sub> = ((TP + FP) / M) * (P / M) + ((TN + FN) / M) * (N / M)|
+| G1 | sqrt(TPR * PPV)  |
+| G2 | sqrt(TPR * TNR) |
+| TS | TP / (TP + FN + FP)|
+| PT | (sqrt(TPR * FPR) - FPR) / (TPR - FPR)|
 
 ## Usage
 
