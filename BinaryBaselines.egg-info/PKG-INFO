@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: BinaryBaselines
-Version: 0.0.2
+Version: 0.0.4
 Summary: Determine (optimal) baselines for binary classification
 Home-page: https://github.com/joris-pries/BinaryBaselines
 Author: Joris Pries

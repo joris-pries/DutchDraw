@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name = "BinaryBaselines", # Replace with your own username
-    version = "0.0.2",
+    version = "0.0.4",
     author = "Joris Pries",
     author_email = "joris.pries@cwi.nl",
     description = "Determine (optimal) baselines for binary classification",
