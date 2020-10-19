@@ -69,17 +69,19 @@ random.seed(123) # To ensure similar outputs
 predicted_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
 true_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
 ```
-
-#### Measure performance
+---
+### Measure performance
 In general, to determine the score of a measure, use `measure_score(true_labels, predicted_labels, measure, beta = 1)`.
 
+#### Input
 * `true_labels, predicted_labels` should both be binary lists or vectors with the same length. It is assumed that there is at least one positive and negative.
 * `measure`  should be a string containing one of the measures from the list.
 * `beta` is only used as parameter for `FBETA`.
 
+#### Output
 The function `measure_score` outputs the score of the given measure.
 
-##### Example
+#### Example
 To examine the performance of the predicted labels, we measure the markedness (MK) and F<sub>2</sub> score (FBETA).
 
 ```python
@@ -99,8 +101,72 @@ F2 Score: 0.1007
 
 Note that `FBETA` is the only measure that requires additional parameter values.
 
-#### Get basic baseline
+---
 
+### Get basic baseline
+In general, to obtain the shuffle baseline use `basic_baseline_statistics(theta, true_labels, measure, beta = 1)`.
+
+#### Input
+* `theta` is a parameter of the shuffle baseline. Must be in `[0,1]`.
+* `true_labels` should be a binary list or vector. It is assumed that there is at least one positive and negative.
+* `measure`  should be a string containing one of the measures from the list.
+* `beta` is only used as parameter for `FBETA`.
+
+#### Output
+The function `basic_baseline_statistics` gives the following output:
+
+* `Distribution` is the pmf of the measure, given by: `pmf_Y(y, theta = theta_star)`, where `y` is a measure score and `theta` is the parameter of the shuffle baseline. Note that by default, the original given `theta` is used. However, it is possible to use another `theta`.
+* `Mean` is the expected baseline.
+* `Variance` is the variance of the baseline.
+* `Domain` are the attainable measure scores for the given `theta` and `true_labels`.
+* `(Fast) Expectation Function` is an expectation function of the baseline that can be used for other values of `theta`. If `Fast Expectation Function` is returned, there exists a theoretical expectation that can be used for fast computation. Otherwise, `Expectation Function` is returned.
+* `Variance Function` is the variance function for other values of `theta`.
+
+
+#### Example
+To evaluate the performance of a model, we want to obtain a baseline for the F<sub>2</sub> score (FBETA).
+
+```python
+import BinaryBaselines
+
+results_baseline = basic_baseline_statistics(theta = 0.5, true_labels = true_labels, measure = 'FBETA', beta = 2)
+```
+
+This gives us the mean and variance of the baseline.
+```python
+print('Mean: {:06.4f}'.format(results_baseline['Mean']))
+print('Variance: {:06.4f}'.format(results_baseline['Variance']))
+```
+with output 
+
+```python
+Mean: 0.2697
+Variance: 0.0001
+```
+Next, we can use `Domain` and `Distribution` to plot the pmf.
+```python
+import matplotlib.pyplot as plt
+pmf_plot = [results_baseline['Distribution'](y) for y in results_baseline['Domain']]
+plt.plot(results_baseline['Domain'], pmf_plot)
+plt.xlabel('Measure score')
+plt.ylabel('Probability mass')
+plt.show()
+```
+with output
+![alt text](expectation_example.png)
+
+
+# Measuring markedness (MK):
+print('Markedness: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure = 'MK')))
+
+# Measuring FBETA for beta = 2:
+print('F2 Score: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure = 'FBETA', beta = 2)))
+```
+This returns as output
+```python
+Markedness: 0.0092
+F2 Score: 0.1007
+```
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
