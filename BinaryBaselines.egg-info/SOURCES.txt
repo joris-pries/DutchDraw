@@ -1,8 +1,8 @@
 README.md
 setup.py
+BinaryBaselines/__init__.py
+BinaryBaselines/shuffle_baseline.py
 BinaryBaselines.egg-info/PKG-INFO
 BinaryBaselines.egg-info/SOURCES.txt
 BinaryBaselines.egg-info/dependency_links.txt
 BinaryBaselines.egg-info/top_level.txt
-BinaryBaselines_pkg/__init__.py
-BinaryBaselines_pkg/shuffle_baseline.py
