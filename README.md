@@ -86,13 +86,13 @@ The function `measure_score` outputs the score of the given measure.
 To examine the performance of the predicted labels, we measure the markedness (MK) and F<sub>2</sub> score (FBETA).
 
 ```python
-import BinaryBaselines
+import BinaryBaselines as bbl
 
 # Measuring markedness (MK):
-print('Markedness: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure = 'MK')))
+print('Markedness: {:06.4f}'.format(bbl.measure_score(true_labels, predicted_labels, measure = 'MK')))
 
 # Measuring FBETA for beta = 2:
-print('F2 Score: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure = 'FBETA', beta = 2)))
+print('F2 Score: {:06.4f}'.format(bbl.measure_score(true_labels, predicted_labels, measure = 'FBETA', beta = 2)))
 ```
 This returns as output
 ```python
@@ -128,9 +128,7 @@ The function `basic_baseline_statistics` gives the following output:
 To evaluate the performance of a model, we want to obtain a baseline for the F<sub>2</sub> score (FBETA).
 
 ```python
-import BinaryBaselines
-
-results_baseline = basic_baseline_statistics(theta = 0.5, true_labels = true_labels, measure = 'FBETA', beta = 2)
+results_baseline = bbl.basic_baseline_statistics(theta = 0.5, true_labels = true_labels, measure = 'FBETA', beta = 2)
 ```
 
 This gives us the mean and variance of the baseline.
@@ -195,9 +193,7 @@ Note that `theta_star = round(theta * M) / M`.
 To evaluate the performance of a model, we want to obtain the optimal baseline for the F<sub>2</sub> score (FBETA).
 
 ```python
-import BinaryBaselines
-
-optimal_baseline = optimized_basic_baseline(true_labels, measure = 'FBETA', beta = 1)
+optimal_baseline = bbl.optimized_basic_baseline(true_labels, measure = 'FBETA', beta = 1)
 
 print('Max Expected Value: {:06.4f}'.format(optimal_baseline['Max Expected Value']))
 print('Argmax Expected Value: {:06.4f}'.format(optimal_baseline['Argmax Expected Value']))
