@@ -153,7 +153,7 @@ plt.show()
 ```
 with output:
 
-![expectation example](BinaryBaselines_pkg/pmf_example.png)
+![expectation example](BinaryBaselines/pmf_example.png)
 
 Furthermore, we can use the `Fast Expectation Function` to determine the expectation for **other** `theta` values.
 ```python
@@ -167,7 +167,7 @@ plt.show()
 ```
 with output:
 
-![expectation example](BinaryBaselines_pkg/expectation_example.png)
+![expectation example](BinaryBaselines/expectation_example.png)
 
 ---
 
