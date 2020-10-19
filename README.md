@@ -22,7 +22,7 @@ python -m pip install BinaryBaselines
 To properly assess the performance of a binary classification model, the score of a chosen measure should be compared with the score of a 'simple' baseline. E.g. an accuracy of 0.9 isn't that great if a model (without knowledge) attains an accuracy of 0.88. 
 
 ### Basic baseline
-Let `M`  be the total number of samples, where `P` are positive and `N` are negative. Randomly shuffle the samples and label the first `round(θ * M)` samples as `1` and the rest as `0`. This gives a baseline for each `θ` in `[0,1]`. Our package can optimize (maximize and minimize) the baseline.
+Let `M`  be the total number of samples, where `P` are positive and `N` are negative. Let `θ_star = round(θ * M) / M`. Randomly shuffle the samples and label the first `θ_star * M` samples as `1` and the rest as `0`. This gives a baseline for each `θ` in `[0,1]`. Our package can optimize (maximize and minimize) the baseline. 
 
 ## Reasons to use
 This package contains multiple functions. Let `true_labels` be the actual labels and `predicted_labels` be the labels predicted by a model.
@@ -47,17 +47,18 @@ If:
 | NPV | TN / (TN + FN)|
 | FDR | FP / (TP + FP)|
 | FOR | FN / (TN + FN)|
-| ACC | (TP + TN) / M|
-| BACC |(TPR + TNR) / 2 |
-| FBETA | ((1 + β<sup>2</sup>) * TP) / ((1 + β<sup>2</sup>) * TP + β<sup>2</sup> * FN + FP)|
-| MCC | (TP * TN - FP * FN) / (sqrt((TP + FP) * (TN + FN) * P * N)) |
-| BM | TPR + TNR - 1|
+| ACC, ACCURACY | (TP + TN) / M|
+| BACC, BALANCED ACCURACY |(TPR + TNR) / 2 |
+| FBETA, FSCORE, F, F BETA, F BETA SCORE, FBETA SCORE | ((1 + β<sup>2</sup>) * TP) / ((1 + β<sup>2</sup>) * TP + β<sup>2</sup> * FN + FP)|
+| MCC, MATTHEW, MATTHEWS CORRELATION COEFFICIENT | (TP * TN - FP * FN) / (sqrt((TP + FP) * (TN + FN) * P * N)) |
+| BM, BOOKMAKER INFORMEDNESS, INFORMEDNESS | TPR + TNR - 1|
 | MK | PPV + NPV - 1|
-| COHEN | (P<sub>o</sub> - P<sub>e</sub>) / (1 - P<sub>e</sub>) with P<sub>o</sub> = (TP + TN) / M and <br> P<sub>e</sub> = ((TP + FP) / M) * (P / M) + ((TN + FN) / M) * (N / M)|
-| G1 | sqrt(TPR * PPV)  |
-| G2 | sqrt(TPR * TNR) |
-| TS | TP / (TP + FN + FP)|
-| PT | (sqrt(TPR * FPR) - FPR) / (TPR - FPR)|
+| COHEN, COHENS KAPPA, KAPPA | (P<sub>o</sub> - P<sub>e</sub>) / (1 - P<sub>e</sub>) with P<sub>o</sub> = (TP + TN) / M and <br> P<sub>e</sub> = ((TP + FP) / M) * (P / M) + ((TN + FN) / M) * (N / M)|
+| G1, GMEAN1, G MEAN 1, FOWLKES-MALLOWS, FOWLKES MALLOWS, FOWLKES, MALLOWS | sqrt(TPR * PPV)  |
+| G2, GMEAN2, G MEAN 2 | sqrt(TPR * TNR) |
+| TS, THREAT SCORE, CRITICAL SUCCES INDEX, CSI | TP / (TP + FN + FP)|
+| PT, PREVALENCE THRESHOLD | (sqrt(TPR * FPR) - FPR) / (TPR - FPR)|
+
 
 ## Usage
 
@@ -184,11 +185,11 @@ In general, to obtain the optimal baseline use `optimized_basic_baseline(true_la
 The function `optimized_basic_baseline` gives the following output:
 
 * `Max Expected Value` is the maximum expected value of all possible `theta` values.
-* `Argmax Expected Value` are all `theta_star` that give the maximum expected value.
+* `Argmax Expected Value` are all `theta_star` values that give the maximum expected value.
 * `Min Expected Value` is the minimum expected value of all possible `theta` values.
-* `Argmin Expected Value` are all `theta_star` that give the minimum expected value.
+* `Argmin Expected Value` are all `theta_star` values that give the minimum expected value.
 
-<p style="color:red;"> TODOOOOO THETA_STAR UITLEGGEN </p>
+Note that `theta_star = round(theta * M) / M`.
 
 #### Example
 To evaluate the performance of a model, we want to obtain the optimal baseline for the F<sub>2</sub> score (FBETA).
