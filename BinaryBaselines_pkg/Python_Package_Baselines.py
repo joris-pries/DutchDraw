@@ -793,6 +793,12 @@ plt.ylabel('Expectation')
 plt.show()
 
 # %%
+optimal_baseline = optimized_basic_baseline(true_labels, measure = 'FBETA', beta = 1)
+print('Max Expected Value: {:06.4f}'.format(optimal_baseline['Max Expected Value']))
+print('Argmax Expected Value: {:06.4f}'.format(optimal_baseline['Argmax Expected Value']))
+print('Min Expected Value: {:06.4f}'.format(optimal_baseline['Min Expected Value']))
+print('Argmin Expected Value: {:06.4f}'.format(optimal_baseline['Argmin Expected Value']))
+# %%
 
 
 theta = 0.5

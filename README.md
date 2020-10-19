@@ -152,21 +152,67 @@ plt.xlabel('Measure score')
 plt.ylabel('Probability mass')
 plt.show()
 ```
-with output
-![alt text](expectation_example.png)
+with output:
 
+![expectation example](BinaryBaselines_pkg/pmf_example.png)
 
-# Measuring markedness (MK):
-print('Markedness: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure = 'MK')))
-
-# Measuring FBETA for beta = 2:
-print('F2 Score: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure = 'FBETA', beta = 2)))
-```
-This returns as output
+Furthermore, we can use the `Fast Expectation Function` to determine the expectation for **other** `theta` values.
 ```python
-Markedness: 0.0092
-F2 Score: 0.1007
+import numpy as np
+theta_values = np.arange(0, 1, 1 / sum(true_labels))
+expectation_plot = [results_baseline['Fast Expectation Function'](theta) for theta in theta_values]
+plt.plot(theta_values, expectation_plot)
+plt.xlabel('Theta')
+plt.ylabel('Expectation')
+plt.show()
 ```
+with output:
+
+![expectation example](BinaryBaselines_pkg/expectation_example.png)
+
+---
+
+### Get optimal baseline
+In general, to obtain the optimal baseline use `optimized_basic_baseline(true_labels, measure = possible_names, beta = 1)`.
+
+#### Input
+* `true_labels` should be a binary list or vector. It is assumed that there is at least one positive and negative.
+* `measure`  should be a string containing one of the measures from the list.
+* `beta` is only used as parameter for `FBETA`.
+
+#### Output
+The function `optimized_basic_baseline` gives the following output:
+
+* `Max Expected Value` is the maximum expected value of all possible `theta` values.
+* `Argmax Expected Value` are all `theta_star` that give the maximum expected value.
+* `Min Expected Value` is the minimum expected value of all possible `theta` values.
+* `Argmin Expected Value` are all `theta_star` that give the minimum expected value.
+
+<p style="color:red;"> TODOOOOO THETA_STAR UITLEGGEN </p>
+
+#### Example
+To evaluate the performance of a model, we want to obtain the optimal baseline for the F<sub>2</sub> score (FBETA).
+
+```python
+import BinaryBaselines
+
+optimal_baseline = optimized_basic_baseline(true_labels, measure = 'FBETA', beta = 1)
+
+print('Max Expected Value: {:06.4f}'.format(optimal_baseline['Max Expected Value']))
+print('Argmax Expected Value: {:06.4f}'.format(optimal_baseline['Argmax Expected Value']))
+print('Min Expected Value: {:06.4f}'.format(optimal_baseline['Min Expected Value']))
+print('Argmin Expected Value: {:06.4f}'.format(optimal_baseline['Argmin Expected Value']))
+```
+with output
+
+```python
+Max Expected Value: 0.1733
+Argmax Expected Value: 1.0000
+Min Expected Value: 0.0000
+Argmin Expected Value: 0.0000
+```
+
+---
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
