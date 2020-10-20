@@ -54,6 +54,30 @@ possible_names = all_names_except([""])
 
 
 def measure_score(true_labels, predicted_labels, measure=all_names_except(['G2 APPROX']), beta=1):
+    '''
+    This function does ...
+
+    Parameters
+    ----------
+    true_labels : TYPE
+        DESCRIPTION.
+    predicted_labels : TYPE
+        DESCRIPTION.
+    measure : TYPE, optional
+        DESCRIPTION. The default is all_names_except(['G2 APPROX']).
+    beta : TYPE, optional
+        DESCRIPTION. The default is 1.
+
+    Raises
+    ------
+    ValueError
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    '''
     if measure not in all_names_except(['G2 APPROX']):
         raise ValueError("This measure name is not recognized.")
 
