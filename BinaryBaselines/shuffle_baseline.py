@@ -40,49 +40,74 @@ name_dictionary = {
 
 
 def select_names(name_keys):
+    """
+    This function creates a list of names using the name_keys as keys for the name dictionary.
+    """
     return(sum([name_dictionary[key_name] for key_name in name_keys], []))
 
 
 def all_names_except(name_keys):
+    """
+    This function creates a list of all names, except the names with name_keys as key in the name dictionary.
+    """
     return(sum([name_dictionary[key_name] for key_name in name_dictionary.keys() if key_name not in name_keys], []))
 
 
 possible_names = all_names_except([""])
 
 # %%
-# TODO: kan het iets sneller maken door P_predicted = TP + FP en N_predicted = TN + FN te gebruiken
+def measure_score(true_labels, predicted_labels, measure, beta= 1):
+    """
+    FUNCTION DESCRIPTION
 
+    Args:
+    --------
+        true_labels (list): 1-dimensional boolean list containing the true labels.
+        
+        predicted_labels (list): 1-dimensional boolean list containing the predicted labels.
+        
+        measure (string): Measure name, see `all_names_except(['G2 APPROX'])` for possible measure names.
+        
+        beta (float): Default is 1. Parameter for the F-beta score.
 
-def measure_score(true_labels, predicted_labels, measure=all_names_except(['G2 APPROX']), beta=1):
-    '''
-    This function does ...
+    Returns:
+    --------
+        float: The score of the given measure evaluated with the predicted and true labels.
 
-    Parameters
-    ----------
-    true_labels : TYPE
-        DESCRIPTION.
-    predicted_labels : TYPE
-        DESCRIPTION.
-    measure : TYPE, optional
-        DESCRIPTION. The default is all_names_except(['G2 APPROX']).
-    beta : TYPE, optional
-        DESCRIPTION. The default is 1.
+    Raises:
+    --------
+        ValueError 
+            If `measure` is not in `all_names_except(['G2 APPROX'])`.
+        ValueError
+            If `true_labels` or `predicted_labels` does not only contain zeros and ones.
+        TypeError
+            If `true_labels` or `predicted_labels` are not a list.
 
-    Raises
-    ------
-    ValueError
-        DESCRIPTION.
+    See also:
+    --------
+        all_names_except
 
-    Returns
-    -------
-    None.
+    Example:
+    --------
+        >>> import random
+        >>> random.seed(123) # To ensure similar outputs
+        >>> predicted_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
+        >>> true_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
+        >>> print('Markedness: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure = 'MK'))) # Measuring markedness (MK)
+        Markedness: 0.0061
+        >>> print('F2 Score: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure = 'FBETA', beta = 2))) # Measuring FBETA for beta = 2
+        F2 Score: 0.1053
+            
+    """
 
-    '''
     if measure not in all_names_except(['G2 APPROX']):
         raise ValueError("This measure name is not recognized.")
 
-    if measure is possible_names:
-        raise ValueError("Input a measure name.")
+    if type(true_labels) != 'list':
+        raise TypeError('true_labels should be a list')
+
+    if type(predicted_labels) != 'list':
+        raise TypeError('predicted_labels should be a list')
 
     if not np.unique(np.array(true_labels)) in np.array([0, 1]):
         raise ValueError("true_labels should only contain zeros and ones.")
@@ -91,11 +116,13 @@ def measure_score(true_labels, predicted_labels, measure=all_names_except(['G2 A
         raise ValueError(
             "predicted_labels should only contain zeros and ones.")
 
+
+
     P = sum(true_labels)
     M = len(true_labels)
     N = M - P
     P_predicted = sum(predicted_labels)
-    #N_predicted = M - P_predicted
+
 
     TP = np.dot(true_labels, predicted_labels)
     FP = P_predicted - TP
@@ -193,12 +220,9 @@ def measure_score(true_labels, predicted_labels, measure=all_names_except(['G2 A
     if measure in name_dictionary['TS']:
         return(TP / (TP + FN + FP))
 
-    raise ValueError(
-        "Reached the end of the code without returning something.")
 # %%
 
-
-def optimized_basic_baseline(true_labels, measure=possible_names, beta=1):
+def optimized_basic_baseline(true_labels, measure= possible_names, beta=1):
 
     if measure not in possible_names:
         raise ValueError("This measure name is not recognized.")
