@@ -1,6 +1,6 @@
 # BinaryBaselines
 
-BinaryBaselines is a Python package for binary classification. 
+BinaryBaselines is a Python package for binary classification.
 
 ## Installation
 
@@ -10,11 +10,23 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install the pac
 pip install BinaryBaselines
 ```
 
-or for Windows users
+----
+### Windows users
 
 ```bash
-python -m pip install BinaryBaselines
+python -m pip install --upgrade  --index-url https://test.pypi.org/simple/ BinaryBaselines
 ```
+<!-- ```bash
+python -m pip install BinaryBaselines
+``` -->
+
+or 
+```bash
+py -m pip install --upgrade  --index-url https://test.pypi.org/simple/ BinaryBaselines
+```
+<!-- ```bash
+py -m pip install BinaryBaselines
+``` -->
 
 
 
@@ -28,36 +40,37 @@ Let `M`  be the total number of samples, where `P` are positive and `N` are nega
 This package contains multiple functions. Let `true_labels` be the actual labels and `predicted_labels` be the labels predicted by a model.
 
 If: 
-* You want to use an included measure --> `measure_score(true_labels, predicted_labels, measure)`
-* You want to get statistics of a baseline --> `basic_baseline_statistics(theta, true_labels, measure = possible_names)`
-* You want to get statistics of the optimal baseline --> `optimized_basic_baseline(true_labels, measure = possible_names)`
+* You want to determine an included measure --> `measure_score(true_labels, predicted_labels, measure)`
+* You want to get statistics of a baseline given `theta` --> `basic_baseline_given_theta(theta, true_labels, measure)`
+* You want to get statistics of the optimal baseline --> `optimized_basic_baseline(true_labels, measure)`
+* You want the baseline without specifying `theta` --> `basic_baseline(true_labels, measure)`
 
 ### List of all included measures
-|  Measure  | Definition  |
-|---|:---:|
-| TP |TP|
-| TN | TN|
-| FP | FP|
-| FN | FN|
-| TPR | TP / P|
-| TNR | TN / N|
-| FPR | FP / N|
-| FNR | FN / P|
-| PPV | TP / (TP + FP)|
-| NPV | TN / (TN + FN)|
-| FDR | FP / (TP + FP)|
-| FOR | FN / (TN + FN)|
-| ACC, ACCURACY | (TP + TN) / M|
-| BACC, BALANCED ACCURACY |(TPR + TNR) / 2 |
-| FBETA, FSCORE, F, F BETA, F BETA SCORE, FBETA SCORE | ((1 + β<sup>2</sup>) * TP) / ((1 + β<sup>2</sup>) * TP + β<sup>2</sup> * FN + FP)|
-| MCC, MATTHEW, MATTHEWS CORRELATION COEFFICIENT | (TP * TN - FP * FN) / (sqrt((TP + FP) * (TN + FN) * P * N)) |
-| BM, BOOKMAKER INFORMEDNESS, INFORMEDNESS | TPR + TNR - 1|
-| MK | PPV + NPV - 1|
-| COHEN, COHENS KAPPA, KAPPA | (P<sub>o</sub> - P<sub>e</sub>) / (1 - P<sub>e</sub>) with P<sub>o</sub> = (TP + TN) / M and <br> P<sub>e</sub> = ((TP + FP) / M) * (P / M) + ((TN + FN) / M) * (N / M)|
-| G1, GMEAN1, G MEAN 1, FOWLKES-MALLOWS, FOWLKES MALLOWS, FOWLKES, MALLOWS | sqrt(TPR * PPV)  |
-| G2, GMEAN2, G MEAN 2 | sqrt(TPR * TNR) |
-| TS, THREAT SCORE, CRITICAL SUCCES INDEX, CSI | TP / (TP + FN + FP)|
-| PT, PREVALENCE THRESHOLD | (sqrt(TPR * FPR) - FPR) / (TPR - FPR)|
+| Measure                                                                  |                                                                               Definition                                                                                |
+| ------------------------------------------------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| TP                                                                       |                                                                                   TP                                                                                    |
+| TN                                                                       |                                                                                   TN                                                                                    |
+| FP                                                                       |                                                                                   FP                                                                                    |
+| FN                                                                       |                                                                                   FN                                                                                    |
+| TPR                                                                      |                                                                                 TP / P                                                                                  |
+| TNR                                                                      |                                                                                 TN / N                                                                                  |
+| FPR                                                                      |                                                                                 FP / N                                                                                  |
+| FNR                                                                      |                                                                                 FN / P                                                                                  |
+| PPV                                                                      |                                                                             TP / (TP + FP)                                                                              |
+| NPV                                                                      |                                                                             TN / (TN + FN)                                                                              |
+| FDR                                                                      |                                                                             FP / (TP + FP)                                                                              |
+| FOR                                                                      |                                                                             FN / (TN + FN)                                                                              |
+| ACC, ACCURACY                                                            |                                                                              (TP + TN) / M                                                                              |
+| BACC, BALANCED ACCURACY                                                  |                                                                             (TPR + TNR) / 2                                                                             |
+| FBETA, FSCORE, F, F BETA, F BETA SCORE, FBETA SCORE                      |                                            ((1 + β<sup>2</sup>) * TP) / ((1 + β<sup>2</sup>) * TP + β<sup>2</sup> * FN + FP)                                            |
+| MCC, MATTHEW, MATTHEWS CORRELATION COEFFICIENT                           |                                                       (TP * TN - FP * FN) / (sqrt((TP + FP) * (TN + FN) * P * N))                                                       |
+| BM, BOOKMAKER INFORMEDNESS, INFORMEDNESS                                 |                                                                              TPR + TNR - 1                                                                              |
+| MK                                                                       |                                                                              PPV + NPV - 1                                                                              |
+| COHEN, COHENS KAPPA, KAPPA                                               | (P<sub>o</sub> - P<sub>e</sub>) / (1 - P<sub>e</sub>) with P<sub>o</sub> = (TP + TN) / M and <br> P<sub>e</sub> = ((TP + FP) / M) * (P / M) + ((TN + FN) / M) * (N / M) |
+| G1, GMEAN1, G MEAN 1, FOWLKES-MALLOWS, FOWLKES MALLOWS, FOWLKES, MALLOWS |                                                                             sqrt(TPR * PPV)                                                                             |
+| G2, GMEAN2, G MEAN 2                                                     |                                                                             sqrt(TPR * TNR)                                                                             |
+| TS, THREAT SCORE, CRITICAL SUCCES INDEX, CSI                             |                                                                           TP / (TP + FN + FP)                                                                           |
+| PT, PREVALENCE THRESHOLD                                                 |                                                                  (sqrt(TPR * FPR) - FPR) / (TPR - FPR)                                                                  |
 
 
 ## Usage
@@ -67,20 +80,24 @@ As example, we first generate the true and predicted labels.
 import random 
 random.seed(123) # To ensure similar outputs
 
-predicted_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
-true_labels = random.choices((0,1), k = 10000, weights = (0.99, 0.1))
+predicted_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
+true_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
 ```
 ---
 ### Measure performance
 In general, to determine the score of a measure, use `measure_score(true_labels, predicted_labels, measure, beta = 1)`.
 
 #### Input
-* `true_labels, predicted_labels` should both be binary lists or vectors with the same length. It is assumed that there is at least one positive and negative.
-* `measure`  should be a string containing one of the measures from the list.
-* `beta` is only used as parameter for `FBETA`.
+* `true_labels` (list): 1-dimensional boolean list containing the true labels.
+
+* `predicted_labels` (list): 1-dimensional boolean list containing the predicted labels.
+
+* `measure` (string): Measure name, see `all_names_except([''])` for possible measure names.
+
+* `beta` (float): Default is 1. Parameter for the F-beta score.
 
 #### Output
-The function `measure_score` outputs the score of the given measure.
+* `float`: The score of the given measure evaluated with the predicted and true labels.
 
 #### Example
 To examine the performance of the predicted labels, we measure the markedness (MK) and F<sub>2</sub> score (FBETA).
@@ -96,39 +113,39 @@ print('F2 Score: {:06.4f}'.format(bbl.measure_score(true_labels, predicted_label
 ```
 This returns as output
 ```python
-Markedness: 0.0092
-F2 Score: 0.1007
+Markedness: 0.0061
+F2 Score: 0.1053
 ```
 
-Note that `FBETA` is the only measure that requires additional parameter values.
+Note that `FBETA` is the only measure that requires an additional parameter value.
 
 ---
 
-### Get basic baseline
-In general, to obtain the shuffle baseline use `basic_baseline_statistics(theta, true_labels, measure, beta = 1)`.
+### Get basic baseline given `theta`
+To obtain the basic baseline given `theta` use `basic_baseline_given_theta(theta, true_labels, measure, beta = 1)`.
 
 #### Input
-* `theta` is a parameter of the shuffle baseline. Must be in `[0,1]`.
-* `true_labels` should be a binary list or vector. It is assumed that there is at least one positive and negative.
-* `measure`  should be a string containing one of the measures from the list.
-* `beta` is only used as parameter for `FBETA`.
+* `theta` (float): Parameter for the shuffle baseline.
+
+* `true_labels` (list): 1-dimensional boolean list containing the true labels.
+
+* `measure` (string): Measure name, see `all_names_except([''])` for possible measure names.
+
+* `beta` (float): Default is 1. Parameter for the F-beta score.
 
 #### Output
-The function `basic_baseline_statistics` gives the following output:
+The function `basic_baseline_given_theta` gives the following output:
 
-* `Distribution` is the pmf of the measure, given by: `pmf_Y(y, theta = theta_star)`, where `y` is a measure score and `theta` is the parameter of the shuffle baseline. Note that by default, the original given `theta` is used. However, it is possible to use another `theta`.
-* `Mean` is the expected baseline.
-* `Variance` is the variance of the baseline.
-* `Domain` are the attainable measure scores for the given `theta` and `true_labels`.
-* `(Fast) Expectation Function` is an expectation function of the baseline that can be used for other values of `theta`. If `Fast Expectation Function` is returned, there exists a theoretical expectation that can be used for fast computation. Otherwise, `Expectation Function` is returned.
-* `Variance Function` is the variance function for other values of `theta`.
+* `dict`: Containing `Mean` and `Variance`
+    * `Mean` (float): Expected baseline given `theta`.
+    * `Variance` (float): Variance baseline given `theta`.
 
 
 #### Example
 To evaluate the performance of a model, we want to obtain a baseline for the F<sub>2</sub> score (FBETA).
 
 ```python
-results_baseline = bbl.basic_baseline_statistics(theta = 0.5, true_labels = true_labels, measure = 'FBETA', beta = 2)
+results_baseline = bbl.basic_baseline_given_theta(theta = 0.5, true_labels = true_labels, measure = 'FBETA', beta = 2)
 ```
 
 This gives us the mean and variance of the baseline.
@@ -139,16 +156,56 @@ print('Variance: {:06.4f}'.format(results_baseline['Variance']))
 with output 
 
 ```python
-Mean: 0.2697
+Mean: 0.2829
 Variance: 0.0001
 ```
-Next, we can use `Domain` and `Distribution` to plot the pmf.
+
+------
+### Get basic baseline 
+To obtain the basic baseline without specifying `theta` use `basic_baseline(true_labels, measure, beta = 1)`.
+
+#### Input
+* `true_labels` (list): 1-dimensional boolean list containing the true labels.
+
+* `measure` (string): Measure name, see `all_names_except([''])` for possible measure names.
+
+* `beta` (float): Default is 1. Parameter for the F-beta score.
+
+#### Output
+The function `basic_baseline` gives the following output:
+
+* `dict`: Containing `Distribution`, `Domain`, `(Fast) Expectation Function` and `Variance Function`. 
+
+    * `Distribution` (function): Pmf of the measure, given by: `pmf_Y(y, theta)`, where `y` is a measure score and `theta` is the parameter of the shuffle baseline.
+
+    * `Domain` (function): Function that returns attainable measure scores with argument `theta`.
+
+    * `(Fast) Expectation Function` (function): Expectation function of the baseline with `theta` as argument. If `Fast Expectation Function` is returned, there exists a theoretical expectation that can be used for fast computation.
+
+    * `Variance Function` (function): Variance function for all values of `theta`.
+
+
+#### Example
+Next, we determine the baseline without specifying `theta`. This returns a number of functions that can be used for different values of `theta`.
+
+```python
+baseline = bbl.basic_baseline(true_labels = true_labels, measure = 'G2', beta = 2)
+print(baseline.keys())
+```
+with output 
+
+```python
+dict_keys(['Distribution', 'Domain', 'Fast Expectation Function', 'Variance Function', 'Expectation Function'])
+```
+
+To inspect the expected value of `G2` for different `theta` values, we do:
 ```python
 import matplotlib.pyplot as plt
-pmf_plot = [results_baseline['Distribution'](y) for y in results_baseline['Domain']]
-plt.plot(results_baseline['Domain'], pmf_plot)
-plt.xlabel('Measure score')
-plt.ylabel('Probability mass')
+theta_values = np.arange(0, 1 + 0.01, 0.01)
+expected_value_plot = [baseline['Expectation Function'](theta) for theta in theta_values]
+plt.plot(theta_values, expected_value_plot)
+plt.xlabel('Theta')
+plt.ylabel('Expected value')
 plt.show()
 ```
 with output:

@@ -504,7 +504,7 @@ def basic_baseline(true_labels, measure, beta=1):
 
             - `(Fast) Expectation Function` (function): Expectation function of the baseline with `theta` as argument. If `Fast Expectation Function` is returned, there exists a theoretical expectation that can be used for fast computation.
 
-            - `Variance Function` (function): Variance function for other values of `theta`.
+            - `Variance Function` (function): Variance function for all values of `theta`.
 
     Raises:
     --------
@@ -855,3 +855,5 @@ def basic_baseline_given_theta(theta, true_labels, measure, beta=1):
                               measure=measure, beta=beta)
     return({'Mean': baseline['Expectation Function'](theta), 'Variance': baseline['Variance Function'](theta)})
 
+
+# %%
