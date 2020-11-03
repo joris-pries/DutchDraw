@@ -448,10 +448,10 @@ def add_check_theta_generator(measure):
 
     def add_check_theta(func):
         @wraps(func)
-        def inner(*args, **kwargs):
+        def inner(theta, *args, **kwargs):
             if (theta > 1 or theta < 0) or (theta == 0 and not include_0) or (theta == 1 and not include_1):
                 raise ValueError('Theta must be in the interval ' + include_0 * '[' + (not include_0) * '(' + '0,1' + include_1 * ']' + (not include_1) * ')')
-            return func(*args, **kwargs)
+            return func(theta, *args, **kwargs)
         return inner
     return add_check_theta
 
@@ -556,13 +556,14 @@ def basic_baseline(true_labels, measure, beta=1):
         def domain_function(theta):
             theta_star = round(theta * M) / M
             rounded_m_theta = round(theta * M)
-            return([(eval(a) * x) + eval(b) for x in range(0, P + 1)])
+            return([(eval(a) * x) + eval(b) for x in range(0, min((P + 1, rounded_m_theta + 1)))])
         return(domain_function)
 
     def generate_domain_function_given_x(given_x_function):
         @add_check_theta_generator(measure)
         def domain_function(theta):
-            return(np.unique([given_x_function(x, theta) for x in range(0, P + 1)]))
+            rounded_m_theta = round(theta * M)
+            return(np.unique([given_x_function(x, theta) for x in range(0, min((P + 1, rounded_m_theta + 1)))]))
         return(domain_function)
 
     if (measure.upper() in name_dictionary['TP']):
@@ -682,13 +683,15 @@ def basic_baseline(true_labels, measure, beta=1):
 
         @add_check_theta_generator(measure)
         def expectation_function(theta):
+            rounded_m_theta = round(theta * M)
             TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            return(sum([TP_rv.pmf(x) * G_mean_2_given_tp(x, theta) for x in range(0, P + 1)]))
+            return(sum([TP_rv.pmf(x) * given_x_function(x, theta) for x in range(0, min((P + 1, rounded_m_theta + 1)))]))
 
         @add_check_theta_generator(measure)
         def variance_function(theta):
+            rounded_m_theta = round(theta * M)
             TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            return(sum([TP_rv.pmf(x) * (G_mean_2_given_tp(x, theta) ** 2) for x in range(0, P + 1)]))
+            return(sum([TP_rv.pmf(x) * (given_x_function(x, theta) ** 2) for x in range(0, min((P + 1, rounded_m_theta + 1)))]))
 
 
     if (measure.upper() in name_dictionary['TS']):
@@ -707,13 +710,15 @@ def basic_baseline(true_labels, measure, beta=1):
 
         @add_check_theta_generator(measure)
         def expectation_function(theta):
+            rounded_m_theta = round(theta * M)
             TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            return(sum([TP_rv.pmf(x) * TS_given_tp(x, theta) for x in range(0, P + 1)]))
+            return(sum([TP_rv.pmf(x) * given_x_function(x, theta) for x in range(0, min((P + 1, rounded_m_theta + 1)))]))
 
         @add_check_theta_generator(measure)
         def variance_function(theta):
+            rounded_m_theta = round(theta * M)
             TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            return(sum([TP_rv.pmf(x) * (TS_given_tp(x, theta) ** 2) for x in range(0, P + 1)]))
+            return(sum([TP_rv.pmf(x) * (given_x_function(x, theta) ** 2) for x in range(0, min((P + 1, rounded_m_theta + 1)))]))
 
 
     if (measure.upper() in name_dictionary['PT']):
@@ -734,13 +739,15 @@ def basic_baseline(true_labels, measure, beta=1):
 
         @add_check_theta_generator(measure)
         def expectation_function(theta):
+            rounded_m_theta = round(theta * M)
             TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            return(sum([TP_rv.pmf(x) * PT_given_tp(x, theta) for x in range(0, P + 1)]))
+            return(sum([TP_rv.pmf(x) * given_x_function(x, theta) for x in range(0, min((P + 1, rounded_m_theta + 1)))]))
 
         @add_check_theta_generator(measure)
         def variance_function(theta):
+            rounded_m_theta = round(theta * M)
             TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            return(sum([TP_rv.pmf(x) * (PT_given_tp(x, theta) ** 2) for x in range(0, P + 1)]))
+            return(sum([TP_rv.pmf(x) * (given_x_function(x, theta) ** 2) for x in range(0, min((P + 1, rounded_m_theta + 1)))]))
 
         
 
@@ -777,21 +784,7 @@ def basic_baseline(true_labels, measure, beta=1):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def basic_baseline_statistics(theta, true_labels, measure=possible_names, beta=1):
+def basic_baseline_statistics(theta, true_labels, measure, beta=1):
     """
     FUNCTION DESCRIPTION
 
@@ -805,19 +798,12 @@ def basic_baseline_statistics(theta, true_labels, measure=possible_names, beta=1
 
     Returns:
     --------
-        dict: Containing `Distribution`, `Mean`, `Variance`, `Domain`, `(Fast) Expectation Function` and `Variance Function`. 
-
-            - `Distribution` (function): Pmf of the measure, given by: `pmf_Y(y, theta = theta_star)`, where `y` is a measure score and `theta` is the parameter of the shuffle baseline. Note that by default, the original given `theta` is used. However, it is possible to use another theta
+        dict: Containing `Mean` and `Variance`
 
             - `Mean` (float): Expected baseline given `theta`.
             
             - `Variance` (float): Variance baseline given `theta`.
             
-            - `Domain` (list): Attainable measure scores for the given `theta` and `true_labels`.
-            
-            - `(Fast) Expectation Function` (function): Expectation function of the baseline that can be used for other values of `theta`. If `Fast Expectation Function` is returned, there exists a theoretical expectation that can be used for fast computation. Otherwise, `Expectation Function` is returned.
-            
-            - `Variance Function` (function): Variance function for other values of `theta`.
 
     Raises:
     --------
@@ -847,374 +833,11 @@ def basic_baseline_statistics(theta, true_labels, measure=possible_names, beta=1
     if not np.unique(np.array(true_labels)) in np.array([0, 1]):
         raise ValueError("true_labels should only contain zeros and ones.")
 
-    # TODO: check if other measures also don't deal with theta = 1
-    if theta == 1 and measure in select_names(('NPV', 'FOR', 'MCC', 'MK')):
-        raise ValueError('Theta cannot be 1 with this measure')
+    
+    baseline = basic_baseline(true_labels= true_labels, measure= measure, beta= beta)
+    return({'Mean' : baseline['Expectation Function'](theta), 'Variance' : baseline['Variance Function'](theta)})
 
-    # TODO: check if other measures also don't deal with theta = 0
-    if theta == 1 and measure in select_names(('PPV', 'FDR', 'MCC', 'MK')):
-        raise ValueError('Theta cannot be 0 with this measure')
+# %%
 
-    if theta > 1 or theta < 0:
-        raise ValueError('Theta must be in the interval [0,1]')
-
-    P = sum(true_labels)
-    M = len(true_labels)
-    N = M - P
-    rounded_m_theta = round(theta * M)
-    theta_star = rounded_m_theta / M
-
-    var_tp = (theta_star * (1 - theta_star) * P * N) / (M - 1)
-    mean_tp = theta_star * P
-
-    return_statistics = {}
-
-    def generate_hypergeometric_distribution(a, b):
-        def pmf_Y(y, theta=theta_star):
-            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            # Ik heb round toegevoegd, omdat er kleine afrond foutjes worden gemaakt
-            return(TP_rv.pmf(round_if_close((y - b) / a)))
-        return(pmf_Y)
-
-    def generate_variance_function(a, b, include_0=True, include_1=True):
-        def variance_function(theta=theta_star):
-            if (theta > 1 or theta < 0) or (theta == 0 and not include_0) or (theta == 1 and not include_1):
-                raise ValueError('Theta must be in the interval ' + include_0 * '[' + (
-                    not include_0) * '(' + '0,1' + include_1 * ']' + (not include_1) * ')')
-            theta_star = round(theta * M) / M
-            var_tp = (theta_star * (1 - theta_star) * P * N) / (M - 1)
-            return((a ** 2) * var_tp)
-        return(variance_function)
-
-    if (measure.upper() in name_dictionary['TP']):
-        a = 1
-        b = 0
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            theta_star = round(theta * M) / M
-            return(theta_star * P)
-
-        return_statistics['Distribution'] = generate_hypergeometric_distribution(
-            a, b)
-        return_statistics['Variance'] = (a ** 2) * var_tp
-        return_statistics['Mean'] = (a * mean_tp) + b
-        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
-        return_statistics['Fast Expectation Function'] = expectation_function
-        return_statistics['Variance Function'] = generate_variance_function(
-            a, b)
-
-    if (measure.upper() in name_dictionary['TN']):
-        a = 1
-        b = N - rounded_m_theta
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            theta_star = round(theta * M) / M
-            return((1 - theta_star) * N)
-
-    if (measure.upper() in name_dictionary['FP']):
-        a = -1
-        b = rounded_m_theta
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            theta_star = round(theta * M) / M
-            return(theta_star * N)
-
-    if (measure.upper() in name_dictionary['FN']):
-        a = -1
-        b = P
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            theta_star = round(theta * M) / M
-            return((1 - theta_star) * P)
-
-    if (measure.upper() in name_dictionary['TPR']):
-        a = 1 / P
-        b = 0
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            theta_star = round(theta * M) / M
-            return(theta_star)
-
-    if (measure.upper() in name_dictionary['TNR']):
-        a = 1 / N
-        b = (N - rounded_m_theta) / N
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            theta_star = round(theta * M) / M
-            return(1 - theta_star)
-
-    if (measure.upper() in name_dictionary['FPR']):
-        a = -1 / N
-        b = rounded_m_theta / N
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            theta_star = round(theta * M) / M
-            return(theta_star)
-
-    if (measure.upper() in name_dictionary['FNR']):
-        a = -1 / P
-        b = 1
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            theta_star = round(theta * M) / M
-            return(1 - theta_star)
-
-    if (measure.upper() in name_dictionary['PPV']):
-        a = 1 / rounded_m_theta
-        b = 0
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            return(P / M)
-
-    if (measure.upper() in name_dictionary['NPV']):
-        a = 1 / (M - rounded_m_theta)
-        b = (N - rounded_m_theta) / (M - rounded_m_theta)
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            return(N / M)
-
-    if (measure.upper() in name_dictionary['FDR']):
-        a = -1 / rounded_m_theta
-        b = 1
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            return(N / M)
-
-    if (measure.upper() in name_dictionary['FOR']):
-        a = -1 / (M - rounded_m_theta)
-        b = 1 - ((N - rounded_m_theta) / (M - rounded_m_theta))
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            return(P / M)
-
-    if (measure.upper() in name_dictionary['ACC']):
-        a = 2 / M
-        b = (N - rounded_m_theta) / M
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            theta_star = round(theta * M) / M
-            return(((1 - theta_star) * N + (theta_star * P)) / M)
-
-    if (measure.upper() in name_dictionary['BACC']):
-        a = (1 / (2 * P)) + (1 / (2 * N))
-        b = (N - rounded_m_theta) / (2 * N)
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            return(1 / 2)
-
-    if (measure.upper() in name_dictionary['FBETA']):
-        beta_squared = beta ** 2
-        a = (1 + beta_squared) / (beta_squared * P + M * theta_star)
-        b = 0
-
-        def expectation_function(theta=theta_star, beta=beta):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            theta_star = round(theta * M) / M
-            beta_squared = beta ** 2
-            return(((1 + beta_squared) * theta_star * P) / (beta_squared * P + M * theta_star))
-
-    if (measure.upper() in name_dictionary['MCC']):
-        a = 1 / (math.sqrt(theta_star * (1 - theta_star) * P * N))
-        b = - theta_star * P / \
-            (math.sqrt(theta_star * (1 - theta_star) * P * N))
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            return(0)
-
-    if (measure.upper() in name_dictionary['BM']):
-        a = (1 / P) + (1 / N)
-        b = - rounded_m_theta / N
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            return(0)
-
-    if (measure.upper() in name_dictionary['MK']):
-        a = (1 / rounded_m_theta) + (1 / (M - rounded_m_theta))
-        b = -P / (M - rounded_m_theta)
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            return(0)
-
-    if (measure.upper() in name_dictionary['COHEN']):
-        a = 2 / ((1 - theta_star) * P + theta_star * N)
-        b = - 2 * theta_star * P / ((1 - theta_star) * P + theta_star * N)
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            return(0)
-
-    if (measure.upper() in name_dictionary['G1']):
-        a = 1 / (math.sqrt(P * rounded_m_theta))
-        b = 0
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            theta_star = round(theta * M) / M
-            return(math.sqrt(theta_star * P / M))
-
-    if (measure.upper() in name_dictionary['G2']):
-        def pmf_Y(y, theta=theta_star):
-            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            rounded_m_theta = round(theta * M)
-            help_constant = math.sqrt(
-                (rounded_m_theta ** 2) - 2 * rounded_m_theta * N + (N ** 2) + 4 * P * N * (y ** 2))
-            value_1 = (1/2) * ((- help_constant) + rounded_m_theta - N)
-            value_2 = (1/2) * (help_constant + rounded_m_theta - N)
-            return(TP_rv.pmf(round_if_close(value_1)) + TP_rv.pmf(round_if_close(value_2)))
-
-        def G_mean_2_given_tp(x, theta=theta_star):
-            rounded_m_theta = round(theta * M)
-            return(math.sqrt((x / P) * ((N - rounded_m_theta + x) / N)))
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            return(sum([TP_rv.pmf(x) * G_mean_2_given_tp(x, theta) for x in range(0, P + 1)]))
-
-        def variance_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            return(sum([TP_rv.pmf(x) * (G_mean_2_given_tp(x, theta) ** 2) for x in range(0, P + 1)]))
-
-        TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-
-        return_statistics['Distribution'] = pmf_Y
-        return_statistics['Mean'] = expectation_function(theta_star)
-        return_statistics['Variance'] = variance_function(theta_star)
-        return_statistics['Domain'] = np.unique(
-            [G_mean_2_given_tp(x) for x in range(0, P + 1)])
-        return_statistics['Expectation Function'] = expectation_function
-        return_statistics['Variance Function'] = variance_function
-
-    if (measure.upper() in name_dictionary['FOWLKES']):
-        a = 1 / (math.sqrt(P * rounded_m_theta))
-        b = 0
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            theta_star = round(theta * M) / M
-            return(math.sqrt(theta_star * P / M))
-
-    if (measure.upper() in name_dictionary['TS']):
-        def pmf_Y(y, theta=theta_star):
-            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            rounded_m_theta = round(theta * M)
-            return(TP_rv.pmf(round_if_close((y * (P + rounded_m_theta)) / (1 + y))))
-
-        def TS_given_tp(x, theta=theta_star):
-            rounded_m_theta = round(theta * M)
-            if P + rounded_m_theta - x == 0:
-                return(0)
-            else:
-                return(x / (P + rounded_m_theta - x))
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            return(sum([TP_rv.pmf(x) * TS_given_tp(x, theta) for x in range(0, P + 1)]))
-
-        def variance_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            return(sum([TP_rv.pmf(x) * (TS_given_tp(x, theta) ** 2) for x in range(0, P + 1)]))
-
-        TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-
-        return_statistics['Distribution'] = pmf_Y
-        return_statistics['Mean'] = expectation_function(theta_star)
-        return_statistics['Variance'] = variance_function(theta_star)
-        return_statistics['Domain'] = np.unique(
-            [TS_given_tp(x) for x in range(0, P + 1)])
-        return_statistics['Expectation Function'] = expectation_function
-        return_statistics['Variance Function'] = variance_function
-
-    if (measure.upper() in name_dictionary['PT']):
-        def pmf_Y(y, theta=theta_star):
-            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            rounded_m_theta = round(theta * M)
-            return(TP_rv.pmf(round_if_close((rounded_m_theta * P * ((y - 1) ** 2)) / (M * (y ** 2) - 2 * P * y + P))))
-
-        def PT_given_tp(x, theta=theta_star):
-            rounded_m_theta = round(theta * M)
-            help_1 = x / P
-            help_2 = (x - rounded_m_theta) / N
-            if help_1 + help_2 == 0:
-                return(0)
-            else:
-                return((math.sqrt(help_1 * (- help_2)) + help_2) / (help_1 + help_2))
-
-        def expectation_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            return(sum([TP_rv.pmf(x) * PT_given_tp(x, theta) for x in range(0, P + 1)]))
-
-        def variance_function(theta=theta_star):
-            if theta > 1 or theta < 0:
-                raise ValueError('Theta must be in the interval [0,1]')
-            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            return(sum([TP_rv.pmf(x) * (PT_given_tp(x, theta) ** 2) for x in range(0, P + 1)]))
-
-        TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-
-        return_statistics['Distribution'] = pmf_Y
-        return_statistics['Mean'] = expectation_function(theta_star)
-        return_statistics['Variance'] = variance_function(theta_star)
-        return_statistics['Domain'] = np.unique(
-            [PT_given_tp(x) for x in range(0, P + 1)])
-        return_statistics['Expectation Function'] = expectation_function
-        return_statistics['Variance Function'] = variance_function
-
-    if (measure.upper() in all_names_except(['G2', 'G2 APPROX', 'TS', 'PT'])):
-        return_statistics['Distribution'] = generate_hypergeometric_distribution(
-            a, b)
-        return_statistics['Variance'] = (a ** 2) * var_tp
-        return_statistics['Mean'] = (a * mean_tp) + b
-        return_statistics['Domain'] = [(a * x) + b for x in range(0, P + 1)]
-        return_statistics['Fast Expectation Function'] = expectation_function
-        return_statistics['Variance Function'] = generate_variance_function(
-            a, b)
-
-    return(return_statistics)
+basic_baseline_statistics(theta = 0.5, true_labels = [1,0,1,1,1], measure = 'PT')    
+# %%
