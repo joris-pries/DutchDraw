@@ -226,13 +226,13 @@ def optimized_basic_baseline(true_labels, measure, beta=1):
     --------
         dict: Containing `Max Expected Value`, `Argmax Expected Value`, `Min Expected Value` and `Argmin Expected Value`. 
 
-            - `Max Expected Value` (float): 
+            - `Max Expected Value` (float): Maximum of the expected values for all `theta`.
 
-            - `Argmax Expected Value` (list): 
+            - `Argmax Expected Value` (list): List of all `theta` values that maximize the expected value.
 
-            - `Min Expected Value` (float): 
+            - `Min Expected Value` (float): Minimum of the expected values for all `theta`.
 
-            - `Argmin Expected Value` (list): 
+            - `Argmin Expected Value` (list): List of all `theta` values that minimize the expected value.
 
     Raises:
     --------
@@ -246,17 +246,23 @@ def optimized_basic_baseline(true_labels, measure, beta=1):
     See also:
     --------
         all_names_except
-        select_names
-        round_if_close
+        basic_baseline
+
 
     Example:
     --------
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
         >>> true_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
-        >>> baseline = basic_baseline(true_labels, 'MK')
-        >>> print(baseline.keys())
-        dict_keys(['Distribution', 'Domain', 'Fast Expectation Function', 'Variance Function', 'Expectation Function'])
+        >>> optimal_baseline = optimized_basic_baseline(true_labels, measure = 'FBETA', beta = 1)
+        >>> print('Max Expected Value: {:06.4f}'.format(optimal_baseline['Max Expected Value']))
+        Max Expected Value: 0.1805
+        >>> print('Argmax Expected Value: {:06.4f}'.format(optimal_baseline['Argmax Expected Value']))
+        Argmax Expected Value: 1.0000
+        >>> print('Min Expected Value: {:06.4f}'.format(optimal_baseline['Min Expected Value']))
+        Min Expected Value: 0.0000
+        >>> print('Argmin Expected Value: {:06.4f}'.format(optimal_baseline['Argmin Expected Value']))
+        Argmin Expected Value: 0.0000
     """
 
     measure = measure.upper()
