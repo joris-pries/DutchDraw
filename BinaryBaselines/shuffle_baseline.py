@@ -4,6 +4,7 @@ import statistics
 import math
 from scipy.stats import hypergeom
 import numpy as np
+from functools import wraps
 
 __all__ = ['all_names_except', 'basic_baseline_statistics', 'measure_score', 'name_dictionary',
            'optimized_basic_baseline', 'possible_names', 'round_if_close', 'select_names']
@@ -58,7 +59,7 @@ possible_names = all_names_except([""])
 # %%
 def measure_score(true_labels, predicted_labels, measure, beta= 1):
     """
-    FUNCTION DESCRIPTION
+    To determine the performance of a predictive model a measure is used. This function determines the measure for the given input labels.
 
     Args:
     --------
@@ -97,16 +98,16 @@ def measure_score(true_labels, predicted_labels, measure, beta= 1):
         Markedness: 0.0061
         >>> print('F2 Score: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure = 'FBETA', beta = 2))) # Measuring FBETA for beta = 2
         F2 Score: 0.1053
-            
+
     """
 
     if measure not in all_names_except(['G2 APPROX']):
         raise ValueError("This measure name is not recognized.")
 
-    if type(true_labels) != 'list':
+    if type(true_labels) != list:
         raise TypeError('true_labels should be a list')
 
-    if type(predicted_labels) != 'list':
+    if type(predicted_labels) != list:
         raise TypeError('predicted_labels should be a list')
 
     if not np.unique(np.array(true_labels)) in np.array([0, 1]):
@@ -222,19 +223,23 @@ def measure_score(true_labels, predicted_labels, measure, beta= 1):
 
 # %%
 
-def optimized_basic_baseline(true_labels, measure= possible_names, beta=1):
-
-    if measure not in possible_names:
+def optimized_basic_baseline(true_labels, measure= possible_names, beta= 1):
+    
+    if measure not in all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
 
-    if not np.array_equal(np.unique(np.array(true_labels)), np.array([0, 1])):
-        raise ValueError(
-            "true_labels should only contain zeros and ones with at least one of each.")
+    if type(true_labels) != list:
+        raise TypeError('true_labels should be a list')
+
+    if not np.unique(np.array(true_labels)) in np.array([0, 1]):
+        raise ValueError("true_labels should only contain zeros and ones.")
+
 
     P = sum(true_labels)
     M = len(true_labels)
     N = M - P
     return_statistics = {}
+
     if (measure.upper() in name_dictionary['TP']):
         return_statistics['Max Expected Value'] = P
         return_statistics['Argmax Expected Value'] = 1
@@ -419,20 +424,428 @@ def optimized_basic_baseline(true_labels, measure= possible_names, beta=1):
 
 
 def round_if_close(x):
+    """
+    This function is used to round x if it is close. This is useful for the pmf of the hypergeometric distribution.
+    """
     if math.isclose(x, round(x), abs_tol=0.000001):
         return(round(x))
     else:
         return(x)
 
 
-def basic_baseline_statistics(theta, true_labels, measure=possible_names, beta=1):
 
-    if measure not in possible_names:
+
+
+def add_check_theta_generator(measure):
+    include_0 = True
+    include_1 = True
+    # Should 0 be included
+    if measure.upper() in select_names(['PPV', 'FDR', 'MCC', 'MK', 'PT', 'G1']):
+        include_0 = False
+    # Should 1 be included
+    if measure.upper() in select_names(['NPV', 'FOR', 'MCC', 'MK', 'PT']):
+        include_1 = False
+
+    def add_check_theta(func):
+        @wraps(func)
+        def inner(*args, **kwargs):
+            if (theta > 1 or theta < 0) or (theta == 0 and not include_0) or (theta == 1 and not include_1):
+                raise ValueError('Theta must be in the interval ' + include_0 * '[' + (not include_0) * '(' + '0,1' + include_1 * ']' + (not include_1) * ')')
+            return func(*args, **kwargs)
+        return inner
+    return add_check_theta
+
+
+
+
+
+
+def basic_baseline(true_labels, measure, beta=1):
+    """
+    FUNCTION DESCRIPTION
+
+    Args:
+    --------
+        true_labels (list): 1-dimensional boolean list containing the true labels.
+        
+        measure (string): Measure name, see `all_names_except([''])` for possible measure names.
+        
+        beta (float): Default is 1. Parameter for the F-beta score.
+
+    Returns:
+    --------
+        dict: Containing `Distribution`, `Domain`, `(Fast) Expectation Function` and `Variance Function`. 
+
+            - `Distribution` (function): Pmf of the measure, given by: `pmf_Y(y, theta = theta_star)`, where `y` is a measure score and `theta` is the parameter of the shuffle baseline. Note that by default, the original given `theta` is used. However, it is possible to use another theta
+            
+            - `Domain` (list): Attainable measure scores for the given `theta` and `true_labels`.
+            
+            - `(Fast) Expectation Function` (function): Expectation function of the baseline that can be used for other values of `theta`. If `Fast Expectation Function` is returned, there exists a theoretical expectation that can be used for fast computation. Otherwise, `Expectation Function` is returned.
+            
+            - `Variance Function` (function): Variance function for other values of `theta`.
+
+    Raises:
+    --------
+        ValueError 
+            If `measure` is not in `all_names_except([''])`.
+        ValueError
+            If `true_labels` does not only contain zeros and ones.
+        TypeError
+            If `true_labels` is not a list.
+
+    See also:
+    --------
+        all_names_except
+
+    Example:
+    --------
+ 
+
+    """
+
+    if measure not in all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
 
-    if not np.array_equal(np.unique(np.array(true_labels)), np.array([0, 1])):
-        raise ValueError(
-            "true_labels should only contain zeros and ones with at least one of each.")
+    if type(true_labels) != list:
+        raise TypeError('true_labels should be a list')
+
+    if not np.unique(np.array(true_labels)) in np.array([0, 1]):
+        raise ValueError("true_labels should only contain zeros and ones.")
+
+
+    P = sum(true_labels)
+    M = len(true_labels)
+    N = M - P
+
+    return_statistics = {}
+
+    def generate_hypergeometric_distribution(a, b):
+        def pmf_Y(y, theta):
+            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
+            # Ik heb round toegevoegd, omdat er kleine afrond foutjes worden gemaakt
+            return(TP_rv.pmf(round_if_close((y - b) / a)))
+        return(pmf_Y)
+
+    def generate_variance_function(a):
+        @add_check_theta_generator(measure)
+        def variance_function(theta):         
+            theta_star = round(theta * M) / M
+            rounded_m_theta = round(theta * M)
+            var_tp = (theta_star * (1 - theta_star) * P * N) / (M - 1)
+            return((eval(a) ** 2) * var_tp)
+        return(variance_function)
+
+    def generate_expectation_function(a,b):
+        @add_check_theta_generator(measure)
+        def expectation_function(theta):            
+            theta_star = round(theta * M) / M
+            rounded_m_theta = round(theta * M)
+            mean_tp = theta_star * P
+            return(eval(a) * mean_tp + eval(b))
+        return(expectation_function)
+
+    def generate_fast_expectation_function(expectation_string):
+        @add_check_theta_generator(measure)
+        def fast_expectation_function(theta):
+            theta_star = round(theta * M) / M
+            return(eval(expectation_string))
+        return(fast_expectation_function)
+
+    def generate_domain_function(a,b):
+        @add_check_theta_generator(measure)
+        def domain_function(theta):
+            theta_star = round(theta * M) / M
+            rounded_m_theta = round(theta * M)
+            return([(eval(a) * x) + eval(b) for x in range(0, P + 1)])
+        return(domain_function)
+
+    def generate_domain_function_given_x(given_x_function):
+        @add_check_theta_generator(measure)
+        def domain_function(theta):
+            return(np.unique([given_x_function(x, theta) for x in range(0, P + 1)]))
+        return(domain_function)
+
+    if (measure.upper() in name_dictionary['TP']):
+        a = '1'
+        b = '0'
+        expectation_string = 'theta_star * ' + str(P)
+
+    if (measure.upper() in name_dictionary['TN']):
+        a = '1'
+        b = str(N) + ' - rounded_m_theta'
+        expectation_string = '(1 - theta_star) * ' + str(N)
+
+    if (measure.upper() in name_dictionary['FP']):
+        a = '-1'
+        b = 'rounded_m_theta'
+        expectation_string = 'theta_star * ' + str(N)
+
+    if (measure.upper() in name_dictionary['FN']):
+        a = '-1'
+        b = str(P)
+        expectation_string = '(1 - theta_star) * ' + str(P)
+
+    if (measure.upper() in name_dictionary['TPR']):
+        a = '1 / '+ str(P)
+        b = '0'
+        expectation_string = 'theta_star'
+
+    if (measure.upper() in name_dictionary['TNR']):
+        a = '1 / ' + str(N)
+        b = '(' + str(N) + ' - rounded_m_theta) / ' + str(N)
+        expectation_string = '1 - theta_star'
+
+    if (measure.upper() in name_dictionary['FPR']):
+        a = '-1 / ' + str(N)
+        b = 'rounded_m_theta / ' + str(N)
+        expectation_string = 'theta_star'
+
+    if (measure.upper() in name_dictionary['FNR']):
+        a = '-1 / ' + str(P)
+        b = '1'
+        expectation_string = '1 - theta_star'
+
+    if (measure.upper() in name_dictionary['PPV']):
+        a = '1 / rounded_m_theta'
+        b = '0'
+        expectation_string = str(P) + ' / ' + str(M)
+
+    if (measure.upper() in name_dictionary['NPV']):
+        a = '1 / (' + str(M) + ' - rounded_m_theta)'
+        b = '(' + str(N) + ' - rounded_m_theta) / (' + str(M) + ' - rounded_m_theta)'
+        expectation_string = str(N) + ' / ' + str(M)
+
+    if (measure.upper() in name_dictionary['FDR']):
+        a = '-1 / rounded_m_theta'
+        b = '1'
+        expectation_string = str(N) + ' / ' + str(M)
+
+    if (measure.upper() in name_dictionary['FOR']):
+        a = '-1 / (' + str(M) + ' - rounded_m_theta)'
+        b = '1 - ((' + str(N) + ' - rounded_m_theta) / (' + str(M) + ' - rounded_m_theta))'
+        expectation_string = str(P) + ' / ' + str(M)
+
+    if (measure.upper() in name_dictionary['ACC']):
+        a = '2 / ' + str(M)
+        b = '(' + str(N) + ' - rounded_m_theta) / ' + str(M)
+        expectation_string = '((1 - theta_star) * ' + str(N) + ' + (theta_star * ' + str(P) + ')) / ' + str(M)
+
+    if (measure.upper() in name_dictionary['BACC']):
+        a = '(1 / (2 * ' + str(P) + ')) + (1 / (2 * ' + str(N) + '))'
+        b = '(' + str(N) + ' - rounded_m_theta) / (2 * ' + str(N) + ')'
+        expectation_string = '1 / 2'
+
+    if (measure.upper() in name_dictionary['FBETA']):
+        a = '(1 + (' + str(beta) + ' ** 2)) / ((' + str(beta) + ' ** 2) * ' + str(P) + ' + ' + str(M) + ' * theta_star)'
+        b = '0'
+        expectation_string = '((1 + (' + str(beta) + ' ** 2)) * theta_star * ' + str(P) + ') / (' + str(beta) + ' ** 2) * ' + str(P) + ' + ' + str(M) + ' * theta_star)'
+
+    if (measure.upper() in name_dictionary['MCC']):
+        a = '1 / (math.sqrt(theta_star * (1 - theta_star) * ' + str(P) + ' * ' + str(N) + '))'
+        b = '- theta_star * ' + str(P) + ' / (math.sqrt(theta_star * (1 - theta_star) * ' + str(P) + ' * ' + str(N) + '))'
+        expectation_string = '0'
+
+    if (measure.upper() in name_dictionary['BM']):
+        a = '(1 / ' + str(P) + ') + (1 / ' + str(N) + ')'
+        b = '- rounded_m_theta / ' + str(N)
+        expectation_string = '0'
+
+    if (measure.upper() in name_dictionary['MK']):
+        a = '(1 / rounded_m_theta) + (1 / (' + str(M) + ' - rounded_m_theta))'
+        b = '-' + str(P) + ' / (' + str(M) + ' - rounded_m_theta)'
+        expectation_string = '0'
+
+    if (measure.upper() in name_dictionary['COHEN']):
+        a = '2 / ((1 - theta_star) * ' + str(P) + ' + theta_star * ' + str(N) + ')'
+        b = '- 2 * theta_star * ' + str(P) + ' / ((1 - theta_star) * ' + str(P) + ' + theta_star * ' + str(N) + ')'
+        expectation_string = '0'
+
+    if (measure.upper() in name_dictionary['G1']):
+        a = '1 / (math.sqrt(' + str(P) + ' * rounded_m_theta))'
+        b = '0'
+        expectation_string = 'math.sqrt(theta_star * ' + str(P) + ' / ' + str(M) + ')'
+
+    if (measure.upper() in name_dictionary['G2']):
+        @add_check_theta_generator(measure)
+        def pmf_Y(y, theta):
+            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
+            rounded_m_theta = round(theta * M)
+            help_constant = math.sqrt(
+                (rounded_m_theta ** 2) - 2 * rounded_m_theta * N + (N ** 2) + 4 * P * N * (y ** 2))
+            value_1 = (1/2) * ((- help_constant) + rounded_m_theta - N)
+            value_2 = (1/2) * (help_constant + rounded_m_theta - N)
+            return(TP_rv.pmf(round_if_close(value_1)) + TP_rv.pmf(round_if_close(value_2)))
+
+        def given_x_function(x, theta):
+            rounded_m_theta = round(theta * M)
+            return(math.sqrt((x / P) * ((N - rounded_m_theta + x) / N)))
+
+        @add_check_theta_generator(measure)
+        def expectation_function(theta):
+            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
+            return(sum([TP_rv.pmf(x) * G_mean_2_given_tp(x, theta) for x in range(0, P + 1)]))
+
+        @add_check_theta_generator(measure)
+        def variance_function(theta):
+            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
+            return(sum([TP_rv.pmf(x) * (G_mean_2_given_tp(x, theta) ** 2) for x in range(0, P + 1)]))
+
+
+    if (measure.upper() in name_dictionary['TS']):
+        @add_check_theta_generator(measure)
+        def pmf_Y(y, theta):
+            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
+            rounded_m_theta = round(theta * M)
+            return(TP_rv.pmf(round_if_close((y * (P + rounded_m_theta)) / (1 + y))))
+
+        def given_x_function(x, theta):
+            rounded_m_theta = round(theta * M)
+            if P + rounded_m_theta - x == 0:
+                return(0)
+            else:
+                return(x / (P + rounded_m_theta - x))
+
+        @add_check_theta_generator(measure)
+        def expectation_function(theta):
+            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
+            return(sum([TP_rv.pmf(x) * TS_given_tp(x, theta) for x in range(0, P + 1)]))
+
+        @add_check_theta_generator(measure)
+        def variance_function(theta):
+            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
+            return(sum([TP_rv.pmf(x) * (TS_given_tp(x, theta) ** 2) for x in range(0, P + 1)]))
+
+
+    if (measure.upper() in name_dictionary['PT']):
+        @add_check_theta_generator(measure)
+        def pmf_Y(y, theta):
+            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
+            rounded_m_theta = round(theta * M)
+            return(TP_rv.pmf(round_if_close((rounded_m_theta * P * ((y - 1) ** 2)) / (M * (y ** 2) - 2 * P * y + P))))
+
+        def given_x_function(x, theta):
+            rounded_m_theta = round(theta * M)
+            help_1 = x / P
+            help_2 = (x - rounded_m_theta) / N
+            if help_1 + help_2 == 0:
+                return(0)
+            else:
+                return((math.sqrt(help_1 * (- help_2)) + help_2) / (help_1 + help_2))
+
+        @add_check_theta_generator(measure)
+        def expectation_function(theta):
+            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
+            return(sum([TP_rv.pmf(x) * PT_given_tp(x, theta) for x in range(0, P + 1)]))
+
+        @add_check_theta_generator(measure)
+        def variance_function(theta):
+            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
+            return(sum([TP_rv.pmf(x) * (PT_given_tp(x, theta) ** 2) for x in range(0, P + 1)]))
+
+        
+
+    if (measure.upper() in select_names(['G2', 'TS', 'PT'])):
+        return_statistics['Distribution'] = pmf_Y
+        return_statistics['Expectation Function'] = expectation_function
+        return_statistics['Variance Function'] = variance_function
+        return_statistics['Domain'] = generate_domain_function_given_x(given_x_function)
+
+
+
+    # TODO: G2 APPROX overal eruit slopen
+    if (measure.upper() in all_names_except(['G2', 'G2 APPROX', 'TS', 'PT'])):
+        return_statistics['Distribution'] = generate_hypergeometric_distribution(
+            a, b)
+        return_statistics['Domain'] = generate_domain_function(a,b)
+        return_statistics['Fast Expectation Function'] = generate_fast_expectation_function(expectation_string)
+        return_statistics['Variance Function'] = generate_variance_function(a)
+        return_statistics['Expectation Function'] = generate_expectation_function(a,b)
+
+    return(return_statistics)
+
+
+
+
+
+
+
+
+
+
+
+# %%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def basic_baseline_statistics(theta, true_labels, measure=possible_names, beta=1):
+    """
+    FUNCTION DESCRIPTION
+
+    Args:
+    --------
+        true_labels (list): 1-dimensional boolean list containing the true labels.
+        
+        measure (string): Measure name, see `all_names_except([''])` for possible measure names.
+        
+        beta (float): Default is 1. Parameter for the F-beta score.
+
+    Returns:
+    --------
+        dict: Containing `Distribution`, `Mean`, `Variance`, `Domain`, `(Fast) Expectation Function` and `Variance Function`. 
+
+            - `Distribution` (function): Pmf of the measure, given by: `pmf_Y(y, theta = theta_star)`, where `y` is a measure score and `theta` is the parameter of the shuffle baseline. Note that by default, the original given `theta` is used. However, it is possible to use another theta
+
+            - `Mean` (float): Expected baseline given `theta`.
+            
+            - `Variance` (float): Variance baseline given `theta`.
+            
+            - `Domain` (list): Attainable measure scores for the given `theta` and `true_labels`.
+            
+            - `(Fast) Expectation Function` (function): Expectation function of the baseline that can be used for other values of `theta`. If `Fast Expectation Function` is returned, there exists a theoretical expectation that can be used for fast computation. Otherwise, `Expectation Function` is returned.
+            
+            - `Variance Function` (function): Variance function for other values of `theta`.
+
+    Raises:
+    --------
+        ValueError 
+            If `measure` is not in `all_names_except([''])`.
+        ValueError
+            If `true_labels` does not only contain zeros and ones.
+        TypeError
+            If `true_labels` is not a list.
+
+    See also:
+    --------
+        all_names_except
+
+    Example:
+    --------
+ 
+
+    """
+
+    if measure not in all_names_except(['']):
+        raise ValueError("This measure name is not recognized.")
+
+    if type(true_labels) != list:
+        raise TypeError('true_labels should be a list')
+
+    if not np.unique(np.array(true_labels)) in np.array([0, 1]):
+        raise ValueError("true_labels should only contain zeros and ones.")
 
     # TODO: check if other measures also don't deal with theta = 1
     if theta == 1 and measure in select_names(('NPV', 'FOR', 'MCC', 'MK')):
