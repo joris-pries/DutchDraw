@@ -1,6 +1,13 @@
 # BinaryBaselines
 
-BinaryBaselines is a Python package for binary classification.
+BinaryBaselines is a Python package for binary classification. 
+
+## Paper
+
+This package is an implementation of the ideas from INSERTONZEPAPER, where VERHAALWATWEINDEPAPERDOEN.
+
+### Citation
+If you have used the BinaryBaselines package, please also cite: INSERTONZEBIBTEX
 
 ## Installation
 
