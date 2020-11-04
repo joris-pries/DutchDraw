@@ -11,41 +11,48 @@ pip install BinaryBaselines
 ```
 
 ----
+
 ### Windows users
 
 ```bash
 python -m pip install --upgrade  --index-url https://test.pypi.org/simple/ BinaryBaselines
 ```
+
 <!-- ```bash
 python -m pip install BinaryBaselines
 ``` -->
 
-or 
+or
+
 ```bash
 py -m pip install --upgrade  --index-url https://test.pypi.org/simple/ BinaryBaselines
 ```
+
 <!-- ```bash
 py -m pip install BinaryBaselines
 ``` -->
 
-
-
 ## Method
-To properly assess the performance of a binary classification model, the score of a chosen measure should be compared with the score of a 'simple' baseline. E.g. an accuracy of 0.9 isn't that great if a model (without knowledge) attains an accuracy of 0.88. 
+
+To properly assess the performance of a binary classification model, the score of a chosen measure should be compared with the score of a 'simple' baseline. E.g. an accuracy of 0.9 isn't that great if a model (without knowledge) attains an accuracy of 0.88.
 
 ### Basic baseline
-Let `M`  be the total number of samples, where `P` are positive and `N` are negative. Let `θ_star = round(θ * M) / M`. Randomly shuffle the samples and label the first `θ_star * M` samples as `1` and the rest as `0`. This gives a baseline for each `θ` in `[0,1]`. Our package can optimize (maximize and minimize) the baseline. 
+
+Let `M`  be the total number of samples, where `P` are positive and `N` are negative. Let `θ_star = round(θ * M) / M`. Randomly shuffle the samples and label the first `θ_star * M` samples as `1` and the rest as `0`. This gives a baseline for each `θ` in `[0,1]`. Our package can optimize (maximize and minimize) the baseline.
 
 ## Reasons to use
+
 This package contains multiple functions. Let `true_labels` be the actual labels and `predicted_labels` be the labels predicted by a model.
 
-If: 
+If:
+
 * You want to determine an included measure --> `measure_score(true_labels, predicted_labels, measure)`
 * You want to get statistics of a baseline given `theta` --> `basic_baseline_given_theta(theta, true_labels, measure)`
 * You want to get statistics of the optimal baseline --> `optimized_basic_baseline(true_labels, measure)`
 * You want the baseline without specifying `theta` --> `basic_baseline(true_labels, measure)`
 
 ### List of all included measures
+
 | Measure                                                                  |                                                                               Definition                                                                                |
 | ------------------------------------------------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | TP                                                                       |                                                                                   TP                                                                                    |
@@ -72,22 +79,26 @@ If:
 | TS, THREAT SCORE, CRITICAL SUCCES INDEX, CSI                             |                                                                           TP / (TP + FN + FP)                                                                           |
 | PT, PREVALENCE THRESHOLD                                                 |                                                                  (sqrt(TPR * FPR) - FPR) / (TPR - FPR)                                                                  |
 
-
 ## Usage
 
 As example, we first generate the true and predicted labels.
+
 ```python
-import random 
+import random
 random.seed(123) # To ensure similar outputs
 
 predicted_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
 true_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
 ```
----
+
+----
+
 ### Measure performance
+
 In general, to determine the score of a measure, use `measure_score(true_labels, predicted_labels, measure, beta = 1)`.
 
 #### Input
+
 * `true_labels` (list): 1-dimensional boolean list containing the true labels.
 
 * `predicted_labels` (list): 1-dimensional boolean list containing the predicted labels.
@@ -97,9 +108,11 @@ In general, to determine the score of a measure, use `measure_score(true_labels,
 * `beta` (float): Default is 1. Parameter for the F-beta score.
 
 #### Output
+
 * `float`: The score of the given measure evaluated with the predicted and true labels.
 
 #### Example
+
 To examine the performance of the predicted labels, we measure the markedness (MK) and F<sub>2</sub> score (FBETA).
 
 ```python
@@ -111,7 +124,9 @@ print('Markedness: {:06.4f}'.format(bbl.measure_score(true_labels, predicted_lab
 # Measuring FBETA for beta = 2:
 print('F2 Score: {:06.4f}'.format(bbl.measure_score(true_labels, predicted_labels, measure = 'FBETA', beta = 2)))
 ```
+
 This returns as output
+
 ```python
 Markedness: 0.0061
 F2 Score: 0.1053
@@ -119,12 +134,14 @@ F2 Score: 0.1053
 
 Note that `FBETA` is the only measure that requires an additional parameter value.
 
----
+----
 
 ### Get basic baseline given `theta`
+
 To obtain the basic baseline given `theta` use `basic_baseline_given_theta(theta, true_labels, measure, beta = 1)`.
 
 #### Input
+
 * `theta` (float): Parameter for the shuffle baseline.
 
 * `true_labels` (list): 1-dimensional boolean list containing the true labels.
@@ -134,14 +151,15 @@ To obtain the basic baseline given `theta` use `basic_baseline_given_theta(theta
 * `beta` (float): Default is 1. Parameter for the F-beta score.
 
 #### Output
+
 The function `basic_baseline_given_theta` gives the following output:
 
 * `dict`: Containing `Mean` and `Variance`
-    * `Mean` (float): Expected baseline given `theta`.
-    * `Variance` (float): Variance baseline given `theta`.
-
+  * `Mean` (float): Expected baseline given `theta`.
+  * `Variance` (float): Variance baseline given `theta`.
 
 #### Example
+
 To evaluate the performance of a model, we want to obtain a baseline for the F<sub>2</sub> score (FBETA).
 
 ```python
@@ -149,22 +167,27 @@ results_baseline = bbl.basic_baseline_given_theta(theta = 0.5, true_labels = tru
 ```
 
 This gives us the mean and variance of the baseline.
+
 ```python
 print('Mean: {:06.4f}'.format(results_baseline['Mean']))
 print('Variance: {:06.4f}'.format(results_baseline['Variance']))
 ```
-with output 
+
+with output
 
 ```python
 Mean: 0.2829
 Variance: 0.0001
 ```
 
-------
-### Get basic baseline 
+----
+
+### Get basic baseline
+
 To obtain the basic baseline without specifying `theta` use `basic_baseline(true_labels, measure, beta = 1)`.
 
 #### Input
+
 * `true_labels` (list): 1-dimensional boolean list containing the true labels.
 
 * `measure` (string): Measure name, see `all_names_except([''])` for possible measure names.
@@ -172,33 +195,36 @@ To obtain the basic baseline without specifying `theta` use `basic_baseline(true
 * `beta` (float): Default is 1. Parameter for the F-beta score.
 
 #### Output
+
 The function `basic_baseline` gives the following output:
 
-* `dict`: Containing `Distribution`, `Domain`, `(Fast) Expectation Function` and `Variance Function`. 
+* `dict`: Containing `Distribution`, `Domain`, `(Fast) Expectation Function` and `Variance Function`.
 
-    * `Distribution` (function): Pmf of the measure, given by: `pmf_Y(y, theta)`, where `y` is a measure score and `theta` is the parameter of the shuffle baseline.
+  * `Distribution` (function): Pmf of the measure, given by: `pmf_Y(y, theta)`, where `y` is a measure score and `theta` is the parameter of the shuffle baseline.
 
-    * `Domain` (function): Function that returns attainable measure scores with argument `theta`.
+  * `Domain` (function): Function that returns attainable measure scores with argument `theta`.
 
-    * `(Fast) Expectation Function` (function): Expectation function of the baseline with `theta` as argument. If `Fast Expectation Function` is returned, there exists a theoretical expectation that can be used for fast computation.
+  * `(Fast) Expectation Function` (function): Expectation function of the baseline with `theta` as argument. If `Fast Expectation Function` is returned, there exists a theoretical expectation that can be used for fast computation.
 
-    * `Variance Function` (function): Variance function for all values of `theta`.
-
+  * `Variance Function` (function): Variance function for all values of `theta`.
 
 #### Example
+
 Next, we determine the baseline without specifying `theta`. This returns a number of functions that can be used for different values of `theta`.
 
 ```python
 baseline = bbl.basic_baseline(true_labels = true_labels, measure = 'G2')
 print(baseline.keys())
 ```
-with output 
+
+with output
 
 ```python
 dict_keys(['Distribution', 'Domain', 'Fast Expectation Function', 'Variance Function', 'Expectation Function'])
 ```
 
 To inspect the expected value of `G2` for different `theta` values, we do:
+
 ```python
 import matplotlib.pyplot as plt
 theta_values = np.arange(0, 1 + 0.01, 0.01)
@@ -208,11 +234,13 @@ plt.xlabel('Theta')
 plt.ylabel('Expected value')
 plt.show()
 ```
+
 with output:
 
 ![expectation example](BinaryBaselines/expected_value_function_example.png)
 
 The variance can be determined similarly
+
 ```python
 theta_values = np.arange(0, 1 + 0.01, 0.01)
 variance_plot = [baseline['Variance Function'](theta) for theta in theta_values]
@@ -221,11 +249,13 @@ plt.xlabel('Theta')
 plt.ylabel('Variance')
 plt.show()
 ```
+
 with output:
 
 ![expectation example](BinaryBaselines/variance_function_example.png)
 
 `Distribution` is a function with two arguments: `y` and `theta`. Let's investigate the distribution for `theta = 0.5` using `Domain`.
+
 ```python
 theta = 0.5
 pmf_values = [baseline['Distribution'](y, theta) for y in baseline['Domain'](theta)]
@@ -234,16 +264,19 @@ plt.xlabel('Measure score')
 plt.ylabel('Probability mass')
 plt.show()
 ```
+
 with output:
 
 ![expectation example](BinaryBaselines/pmf_example.png)
 
----
+----
 
 ### Get optimal baseline
+
 To obtain the optimal baseline use `optimized_basic_baseline(true_labels, measure = possible_names, beta = 1)`.
 
 #### Input
+
 * `true_labels` (list): 1-dimensional boolean list containing the true labels.
 
 * `measure` (string): Measure name, see `all_names_except([''])` for possible measure names.
@@ -251,9 +284,10 @@ To obtain the optimal baseline use `optimized_basic_baseline(true_labels, measur
 * `beta` (float): Default is 1. Parameter for the F-beta score.
 
 #### Output
+
 The function `optimized_basic_baseline` gives the following output:
 
-* dict: Containing `Max Expected Value`, `Argmax Expected Value`, `Min Expected Value` and `Argmin Expected Value`. 
+* dict: Containing `Max Expected Value`, `Argmax Expected Value`, `Min Expected Value` and `Argmin Expected Value`.
   * `Max Expected Value` (float): Maximum of the expected values for all `theta`.
   * `Argmax Expected Value` (list): List of all `theta_star` values that maximize the expected value.
   * `Min Expected Value` (float): Minimum of the expected values for all `theta`.
@@ -262,6 +296,7 @@ The function `optimized_basic_baseline` gives the following output:
 Note that `theta_star = round(theta * M) / M`.
 
 #### Example
+
 To evaluate the performance of a model, we want to obtain the optimal baseline for the F<sub>2</sub> score (FBETA).
 
 ```python
@@ -272,6 +307,7 @@ print('Argmax Expected Value: {:06.4f}'.format(*optimal_baseline['Argmax Expecte
 print('Min Expected Value: {:06.4f}'.format(optimal_baseline['Min Expected Value']))
 print('Argmin Expected Value: {:06.4f}'.format(*optimal_baseline['Argmin Expected Value']))
 ```
+
 with output
 
 ```python
@@ -280,9 +316,11 @@ Argmax Expected Value: 1.0000
 Min Expected Value: 0.0000
 Argmin Expected Value: 0.0000
 ```
----
+
+----
 
 ### All example code
+
 ```python
 import BinaryBaselines as bbl
 import random
@@ -360,8 +398,6 @@ print('Min Expected Value: {:06.4f}'.format(optimal_baseline['Min Expected Value
 print('Argmin Expected Value: {:06.4f}'.format(*optimal_baseline['Argmin Expected Value']))
 ```
 
-
-
-
 ## License
+
 [MIT](https://choosealicense.com/licenses/mit/)
