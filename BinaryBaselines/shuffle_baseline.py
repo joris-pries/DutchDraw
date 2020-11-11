@@ -31,7 +31,8 @@ name_dictionary = {
     'MK': ['MARKEDNESS', 'MK'],
     'COHEN': ['COHEN', 'COHENS KAPPA', 'KAPPA'],
     'G1': ['GMEAN1', 'G MEAN 1', 'G1'],
-    'G2': ['GMEAN2', 'G MEAN 2', 'G2', 'FOWLKES-MALLOWS', 'FOWLKES MALLOWS', 'FOWLKES', 'MALLOWS'],
+    'G2': ['GMEAN2', 'G MEAN 2', 'G2', 'FOWLKES-MALLOWS',
+           'FOWLKES MALLOWS', 'FOWLKES', 'MALLOWS'],
     'TS': ['THREAT SCORE', 'CRITICAL SUCCES INDEX', 'TS', 'CSI'],
     'PT': ['PREVALENCE THRESHOLD', 'PT']
 }
@@ -47,7 +48,8 @@ def all_names_except(name_keys):
     This function creates a list of all names, except the names with name_keys
     as key in the name dictionary.
     """
-    return sum([list_names for key_name, list_names in name_dictionary.items() if key_name not in name_keys], [])
+    return sum([list_names for key_name, list_names in name_dictionary.items() 
+                if key_name not in name_keys], [])
 
 def measure_score(true_labels, predicted_labels, measure, beta=1):
     """
