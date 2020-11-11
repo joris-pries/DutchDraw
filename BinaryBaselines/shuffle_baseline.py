@@ -1,4 +1,6 @@
 # %%
+#import random
+#import statistics
 import math
 from functools import wraps
 import numpy as np
@@ -87,11 +89,11 @@ def measure_score(true_labels, predicted_labels, measure, beta=1):
     --------
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
-        >>> predicted_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
-        >>> true_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
-        >>> print('Markedness: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure = 'MK'))) # Measuring markedness (MK)
+        >>> predicted_labels = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
+        >>> true_labels = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
+        >>> print('Markedness: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure='MK'))) # Measuring markedness (MK)
         Markedness: 0.0061
-        >>> print('F2 Score: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure = 'FBETA', beta = 2))) # Measuring FBETA for beta = 2
+        >>> print('F2 Score: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure='FBETA', beta=2))) # Measuring FBETA for beta = 2
         F2 Score: 0.1053
 
     """
@@ -253,8 +255,8 @@ def optimized_basic_baseline(true_labels, measure, beta=1):
     --------
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
-        >>> true_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
-        >>> optimal_baseline = optimized_basic_baseline(true_labels, measure = 'FBETA', beta = 1)
+        >>> true_labels = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
+        >>> optimal_baseline = optimized_basic_baseline(true_labels, measure='FBETA', beta=1)
         >>> print('Max Expected Value: {:06.4f}'.format(optimal_baseline['Max Expected Value']))
         Max Expected Value: 0.1805
         >>> print('Argmax Expected Value: {:06.4f}'.format(optimal_baseline['Argmax Expected Value']))
@@ -523,7 +525,7 @@ def basic_baseline(true_labels, measure, beta=1):
     --------
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
-        >>> true_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
+        >>> true_labels = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
         >>> baseline = basic_baseline(true_labels, 'MK')
         >>> print(baseline.keys())
         dict_keys(['Distribution', 'Domain', 'Fast Expectation Function', 'Variance Function', 'Expectation Function'])
@@ -842,8 +844,8 @@ def basic_baseline_given_theta(theta, true_labels, measure, beta=1):
     --------
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
-        >>> true_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
-        >>> baseline = basic_baseline_given_theta(theta= 0.9,true_labels= true_labels, measure= 'FBETA', beta= 1)
+        >>> true_labels = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
+        >>> baseline = basic_baseline_given_theta(theta= 0.9, true_labels=true_labels, measure='FBETA', beta=1)
         >>> print('Mean: {:06.4f} and Variance: {:06.4f}'.format(baseline['Mean'], baseline['Variance']))
         Mean: 0.1805 and Variance: 0.0000
     """
