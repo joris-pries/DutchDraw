@@ -50,7 +50,7 @@ def all_names_except(name_keys):
     This function creates a list of all names, except the names with name_keys
     as key in the name dictionary.
     """
-    return sum([list_names for key_name, list_names in name_dictionary.items() 
+    return sum([list_names for key_name, list_names in name_dictionary.items()
                 if key_name not in name_keys], [])
 
 def measure_score(true_labels, predicted_labels, measure, beta=1):
@@ -454,8 +454,7 @@ def round_if_close(x):
     """
     if math.isclose(x, round(x), abs_tol=0.000001):
         return round(x)
-    else:
-        return x
+    return x
 
 def add_check_theta_generator(measure):
     """
@@ -752,8 +751,7 @@ def basic_baseline(true_labels, measure, beta=1):
             rounded_m_theta = round(theta * M)
             if P + rounded_m_theta - x == 0:
                 return 0
-            else:
-                return x / (P + rounded_m_theta - x)
+            return x / (P + rounded_m_theta - x)
 
         @add_check_theta_generator(measure)
         def expectation_function(theta):
@@ -780,8 +778,7 @@ def basic_baseline(true_labels, measure, beta=1):
             help_2 = (x - rounded_m_theta) / N
             if help_1 + help_2 == 0:
                 return 0
-            else:
-                return (math.sqrt(help_1 * (- help_2)) + help_2) / (help_1 + help_2)
+            return (math.sqrt(help_1 * (- help_2)) + help_2) / (help_1 + help_2)
 
         @add_check_theta_generator(measure)
         def expectation_function(theta):
