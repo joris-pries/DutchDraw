@@ -6,8 +6,9 @@ from scipy.stats import hypergeom
 import numpy as np
 from functools import wraps
 
-__all__ = ['all_names_except', 'basic_baseline', 'basic_baseline_given_theta', 'measure_score', 'name_dictionary',
-           'optimized_basic_baseline', 'round_if_close', 'select_names']
+__all__ = ['all_names_except', 'basic_baseline', 'basic_baseline_given_theta', 
+           'measure_score', 'name_dictionary', 'optimized_basic_baseline', 
+           'round_if_close', 'select_names']
 
 # %%
 
