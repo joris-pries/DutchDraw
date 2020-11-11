@@ -38,24 +38,23 @@ name_dictionary = {
     'PT': ['PREVALENCE THRESHOLD', 'PT']
 }
 
-
 def select_names(name_keys):
     """
     This function creates a list of names using the name_keys as keys for the name dictionary.
     """
     return sum([name_dictionary[key_name] for key_name in name_keys], [])
 
-
 def all_names_except(name_keys):
     """
-    This function creates a list of all names, except the names with name_keys as key in the name dictionary.
+    This function creates a list of all names, except the names with name_keys
+    as key in the name dictionary.
     """
     return sum([name_dictionary[key_name] for key_name in name_dictionary.keys() if key_name not in name_keys], [])
 
-
 def measure_score(true_labels, predicted_labels, measure, beta=1):
     """
-    To determine the performance of a predictive model a measure is used. This function determines the measure for the given input labels.
+    To determine the performance of a predictive model a measure is used.
+    This function determines the measure for the given input labels.
 
     Args:
     --------
@@ -210,10 +209,10 @@ def measure_score(true_labels, predicted_labels, measure, beta=1):
     if measure in name_dictionary['TS']:
         return TP / (TP + FN + FP)
 
-
 def optimized_basic_baseline(true_labels, measure, beta=1):
     """
-    This function determines the optimal `theta` that maximizes or minimizes the measure on the `true_labels`. It also determines the corresponding extreme value.
+    This function determines the optimal `theta` that maximizes or minimizes
+    the measure on the `true_labels`. It also determines the corresponding extreme value.
 
     Args:
     --------
@@ -447,7 +446,6 @@ def optimized_basic_baseline(true_labels, measure, beta=1):
 
     return return_statistics
 
-
 def round_if_close(x):
     """
     This function is used to round x if it is close. This is useful for the pmf of the hypergeometric distribution.
@@ -480,7 +478,6 @@ def add_check_theta_generator(measure):
             return func(theta, *args, **kwargs)
         return inner
     return add_check_theta
-
 
 def basic_baseline(true_labels, measure, beta=1):
     """
@@ -815,7 +812,6 @@ def basic_baseline(true_labels, measure, beta=1):
 
     return return_functions
 
-
 def basic_baseline_given_theta(theta, true_labels, measure, beta=1):
     """
     This function determines the mean and variance of the baseline for a given `theta` using `basic_baseline`.
@@ -855,6 +851,5 @@ def basic_baseline_given_theta(theta, true_labels, measure, beta=1):
     baseline = basic_baseline(true_labels=true_labels,
                               measure=measure, beta=beta)
     return {'Mean': baseline['Expectation Function'](theta), 'Variance': baseline['Variance Function'](theta)}
-
 
 # %%
