@@ -1,10 +1,8 @@
 # %%
-import random
-import statistics
 import math
-from scipy.stats import hypergeom
-import numpy as np
 from functools import wraps
+import numpy as np
+from scipy.stats import hypergeom
 
 __all__ = ['all_names_except', 'basic_baseline', 'basic_baseline_given_theta',
            'measure_score', 'name_dictionary', 'optimized_basic_baseline',
@@ -49,7 +47,7 @@ def all_names_except(name_keys):
     This function creates a list of all names, except the names with name_keys
     as key in the name dictionary.
     """
-    return sum([name_dictionary[key_name] for key_name in name_dictionary.keys() if key_name not in name_keys], [])
+    return sum([list_names for key_name, list_names in name_dictionary.items() if key_name not in name_keys], [])
 
 def measure_score(true_labels, predicted_labels, measure, beta=1):
     """
@@ -100,16 +98,16 @@ def measure_score(true_labels, predicted_labels, measure, beta=1):
     if measure not in all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
 
-    if type(true_labels) != list:
+    if not isinstance(true_labels, list):
         raise TypeError('true_labels should be a list')
 
-    if type(predicted_labels) != list:
+    if not isinstance(predicted_labels, list):
         raise TypeError('predicted_labels should be a list')
 
-    if not np.unique(np.array(true_labels)) in np.array([0, 1]):
+    if np.unique(np.array(true_labels)) not in np.array([0, 1]):
         raise ValueError("true_labels should only contain zeros and ones.")
 
-    if not np.unique(np.array(predicted_labels)) in np.array([0, 1]):
+    if np.unique(np.array(predicted_labels)) not in np.array([0, 1]):
         raise ValueError(
             "predicted_labels should only contain zeros and ones.")
 
@@ -270,10 +268,10 @@ def optimized_basic_baseline(true_labels, measure, beta=1):
     if measure not in all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
 
-    if type(true_labels) != list:
+    if not isinstance(true_labels, list):
         raise TypeError('true_labels should be a list')
 
-    if not np.unique(np.array(true_labels)) in np.array([0, 1]):
+    if np.unique(np.array(true_labels)) not in np.array([0, 1]):
         raise ValueError("true_labels should only contain zeros and ones.")
 
     P = sum(true_labels)
@@ -534,10 +532,10 @@ def basic_baseline(true_labels, measure, beta=1):
     if measure not in all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
 
-    if type(true_labels) != list:
+    if not isinstance(true_labels, list):
         raise TypeError('true_labels should be a list')
 
-    if not np.unique(np.array(true_labels)) in np.array([0, 1]):
+    if np.unique(np.array(true_labels)) not in np.array([0, 1]):
         raise ValueError("true_labels should only contain zeros and ones.")
 
     P = sum(true_labels)
