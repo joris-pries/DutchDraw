@@ -6,8 +6,8 @@ from scipy.stats import hypergeom
 import numpy as np
 from functools import wraps
 
-__all__ = ['all_names_except', 'basic_baseline', 'basic_baseline_given_theta', 
-           'measure_score', 'name_dictionary', 'optimized_basic_baseline', 
+__all__ = ['all_names_except', 'basic_baseline', 'basic_baseline_given_theta',
+           'measure_score', 'name_dictionary', 'optimized_basic_baseline',
            'round_if_close', 'select_names']
 
 # %%
@@ -73,7 +73,7 @@ def measure_score(true_labels, predicted_labels, measure, beta=1):
 
     Raises:
     --------
-        ValueError 
+        ValueError
             If `measure` is not in `all_names_except([''])`.
         ValueError
             If `true_labels` or `predicted_labels` does not only contain zeros and ones.
@@ -143,7 +143,7 @@ def measure_score(true_labels, predicted_labels, measure, beta=1):
         return TN / N
 
     if measure in name_dictionary['FPR']:
-        return FP / N 
+        return FP / N
 
     if measure in name_dictionary['FNR']:
         return FN / P
@@ -166,7 +166,7 @@ def measure_score(true_labels, predicted_labels, measure, beta=1):
     if measure in name_dictionary['BACC']:
         TPR = TP / P
         TNR = TN / N
-        return (TPR + TNR) / 2 
+        return (TPR + TNR) / 2
 
     if measure in name_dictionary['FBETA']:
         beta_squared = beta ** 2
@@ -225,7 +225,7 @@ def optimized_basic_baseline(true_labels, measure, beta=1):
 
     Returns:
     --------
-        dict: Containing `Max Expected Value`, `Argmax Expected Value`, `Min Expected Value` and `Argmin Expected Value`. 
+        dict: Containing `Max Expected Value`, `Argmax Expected Value`, `Min Expected Value` and `Argmin Expected Value`.
 
             - `Max Expected Value` (float): Maximum of the expected values for all `theta`.
 
@@ -237,7 +237,7 @@ def optimized_basic_baseline(true_labels, measure, beta=1):
 
     Raises:
     --------
-        ValueError 
+        ValueError
             If `measure` is not in `all_names_except([''])`.
         ValueError
             If `true_labels` does not only contain zeros and ones.
@@ -445,7 +445,7 @@ def optimized_basic_baseline(true_labels, measure, beta=1):
         return_statistics['Min Expected Value'] = np.nanmin(result)
         return_statistics['Argmin Expected Value'] = [(M - 1) / M]
 
-    return(return_statistics)
+    return return_statistics
 
 
 def round_if_close(x):
@@ -484,7 +484,8 @@ def add_check_theta_generator(measure):
 
 def basic_baseline(true_labels, measure, beta=1):
     """
-    This function returns a dictionary of functions that can be used to determine statistics (such as expectation and variance) for all possible values of `theta`. 
+    This function returns a dictionary of functions that can be used to determine
+    statistics (such as expectation and variance) for all possible values of `theta`.
 
     Args:
     --------
@@ -496,7 +497,7 @@ def basic_baseline(true_labels, measure, beta=1):
 
     Returns:
     --------
-        dict: Containing `Distribution`, `Domain`, `(Fast) Expectation Function` and `Variance Function`. 
+        dict: Containing `Distribution`, `Domain`, `(Fast) Expectation Function` and `Variance Function`.
 
             - `Distribution` (function): Pmf of the measure, given by: `pmf_Y(y, theta)`, where `y` is a measure score and `theta` is the parameter of the shuffle baseline.
 
@@ -508,7 +509,7 @@ def basic_baseline(true_labels, measure, beta=1):
 
     Raises:
     --------
-        ValueError 
+        ValueError
             If `measure` is not in `all_names_except([''])`.
         ValueError
             If `true_labels` does not only contain zeros and ones.
@@ -767,7 +768,7 @@ def basic_baseline(true_labels, measure, beta=1):
             TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
             return sum([TP_rv.pmf(x) * (given_x_function(x, theta) ** 2) for x in range(int(max(0, rounded_m_theta - N)), int(min((P + 1, rounded_m_theta + 1))))])
 
-    if (measure in name_dictionary['PT']):
+    if measure in name_dictionary['PT']:
         @add_check_theta_generator(measure)
         def pmf_Y(y, theta):
             TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
