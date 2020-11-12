@@ -810,7 +810,7 @@ def basic_baseline(y_true, measure, beta=1):
 
     return return_functions
 
-def basic_baseline_given_theta(y_true, theta, measure, beta=1):
+def basic_baseline_given_theta(theta, y_true, measure, beta=1):
     """
     This function determines the mean and variance of the baseline for a given `theta` using `basic_baseline`.
 
