@@ -53,16 +53,16 @@ def all_names_except(name_keys):
     return sum([list_names for key_name, list_names in name_dictionary.items()
                 if key_name not in name_keys], [])
 
-def measure_score(true_labels, predicted_labels, measure, beta=1):
+def measure_score(y_true, y_pred, measure, beta=1):
     """
     To determine the performance of a predictive model a measure is used.
     This function determines the measure for the given input labels.
 
     Args:
     --------
-        true_labels (list): 1-dimensional boolean list containing the true labels.
+        y_true (list): 1-dimensional boolean list containing the true labels.
 
-        predicted_labels (list): 1-dimensional boolean list containing the predicted labels.
+        y_pred (list): 1-dimensional boolean list containing the predicted labels.
 
         measure (string): Measure name, see `all_names_except([''])` for possible measure names.
 
@@ -102,25 +102,24 @@ def measure_score(true_labels, predicted_labels, measure, beta=1):
     if measure not in all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
 
-    if not isinstance(true_labels, list):
-        raise TypeError('true_labels should be a list')
+    if not isinstance(y_true, list):
+        raise TypeError('y_true should be a list')
 
-    if not isinstance(predicted_labels, list):
-        raise TypeError('predicted_labels should be a list')
+    if not isinstance(y_pred, list):
+        raise TypeError('y_pred should be a list')
 
-    if np.unique(np.array(true_labels)) not in np.array([0, 1]):
-        raise ValueError("true_labels should only contain zeros and ones.")
+    if np.unique(np.array(y_true)) not in np.array([0, 1]):
+        raise ValueError("y_true should only contain zeros and ones.")
 
-    if np.unique(np.array(predicted_labels)) not in np.array([0, 1]):
-        raise ValueError(
-            "predicted_labels should only contain zeros and ones.")
+    if np.unique(np.array(y_pred)) not in np.array([0, 1]):
+        raise ValueError("y_pred should only contain zeros and ones.")
 
-    P = sum(true_labels)
-    M = len(true_labels)
+    P = sum(y_true)
+    M = len(y_true)
     N = M - P
-    P_predicted = sum(predicted_labels)
+    P_predicted = sum(y_pred)
 
-    TP = np.dot(true_labels, predicted_labels)
+    TP = np.dot(y_true, y_pred)
     FP = P_predicted - TP
     FN = P - TP
     TN = N - FP
@@ -211,7 +210,7 @@ def measure_score(true_labels, predicted_labels, measure, beta=1):
     if measure in name_dictionary['TS']:
         return TP / (TP + FN + FP)
 
-def optimized_basic_baseline(true_labels, measure, beta=1):
+def optimized_basic_baseline(y_true, measure, beta=1):
     """
     This function determines the optimal `theta` that maximizes or minimizes
     the measure on the `true_labels`. It also determines the corresponding extreme value.
@@ -272,14 +271,14 @@ def optimized_basic_baseline(true_labels, measure, beta=1):
     if measure not in all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
 
-    if not isinstance(true_labels, list):
-        raise TypeError('true_labels should be a list')
+    if not isinstance(y_true, list):
+        raise TypeError('y_true should be a list')
 
-    if np.unique(np.array(true_labels)) not in np.array([0, 1]):
-        raise ValueError("true_labels should only contain zeros and ones.")
+    if np.unique(np.array(y_true)) not in np.array([0, 1]):
+        raise ValueError("y_true should only contain zeros and ones.")
 
-    P = sum(true_labels)
-    M = len(true_labels)
+    P = sum(y_true)
+    M = len(y_true)
     N = M - P
     return_statistics = {}
 
@@ -480,7 +479,7 @@ def add_check_theta_generator(measure):
         return inner
     return add_check_theta
 
-def basic_baseline(true_labels, measure, beta=1):
+def basic_baseline(y_true, measure, beta=1):
     """
     This function returns a dictionary of functions that can be used to determine
     statistics (such as expectation and variance) for all possible values of `theta`.
@@ -535,14 +534,14 @@ def basic_baseline(true_labels, measure, beta=1):
     if measure not in all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
 
-    if not isinstance(true_labels, list):
-        raise TypeError('true_labels should be a list')
+    if not isinstance(y_true, list):
+        raise TypeError('y_true should be a list')
 
-    if np.unique(np.array(true_labels)) not in np.array([0, 1]):
-        raise ValueError("true_labels should only contain zeros and ones.")
+    if np.unique(np.array(y_true)) not in np.array([0, 1]):
+        raise ValueError("y_true should only contain zeros and ones.")
 
-    P = sum(true_labels)
-    M = len(true_labels)
+    P = sum(y_true)
+    M = len(y_true)
     N = M - P
 
     # Used to return all functions
@@ -811,7 +810,7 @@ def basic_baseline(true_labels, measure, beta=1):
 
     return return_functions
 
-def basic_baseline_given_theta(theta, true_labels, measure, beta=1):
+def basic_baseline_given_theta(y_true, theta, measure, beta=1):
     """
     This function determines the mean and variance of the baseline for a given `theta` using `basic_baseline`.
 
@@ -847,7 +846,7 @@ def basic_baseline_given_theta(theta, true_labels, measure, beta=1):
         Mean: 0.1805 and Variance: 0.0000
     """
 
-    baseline = basic_baseline(true_labels=true_labels,
+    baseline = basic_baseline(y_true=y_true,
                               measure=measure, beta=beta)
     return {'Mean': baseline['Expectation Function'](theta), 'Variance': baseline['Variance Function'](theta)}
 
