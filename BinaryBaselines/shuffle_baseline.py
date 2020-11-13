@@ -77,9 +77,9 @@ def measure_score(y_true, y_pred, measure, beta=1):
         ValueError
             If `measure` is not in `all_names_except([''])`.
         ValueError
-            If `true_labels` or `predicted_labels` does not only contain zeros and ones.
+            If `y_true` or `y_pred` does not only contain zeros and ones.
         TypeError
-            If `true_labels` or `predicted_labels` is not a list.
+            If `y_true` or `y_pred` is not a list.
 
     See also:
     --------
@@ -89,11 +89,11 @@ def measure_score(y_true, y_pred, measure, beta=1):
     --------
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
-        >>> predicted_labels = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
-        >>> true_labels = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
-        >>> print('Markedness: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure='MK'))) # Measuring markedness (MK)
+        >>> y_pred = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
+        >>> y_true = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
+        >>> print('Markedness: {:06.4f}'.format(measure_score(y_true, y_pred, measure='MK'))) # Measuring markedness (MK)
         Markedness: 0.0061
-        >>> print('F2 Score: {:06.4f}'.format(measure_score(true_labels, predicted_labels, measure='FBETA', beta=2))) # Measuring FBETA for beta = 2
+        >>> print('F2 Score: {:06.4f}'.format(measure_score(y_true, y_pred, measure='FBETA', beta=2))) # Measuring FBETA for beta = 2
         F2 Score: 0.1053
 
     """
@@ -213,11 +213,11 @@ def measure_score(y_true, y_pred, measure, beta=1):
 def optimized_basic_baseline(y_true, measure, beta=1):
     """
     This function determines the optimal `theta` that maximizes or minimizes
-    the measure on the `true_labels`. It also determines the corresponding extreme value.
+    the measure on the `y_true`. It also determines the corresponding extreme value.
 
     Args:
     --------
-        true_labels (list): 1-dimensional boolean list containing the true labels.
+        y_true (list): 1-dimensional boolean list containing the true labels.
 
         measure (string): Measure name, see `all_names_except([''])` for possible measure names.
 
@@ -240,9 +240,9 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         ValueError
             If `measure` is not in `all_names_except([''])`.
         ValueError
-            If `true_labels` does not only contain zeros and ones.
+            If `y_true` does not only contain zeros and ones.
         TypeError
-            If `true_labels` is not a list.
+            If `y_true` is not a list.
 
     See also:
     --------
@@ -254,8 +254,8 @@ def optimized_basic_baseline(y_true, measure, beta=1):
     --------
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
-        >>> true_labels = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
-        >>> optimal_baseline = optimized_basic_baseline(true_labels, measure='FBETA', beta=1)
+        >>> y_true = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
+        >>> optimal_baseline = optimized_basic_baseline(y_true, measure='FBETA', beta=1)
         >>> print('Max Expected Value: {:06.4f}'.format(optimal_baseline['Max Expected Value']))
         Max Expected Value: 0.1805
         >>> print('Argmax Expected Value: {:06.4f}'.format(optimal_baseline['Argmax Expected Value']))
@@ -486,7 +486,7 @@ def basic_baseline(y_true, measure, beta=1):
 
     Args:
     --------
-        true_labels (list): 1-dimensional boolean list containing the true labels.
+        y_true (list): 1-dimensional boolean list containing the true labels.
 
         measure (string): Measure name, see `all_names_except([''])` for possible measure names.
 
@@ -509,9 +509,9 @@ def basic_baseline(y_true, measure, beta=1):
         ValueError
             If `measure` is not in `all_names_except([''])`.
         ValueError
-            If `true_labels` does not only contain zeros and ones.
+            If `y_true` does not only contain zeros and ones.
         TypeError
-            If `true_labels` is not a list.
+            If `y_true` is not a list.
 
     See also:
     --------
@@ -523,8 +523,8 @@ def basic_baseline(y_true, measure, beta=1):
     --------
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
-        >>> true_labels = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
-        >>> baseline = basic_baseline(true_labels, 'MK')
+        >>> y_true = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
+        >>> baseline = basic_baseline(y_true, 'MK')
         >>> print(baseline.keys())
         dict_keys(['Distribution', 'Domain', 'Fast Expectation Function', 'Variance Function', 'Expectation Function'])
     """
@@ -818,7 +818,7 @@ def basic_baseline_given_theta(theta, y_true, measure, beta=1):
     --------
         theta (float): Parameter for the shuffle baseline.
 
-        true_labels (list): 1-dimensional boolean list containing the true labels.
+        y_true (list): 1-dimensional boolean list containing the true labels.
 
         measure (string): Measure name, see `all_names_except([''])` for possible measure names.
 
@@ -840,8 +840,8 @@ def basic_baseline_given_theta(theta, y_true, measure, beta=1):
     --------
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
-        >>> true_labels = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
-        >>> baseline = basic_baseline_given_theta(theta= 0.9, true_labels=true_labels, measure='FBETA', beta=1)
+        >>> y_true = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
+        >>> baseline = basic_baseline_given_theta(theta= 0.9, y_true=y_true, measure='FBETA', beta=1)
         >>> print('Mean: {:06.4f} and Variance: {:06.4f}'.format(baseline['Mean'], baseline['Variance']))
         Mean: 0.1805 and Variance: 0.0000
     """

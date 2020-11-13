@@ -1,6 +1,6 @@
 # BinaryBaselines
 
-BinaryBaselines is a Python package for binary classification. 
+BinaryBaselines is a Python package for binary classification.
 
 ## Paper
 
@@ -49,14 +49,14 @@ Let `M`  be the total number of samples, where `P` are positive and `N` are nega
 
 ## Reasons to use
 
-This package contains multiple functions. Let `true_labels` be the actual labels and `predicted_labels` be the labels predicted by a model.
+This package contains multiple functions. Let `y_true` be the actual labels and `y_pred` be the labels predicted by a model.
 
 If:
 
-* You want to determine an included measure --> `measure_score(true_labels, predicted_labels, measure)`
-* You want to get statistics of a baseline given `theta` --> `basic_baseline_given_theta(theta, true_labels, measure)`
-* You want to get statistics of the optimal baseline --> `optimized_basic_baseline(true_labels, measure)`
-* You want the baseline without specifying `theta` --> `basic_baseline(true_labels, measure)`
+* You want to determine an included measure --> `measure_score(y_true, y_pred, measure)`
+* You want to get statistics of a baseline given `theta` --> `basic_baseline_given_theta(theta, y_true, measure)`
+* You want to get statistics of the optimal baseline --> `optimized_basic_baseline(y_true, measure)`
+* You want the baseline without specifying `theta` --> `basic_baseline(y_true, measure)`
 
 ### List of all included measures
 
@@ -94,21 +94,21 @@ As example, we first generate the true and predicted labels.
 import random
 random.seed(123) # To ensure similar outputs
 
-predicted_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
-true_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
+y_pred = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
+y_true = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
 ```
 
 ----
 
 ### Measure performance
 
-In general, to determine the score of a measure, use `measure_score(true_labels, predicted_labels, measure, beta = 1)`.
+In general, to determine the score of a measure, use `measure_score(y_true, y_pred, measure, beta = 1)`.
 
 #### Input
 
-* `true_labels` (list): 1-dimensional boolean list containing the true labels.
+* `y_true` (list): 1-dimensional boolean list containing the true labels.
 
-* `predicted_labels` (list): 1-dimensional boolean list containing the predicted labels.
+* `y_pred` (list): 1-dimensional boolean list containing the predicted labels.
 
 * `measure` (string): Measure name, see `all_names_except([''])` for possible measure names.
 
@@ -126,10 +126,10 @@ To examine the performance of the predicted labels, we measure the markedness (M
 import BinaryBaselines as bbl
 
 # Measuring markedness (MK):
-print('Markedness: {:06.4f}'.format(bbl.measure_score(true_labels, predicted_labels, measure = 'MK')))
+print('Markedness: {:06.4f}'.format(bbl.measure_score(y_true, y_pred, measure = 'MK')))
 
 # Measuring FBETA for beta = 2:
-print('F2 Score: {:06.4f}'.format(bbl.measure_score(true_labels, predicted_labels, measure = 'FBETA', beta = 2)))
+print('F2 Score: {:06.4f}'.format(bbl.measure_score(y_true, y_pred, measure = 'FBETA', beta = 2)))
 ```
 
 This returns as output
@@ -145,13 +145,13 @@ Note that `FBETA` is the only measure that requires an additional parameter valu
 
 ### Get basic baseline given `theta`
 
-To obtain the basic baseline given `theta` use `basic_baseline_given_theta(theta, true_labels, measure, beta = 1)`.
+To obtain the basic baseline given `theta` use `basic_baseline_given_theta(theta, y_true, measure, beta = 1)`.
 
 #### Input
 
 * `theta` (float): Parameter for the shuffle baseline.
 
-* `true_labels` (list): 1-dimensional boolean list containing the true labels.
+* `y_true` (list): 1-dimensional boolean list containing the true labels.
 
 * `measure` (string): Measure name, see `all_names_except([''])` for possible measure names.
 
@@ -170,7 +170,7 @@ The function `basic_baseline_given_theta` gives the following output:
 To evaluate the performance of a model, we want to obtain a baseline for the F<sub>2</sub> score (FBETA).
 
 ```python
-results_baseline = bbl.basic_baseline_given_theta(theta = 0.5, true_labels = true_labels, measure = 'FBETA', beta = 2)
+results_baseline = bbl.basic_baseline_given_theta(theta = 0.5, y_true = y_true, measure = 'FBETA', beta = 2)
 ```
 
 This gives us the mean and variance of the baseline.
@@ -191,11 +191,11 @@ Variance: 0.0001
 
 ### Get basic baseline
 
-To obtain the basic baseline without specifying `theta` use `basic_baseline(true_labels, measure, beta = 1)`.
+To obtain the basic baseline without specifying `theta` use `basic_baseline(y_true, measure, beta = 1)`.
 
 #### Input
 
-* `true_labels` (list): 1-dimensional boolean list containing the true labels.
+* `y_true` (list): 1-dimensional boolean list containing the true labels.
 
 * `measure` (string): Measure name, see `all_names_except([''])` for possible measure names.
 
@@ -220,7 +220,7 @@ The function `basic_baseline` gives the following output:
 Next, we determine the baseline without specifying `theta`. This returns a number of functions that can be used for different values of `theta`.
 
 ```python
-baseline = bbl.basic_baseline(true_labels = true_labels, measure = 'G2')
+baseline = bbl.basic_baseline(y_true = y_true, measure = 'G2')
 print(baseline.keys())
 ```
 
@@ -280,11 +280,11 @@ with output:
 
 ### Get optimal baseline
 
-To obtain the optimal baseline use `optimized_basic_baseline(true_labels, measure = possible_names, beta = 1)`.
+To obtain the optimal baseline use `optimized_basic_baseline(y_true, measure = possible_names, beta = 1)`.
 
 #### Input
 
-* `true_labels` (list): 1-dimensional boolean list containing the true labels.
+* `y_true` (list): 1-dimensional boolean list containing the true labels.
 
 * `measure` (string): Measure name, see `all_names_except([''])` for possible measure names.
 
@@ -307,7 +307,7 @@ Note that `theta_star = round(theta * M) / M`.
 To evaluate the performance of a model, we want to obtain the optimal baseline for the F<sub>2</sub> score (FBETA).
 
 ```python
-optimal_baseline = bbl.optimized_basic_baseline(true_labels, measure = 'FBETA', beta = 1)
+optimal_baseline = bbl.optimized_basic_baseline(y_true, measure = 'FBETA', beta = 1)
 
 print('Max Expected Value: {:06.4f}'.format(optimal_baseline['Max Expected Value']))
 print('Argmax Expected Value: {:06.4f}'.format(*optimal_baseline['Argmax Expected Value']))
@@ -336,23 +336,23 @@ import numpy as np
 random.seed(123) # To ensure similar outputs
 
 # Generate true and predicted labels
-predicted_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
-true_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
+y_pred = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
+y_true = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
 
 ######################################################
 # Example function: measure_score
 print('\033[94mExample function: `measure_score`\033[0m')
 # Measuring markedness (MK):
-print('Markedness: {:06.4f}'.format(bbl.measure_score(true_labels, predicted_labels, measure = 'MK')))
+print('Markedness: {:06.4f}'.format(bbl.measure_score(y_true, y_pred, measure = 'MK')))
 
 # Measuring FBETA for beta = 2:
-print('F2 Score: {:06.4f}'.format(bbl.measure_score(true_labels, predicted_labels, measure= 'FBETA', beta = 2)))
+print('F2 Score: {:06.4f}'.format(bbl.measure_score(y_true, y_pred, measure= 'FBETA', beta = 2)))
 
 print('')
 ######################################################
 # Example function: basic_baseline_given_theta
 print('\033[94mExample function: `basic_baseline_given_theta`\033[0m')
-results_baseline = bbl.basic_baseline_given_theta(theta = 0.5, true_labels = true_labels, measure = 'FBETA', beta = 2)
+results_baseline = bbl.basic_baseline_given_theta(theta = 0.5, y_true = y_true, measure = 'FBETA', beta = 2)
 
 print('Mean: {:06.4f}'.format(results_baseline['Mean']))
 print('Variance: {:06.4f}'.format(results_baseline['Variance']))
@@ -361,7 +361,7 @@ print('')
 ######################################################
 # Example function: basic_baseline
 print('\033[94mExample function: `basic_baseline`\033[0m')
-baseline = bbl.basic_baseline(true_labels = true_labels, measure = 'G2')
+baseline = bbl.basic_baseline(y_true = y_true, measure = 'G2')
 print(baseline.keys())
 
 
@@ -397,7 +397,7 @@ print('')
 ######################################################
 # Example function: optimized_basic_baseline
 print('\033[94mExample function: `optimized_basic_baseline`\033[0m')
-optimal_baseline = bbl.optimized_basic_baseline(true_labels, measure = 'FBETA', beta = 1)
+optimal_baseline = bbl.optimized_basic_baseline(y_true, measure = 'FBETA', beta = 1)
 
 print('Max Expected Value: {:06.4f}'.format(optimal_baseline['Max Expected Value']))
 print('Argmax Expected Value: {:06.4f}'.format(*optimal_baseline['Argmax Expected Value']))
