@@ -78,8 +78,6 @@ def measure_score(y_true, y_pred, measure, beta=1):
             If `measure` is not in `all_names_except([''])`.
         ValueError
             If `y_true` or `y_pred` does not only contain zeros and ones.
-        TypeError
-            If `y_true` or `y_pred` is not a list.
 
     See also:
     --------
@@ -109,12 +107,6 @@ def measure_score(y_true, y_pred, measure, beta=1):
 
     if measure not in all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
-
-    if not isinstance(y_true, list):
-        raise TypeError('y_true should be a list')
-
-    if not isinstance(y_pred, list):
-        raise TypeError('y_pred should be a list')
 
     if np.unique(np.array(y_true)) not in np.array([0, 1]):
         raise ValueError("y_true should only contain zeros and ones.")
@@ -249,8 +241,6 @@ def optimized_basic_baseline(y_true, measure, beta=1):
             If `measure` is not in `all_names_except([''])`.
         ValueError
             If `y_true` does not only contain zeros and ones.
-        TypeError
-            If `y_true` is not a list.
 
     See also:
     --------
@@ -282,9 +272,6 @@ def optimized_basic_baseline(y_true, measure, beta=1):
 
     if measure not in all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
-
-    if not isinstance(y_true, list):
-        raise TypeError('y_true should be a list')
 
     if np.unique(np.array(y_true)) not in np.array([0, 1]):
         raise ValueError("y_true should only contain zeros and ones.")
@@ -522,8 +509,6 @@ def basic_baseline(y_true, measure, beta=1):
             If `measure` is not in `all_names_except([''])`.
         ValueError
             If `y_true` does not only contain zeros and ones.
-        TypeError
-            If `y_true` is not a list.
 
     See also:
     --------
@@ -549,9 +534,6 @@ def basic_baseline(y_true, measure, beta=1):
 
     if measure not in all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
-
-    if not isinstance(y_true, list):
-        raise TypeError('y_true should be a list')
 
     if np.unique(np.array(y_true)) not in np.array([0, 1]):
         raise ValueError("y_true should only contain zeros and ones.")
