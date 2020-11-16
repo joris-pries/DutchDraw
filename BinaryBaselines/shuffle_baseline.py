@@ -60,9 +60,9 @@ def measure_score(y_true, y_pred, measure, beta=1):
 
     Args:
     --------
-        y_true (list): 1-dimensional boolean list containing the true labels.
+        y_true (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the true labels.
 
-        y_pred (list): 1-dimensional boolean list containing the predicted labels.
+        y_pred (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the predicted labels.
 
         measure (string): Measure name, see `all_names_except([''])` for possible measure names.
 
@@ -98,6 +98,14 @@ def measure_score(y_true, y_pred, measure, beta=1):
 
     """
     measure = measure.upper()
+
+    # convert np.array to list
+    if  isinstance(y_true, np.ndarray):
+        y_true = y_true.tolist()
+
+    if  isinstance(y_pred, np.ndarray):
+        y_pred = y_pred.tolist()
+
 
     if measure not in all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
@@ -217,7 +225,7 @@ def optimized_basic_baseline(y_true, measure, beta=1):
 
     Args:
     --------
-        y_true (list): 1-dimensional boolean list containing the true labels.
+        y_true (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the true labels.
 
         measure (string): Measure name, see `all_names_except([''])` for possible measure names.
 
@@ -267,6 +275,10 @@ def optimized_basic_baseline(y_true, measure, beta=1):
     """
 
     measure = measure.upper()
+
+    # convert np.array to list
+    if  isinstance(y_true, np.ndarray):
+        y_true = y_true.tolist()
 
     if measure not in all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
@@ -486,7 +498,7 @@ def basic_baseline(y_true, measure, beta=1):
 
     Args:
     --------
-        y_true (list): 1-dimensional boolean list containing the true labels.
+        y_true (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the true labels.
 
         measure (string): Measure name, see `all_names_except([''])` for possible measure names.
 
@@ -530,6 +542,10 @@ def basic_baseline(y_true, measure, beta=1):
     """
 
     measure = measure.upper()
+
+    # convert np.array to list
+    if  isinstance(y_true, np.ndarray):
+        y_true = y_true.tolist()
 
     if measure not in all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
@@ -818,7 +834,7 @@ def basic_baseline_given_theta(theta, y_true, measure, beta=1):
     --------
         theta (float): Parameter for the shuffle baseline.
 
-        y_true (list): 1-dimensional boolean list containing the true labels.
+        y_true (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the true labels.
 
         measure (string): Measure name, see `all_names_except([''])` for possible measure names.
 

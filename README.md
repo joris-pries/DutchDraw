@@ -106,9 +106,9 @@ In general, to determine the score of a measure, use `measure_score(y_true, y_pr
 
 #### Input
 
-* `y_true` (list): 1-dimensional boolean list containing the true labels.
+* `y_true` (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the true labels.
 
-* `y_pred` (list): 1-dimensional boolean list containing the predicted labels.
+* `y_pred` (list or numpy.ndarray): 1-dimensional boolean list/numpy containing the predicted labels.
 
 * `measure` (string): Measure name, see `all_names_except([''])` for possible measure names.
 
@@ -151,7 +151,7 @@ To obtain the basic baseline given `theta` use `basic_baseline_given_theta(theta
 
 * `theta` (float): Parameter for the shuffle baseline.
 
-* `y_true` (list): 1-dimensional boolean list containing the true labels.
+* `y_true` (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the true labels.
 
 * `measure` (string): Measure name, see `all_names_except([''])` for possible measure names.
 
@@ -195,7 +195,7 @@ To obtain the basic baseline without specifying `theta` use `basic_baseline(y_tr
 
 #### Input
 
-* `y_true` (list): 1-dimensional boolean list containing the true labels.
+* `y_true` (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the true labels.
 
 * `measure` (string): Measure name, see `all_names_except([''])` for possible measure names.
 
@@ -284,7 +284,7 @@ To obtain the optimal baseline use `optimized_basic_baseline(y_true, measure = p
 
 #### Input
 
-* `y_true` (list): 1-dimensional boolean list containing the true labels.
+* `y_true` (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the true labels.
 
 * `measure` (string): Measure name, see `all_names_except([''])` for possible measure names.
 
