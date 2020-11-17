@@ -64,6 +64,21 @@ plt.plot(sizes, times)
 #Samples en errors
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # %%
 
 y_true = np.random.randint(2, size = 20)
