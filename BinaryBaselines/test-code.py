@@ -48,7 +48,7 @@ _check_targets(y_true, y_pred)
 #Furthermore, we miss a value error on the beta value when beta is smaller than 0
 
 # %%
-
+#Etienne maakt een grafiekje van tijd vs computer tijd 
 times = []
 sizes = [10,50,100,500,1000,5000]
 for size in sizes:
@@ -61,6 +61,8 @@ for size in sizes:
     
 import matplotlib.pyplot as plt    
 plt.plot(sizes, times)    
+#Samples en errors
+
 
 # %%
 
@@ -71,7 +73,7 @@ for key, value in sb.name_dictionary.items():
     print(result)
 
 sb.optimized_basic_baseline(y_true.tolist(), 'FBETA', -4)
-    
+
 """
 Dingen met Joris te bespreken:
     - Vervangen van check_targets (als dingen niet zelfde lengte zijn bijvoorbeeld)
@@ -83,12 +85,12 @@ Dingen met Joris te bespreken:
 
 # %%
 
-generator = sb.basic_baseline(y_true.tolist(), "TP", beta=1)
+generator = sb.basic_baseline(y_true.tolist(), "G1", beta=1)
 print(generator)
 generator.keys()
-generator["Expectation Function"](0.5)
+generator["Fast Expectation Function"](0.6)
 
-
+generator["Distribution"]()
 
 
 
