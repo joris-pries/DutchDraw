@@ -40,8 +40,9 @@ plt.plot( df_new["Size"].values, func( df_new["Size"].values, *popt), 'r-',
 errors = [a - b for a,b in zip(func( df_new["Size"].values, *popt),df_new["Time"])]
 plt.plot(errors)
 
+df = pd.read_csv("C:/Users/Etienne/Documents/Github/BinaryBaselines/BinaryBaselines/time_size_g2.csv")
 
-
-
-
-
+fig = plt.figure(figsize=(20,20))
+ax = fig.add_subplot(2, 1, 1)
+plt.plot(df["Size"],df["Time"] ** (1/2),'.')
+plt.show()
