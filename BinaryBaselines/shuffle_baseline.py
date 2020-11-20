@@ -414,6 +414,7 @@ def optimized_basic_baseline(y_true, measure, beta=1):
 
     if measure in name_dictionary['G2']:
         result = [np.nan] * (M + 1)
+        #Etienne is going to make this part of the code interactive
         for i in range(0, M + 1):
             theta = i / M
             rounded_m_theta = round(round(M * theta))
