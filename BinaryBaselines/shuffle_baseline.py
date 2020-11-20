@@ -5,6 +5,9 @@ import math
 from functools import wraps
 import numpy as np
 from scipy.stats import hypergeom
+from tqdm import tqdm
+import time
+import sys
 
 __all__ = ['all_names_except', 'basic_baseline', 'basic_baseline_given_theta',
            'measure_score', 'name_dictionary', 'optimized_basic_baseline',
@@ -413,19 +416,35 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Argmin Expected Value'] = [1/M]
 
     if measure in name_dictionary['G2']:
+        return_statistics['Min Expected Value'] = 0
+        return_statistics['Argmin Expected Value'] = [0, 1]
+        
         result = [np.nan] * (M + 1)
-        #Etienne is going to make this part of the code interactive
-        for i in range(0, M + 1):
-            theta = i / M
-            rounded_m_theta = round(round(M * theta))
-            TP_rv = hypergeom(M=M, n=P, N=rounded_m_theta)
-            result[i] = sum([(math.sqrt(k * (N - rounded_m_theta + k) / (P * N))) * TP_rv.pmf(
-                k) if TP_rv.pmf(k) > 0 else 0 for k in range(int(max(0, rounded_m_theta - N)), int(min((P + 1, rounded_m_theta + 1))))])
+        time_to_exc = 0.000175452 * M ** 1.8841 -0.0512485
+        print("Press Control + C to stop the iterations")
+        print("Estimated time to execute is: " + str(time_to_exc) + " seconds." ) 
+        time.sleep(2)
+        
+        try:
+            for i in tqdm(range(0, M + 1)):
+                theta = i / M
+                rounded_m_theta = round(round(M * theta))
+                TP_rv = hypergeom(M=M, n=P, N=rounded_m_theta)
+                result[i] = sum([(math.sqrt(k * (N - rounded_m_theta + k) / (P * N))) * TP_rv.pmf(k) 
+                                 if TP_rv.pmf(k) > 0 else 0 for k in range(int(max(0, rounded_m_theta - N)), 
+                                                                           int(min((P + 1, rounded_m_theta + 1))))])
+        except KeyboardInterrupt: 
+            print("\nYou stopped the code.")
+            print("This means that the max expected value could not be calculated.")
+            print("You only get the min and argmin")
+            
+            return_statistics['Max Expected Value'] = np.nan
+            return_statistics['Argmax Expected Value'] = [np.nan]
+            return return_statistics
+
         return_statistics['Max Expected Value'] = np.nanmax(result)
         return_statistics['Argmax Expected Value'] = [
             i/M for i, j in enumerate(result) if j == return_statistics['Max Expected Value']]
-        return_statistics['Min Expected Value'] = 0
-        return_statistics['Argmin Expected Value'] = [0, 1]
 
     if measure in name_dictionary['TS']:
         return_statistics['Max Expected Value'] = P / M
