@@ -420,11 +420,20 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Argmin Expected Value'] = [0, 1]
         
         result = [np.nan] * (M + 1)
-        time_to_exc = 0.000175452 * M ** 1.8841 -0.0512485
-        print("Press Control + C to stop the iterations")
-        print("Estimated time to execute is: " + str(time_to_exc) + " seconds." ) 
-        time.sleep(2)
+        time_to_exc = round(0.000175452 * M ** 1.8841 -0.0512485)
+        print("Press Control + C to stop the code")
         
+        if time_to_exc < 60:
+            print("Estimated time to execute is: " + str(time_to_exc) + " seconds." ) 
+        else:
+            time_to_exc = round(time_to_exc / 60)
+            if time_to_exc < 60:
+                print("Estimated time to execute is: " + str(time_to_exc) + " minutes." ) 
+                time_to_exc = round(time_to_exc / 60)
+            else:
+                time_to_exc_hour = round(time_to_exc / 60)
+                print("Estimated time to execute is: " + str(time_to_exc_hour) + " hours." )  
+        time.sleep(2)
         try:
             for i in tqdm(range(0, M + 1)):
                 theta = i / M
@@ -434,9 +443,9 @@ def optimized_basic_baseline(y_true, measure, beta=1):
                                  if TP_rv.pmf(k) > 0 else 0 for k in range(int(max(0, rounded_m_theta - N)), 
                                                                            int(min((P + 1, rounded_m_theta + 1))))])
         except KeyboardInterrupt: 
-            print("\nYou stopped the code.")
+            print("\nThe code is stopped.")
             print("This means that the max expected value could not be calculated.")
-            print("You only get the min and argmin")
+            print("You only get the min and argmin.")
             
             return_statistics['Max Expected Value'] = np.nan
             return_statistics['Argmax Expected Value'] = [np.nan]
