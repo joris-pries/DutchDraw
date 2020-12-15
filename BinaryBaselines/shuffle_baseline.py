@@ -458,8 +458,8 @@ def optimized_basic_baseline(y_true, measure, beta=1):
     if measure in name_dictionary['TS']:
         return_statistics['Max Expected Value'] = P / M
         return_statistics['Argmax Expected Value'] = [1]
-        return_statistics['Min Expected Value'] = P / (P * (M - 1) + M)
-        return_statistics['Argmin Expected Value'] = [1 / M]
+        return_statistics['Min Expected Value'] = 0
+        return_statistics['Argmin Expected Value'] = [0]
 
     if measure in name_dictionary['PT']:
         result = [np.nan] * (M + 1)
