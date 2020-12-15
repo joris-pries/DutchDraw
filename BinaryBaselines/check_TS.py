@@ -1,5 +1,4 @@
-
-
+import matplotlib.pyplot as plt
 from scipy.stats import hypergeom
 
 def expected_TS(P, M, theta):
@@ -12,20 +11,21 @@ def expected_TS(P, M, theta):
         exp = exp + (k / (P + rounded_m_theta - k)) * TP_rv.pmf(k)
     return exp
 
-P = 1
-M = 1000
+P = 5
+M = 100
 
 expectations = []
 thetas = []
 for i in range(101):
     theta = i / 100
-    print(theta)
     thetas.append(theta)
     expectations.append(expected_TS(P, M, theta))
 
-import matplotlib.pyplot as plt
 
 plt.figure(figsize = (10,10))
 plt.plot(thetas,expectations)
 plt.axhline(y = P/M)
+plt.xlabel("Theta")
+plt.ylabel("TS")
+plt.title("M: " + str(M) + ", P: " + str(P))
 plt.show()
