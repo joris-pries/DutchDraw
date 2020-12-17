@@ -11,8 +11,8 @@ def expected_TS(P, M, theta):
         exp = exp + (k / (P + rounded_m_theta - k)) * TP_rv.pmf(k)
     return exp
 
-P = 5
-M = 100
+P = 2
+M = 10
 
 expectations = []
 thetas = []
@@ -24,8 +24,8 @@ for i in range(101):
 
 plt.figure(figsize = (10,10))
 plt.plot(thetas,expectations)
-plt.axhline(y = P/M)
+plt.axhline(y = P/M, color="red")
 plt.xlabel("Theta")
-plt.ylabel("TS")
+plt.ylabel("E[TS]")
 plt.title("M: " + str(M) + ", P: " + str(P))
 plt.show()
