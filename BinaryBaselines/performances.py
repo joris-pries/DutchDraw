@@ -1,4 +1,4 @@
-from shuffle_baseline import basic_baseline_given_theta, name_dictionary
+from shuffle_baseline import basic_baseline_given_theta, name_dictionary, optimized_basic_baseline
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -7,8 +7,8 @@ import math
 
 performance_measures = name_dictionary.keys()
 
-P = 40
-N = 60
+P = 50
+N = 50
 M = P + N
 y_true = [1] * P + [0] * N
 
@@ -79,7 +79,7 @@ for measure in performance_measures:
     argmax_df_pivot[measure] = argmax_df_pivot[measure].fillna(lb - 5)
     argmax_df_pivot[measure] = argmax_df_pivot[measure] - lb
     
-plt.figure(figsize = (8,8))
+plt.figure(figsize = (8,6))
 cmap = sns.color_palette("Spectral", 5) 
 cmap[3] = (232/255,232/255,232/255)
 ax = sns.heatmap(argmax_df_pivot, cmap = cmap,linewidths=.01)
@@ -88,13 +88,37 @@ colorbar.set_ticks([colorbar.vmin + 4 / 5 * (0.5 + i) for i in range(5)])
 colorbar.set_ticklabels(["N.D.","Min","Min = Max","None","Max"])
 plt.title(r"Expectation Base Measures over different $\theta$ with P:" + str(P) + " and N:" + str(N))
 plt.ylabel(r"$\theta_{Shuffle}$")
+plt.xlabel("Measure/Metric")
 plt.show()
 
 
+M = 100
+results = []
+for measure in performance_measures:
+    for p in range(101):
+        y_true = [1] * int(p * 0.01 * M) + [0] * int((100 - p) * 0.01 * M)
+        try:
+            outcome = optimized_basic_baseline(y_true, measure)
+        except:
+            outcome = {'Max Expected Value': np.nan,
+                       'Min Expected Value': np.nan}
+        results.append([measure, p, M, outcome["Min Expected Value"], outcome["Max Expected Value"]])
+        
+
+df = pd.DataFrame(results, columns = ["Metric","p","M","Min Expected Value", "Max Expected Value"])
+df = df[~df["Metric"].isin(["TP","TN","FN","FP"])]
 
 
+plt.figure(figsize = (8,8))
+sns.lineplot(x = "p",y = "Max Expected Value", hue = "Metric", data = df)
+plt.title(r"Expectation Base Measures over different $\theta$ with M:" + str(M) )
+plt.show()
 
+df_pivot = pd.pivot_table(data = df, values = "Min Expected Value", columns = "Metric", index = "p").round(5).abs()
 
+plt.figure(figsize = (6,6))
+sns.heatmap(df_pivot)
+plt.show()
 
 
 
