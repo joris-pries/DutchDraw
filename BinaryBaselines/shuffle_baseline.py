@@ -32,12 +32,12 @@ name_dictionary = {
     'BACC': ['BACC', 'BALANCED ACCURACY'],
     'FBETA': ['FBETA', 'FSCORE', 'F', 'F BETA', 'F BETA SCORE', 'FBETA SCORE'],
     'MCC': ['MCC', 'MATTHEW', 'MATTHEWS CORRELATION COEFFICIENT'],
-    'BM': ['BM', 'BOOKMAKER INFORMEDNESS', 'INFORMEDNESS'],
+    'J': ['BM', 'BOOKMAKER INFORMEDNESS', 'INFORMEDNESS', 'Youden’s J Statistic'],
     'MK': ['MARKEDNESS', 'MK'],
-    'COHEN': ['COHEN', 'COHENS KAPPA', 'KAPPA'],
-    'G1': ['GMEAN1', 'G MEAN 1', 'G1'],
-    'G2': ['GMEAN2', 'G MEAN 2', 'G2', 'FOWLKES-MALLOWS',
+    'KAPPA': ['COHEN', 'COHENS KAPPA', 'KAPPA'],
+    'FM': ['GMEAN1', 'G MEAN 1', 'G1', 'FOWLKES-MALLOWS',
            'FOWLKES MALLOWS', 'FOWLKES', 'MALLOWS'],
+    'G2': ['GMEAN2', 'G MEAN 2', 'G2'],
     'TS': ['THREAT SCORE', 'CRITICAL SUCCES INDEX', 'TS', 'CSI'],
     'PT': ['PREVALENCE THRESHOLD', 'PT']
 }
@@ -180,7 +180,7 @@ def measure_score(y_true, y_pred, measure, beta=1):
     if measure in name_dictionary['MCC']:
         return (TP * TN - FP * FN)/(math.sqrt((TP + FP) * (TN + FN) * P * N))
 
-    if measure in name_dictionary['BM']:
+    if measure in name_dictionary['J']:
         TPR = TP / P
         TNR = TN / N
         return TPR + TNR - 1
@@ -190,7 +190,7 @@ def measure_score(y_true, y_pred, measure, beta=1):
         NPV = TN / (TN + FN)
         return PPV + NPV - 1
 
-    if measure in name_dictionary['COHEN']:
+    if measure in name_dictionary['KAPPA']:
         P_o = (TP + TN) / M
         P_yes = ((TP + FP) / M) * (P / M)
         P_no = ((TN + FN) / M) * (N / M)
@@ -389,7 +389,7 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [i/M for i in range(1, M)]
 
-    if measure in name_dictionary['BM']:
+    if measure in name_dictionary['J']:
         return_statistics['Max Expected Value'] = 0
         return_statistics['Argmax Expected Value'] = [
             i/M for i in range(0, M + 1)]
@@ -403,7 +403,7 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [i/M for i in range(1, M)]
 
-    if measure in name_dictionary['COHEN']:
+    if measure in name_dictionary['KAPPA']:
         return_statistics['Max Expected Value'] = 0
         return_statistics['Argmax Expected Value'] = [
             i/M for i in range(0, M + 1)]
@@ -411,7 +411,7 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Argmin Expected Value'] = [
             i/M for i in range(0, M + 1)]
 
-    if measure in name_dictionary['G1']:
+    if measure in name_dictionary['FM']:
         return_statistics['Max Expected Value'] = math.sqrt(P / M)
         return_statistics['Argmax Expected Value'] = [1]
         return_statistics['Min Expected Value'] = math.sqrt(P) / M
@@ -496,7 +496,7 @@ def add_check_theta_generator(measure):
     include_1 = True
     measure = measure.upper()
     # Should 0 be included
-    if measure in select_names(['PPV', 'FDR', 'MCC', 'MK', 'PT', 'G1']):
+    if measure in select_names(['PPV', 'FDR', 'MCC', 'MK', 'PT', 'FM']):
         include_0 = False
     # Should 1 be included
     if measure in select_names(['NPV', 'FOR', 'MCC', 'MK', 'PT']):
@@ -800,7 +800,7 @@ def basic_baseline(y_true, measure, beta=1):
             str(P) + ' * ' + str(N) + '))'
         expectation_string = '0'
 
-    if measure in name_dictionary['BM']:
+    if measure in name_dictionary['J']:
         a = '(1 / ' + str(P) + ') + (1 / ' + str(N) + ')'
         b = '- rounded_m_theta / ' + str(N)
         expectation_string = '0'
@@ -810,7 +810,7 @@ def basic_baseline(y_true, measure, beta=1):
         b = '-' + str(P) + ' / (' + str(M) + ' - rounded_m_theta)'
         expectation_string = '0'
 
-    if measure in name_dictionary['COHEN']:
+    if measure in name_dictionary['KAPPA']:
         a = '2 / ((1 - theta_star) * ' + str(P) + \
             ' + theta_star * ' + str(N) + ')'
         b = '- 2 * theta_star * ' + \
@@ -818,7 +818,7 @@ def basic_baseline(y_true, measure, beta=1):
             str(P) + ' + theta_star * ' + str(N) + ')'
         expectation_string = '0'
 
-    if measure in name_dictionary['G1']:
+    if measure in name_dictionary['FM']:
         a = '1 / (math.sqrt(' + str(P) + ' * rounded_m_theta))'
         b = '0'
         expectation_string = 'math.sqrt(theta_star * ' + \
