@@ -197,7 +197,7 @@ def measure_score(y_true, y_pred, measure, beta=1):
         P_e = P_yes + P_no
         return (P_o - P_e) / (1 - P_e)
 
-    if measure in name_dictionary['G1']:
+    if measure in name_dictionary['FM']:
         TPR = TP / P
         PPV = TP / (TP + FP)
         return math.sqrt(TPR * PPV)

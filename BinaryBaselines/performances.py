@@ -15,7 +15,7 @@ HIGHER_ORDER_METRICS = ['BACC', 'FBETA', 'MCC', 'J', 'MK',
                         'KAPPA', 'FM', 'G2', 'TS', 'PT']
 
 #%%
-P = 100
+P = 5
 N = 5
 M = P + N
 y_true = [1] * P + [0] * N
