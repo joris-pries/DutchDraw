@@ -11,8 +11,8 @@ performance_measures = name_dictionary.keys()
 
 BASE_MEASURES = ["TP", "TN", "FN", "FP"]
 BASE_METRICS = ['TPR', 'TNR', 'FPR', 'FNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC']
-HIGHER_ORDER_METRICS = ['BACC', 'FBETA', 'MCC', 'BM', 'MK',
-                        'COHEN', 'G1', 'G2', 'TS', 'PT']
+HIGHER_ORDER_METRICS = ['BACC', 'FBETA', 'MCC', 'J', 'MK',
+                        'KAPPA', 'FM', 'G2', 'TS', 'PT']
 
 #%%
 P = 100
@@ -34,8 +34,9 @@ def get_baseline():
     return df
 
 def plot_metrics_over_theta(df, metric_list, y_label):
+
     plt.figure(figsize = (6,6))
-    sns.lineplot(x = "Theta",y = "Score", hue = "Metric", data = df[df["Metric"].isin(metric_list)])
+    sns.lineplot(x = "Theta",y = "Score", hue = "Metric", data =  df[df["Metric"].isin(metric_list)])
     plt.title(r"Expectation Base Measures over different $\theta$ with P:" + str(P) + " and N:" + str(N))
     plt.xlabel(r"$\theta^*$")
     plt.ylabel(y_label)
