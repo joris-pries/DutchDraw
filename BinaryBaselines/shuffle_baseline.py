@@ -33,7 +33,7 @@ name_dictionary = {
     'FBETA': ['FBETA', 'FSCORE', 'F', 'F BETA', 'F BETA SCORE', 'FBETA SCORE'],
     'MCC': ['MCC', 'MATTHEW', 'MATTHEWS CORRELATION COEFFICIENT'],
     'J': ['BM', 'BOOKMAKER INFORMEDNESS', 'INFORMEDNESS', 
-          'Youden’s J Statistic', 'J'],
+          'Youden’s J Statistic', 'J'], 
     'MK': ['MARKEDNESS', 'MK'],
     'KAPPA': ['COHEN', 'COHENS KAPPA', 'KAPPA'],
     'FM': ['GMEAN1', 'G MEAN 1', 'G1', 'FOWLKES-MALLOWS',
