@@ -11,10 +11,11 @@ performance_measures = [x for x in performance_measures if x != "PT"]
 #%%
 
 BASE_MEASURES = ["TP", "TN", "FN", "FP"]
-BASE_METRICS = ['TPR', 'TNR', 'FPR', 'FNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC']
-HIGHER_ORDER_METRICS = ['BACC', 'FBETA', 'MCC', 'J', 'MK',
+BASE_METRICS = ['TPR', 'TNR', 'FPR', 'FNR', 'PPV', 'NPV', 'FDR', 'FOR', 'Acc']
+HIGHER_ORDER_METRICS = ['Bacc', 'FBETA', 'MCC', 'J', 'MK',
                         'KAPPA', 'FM', 'G2', 'TS'] #PT
 
+performance_measures = BASE_MEASURES + BASE_METRICS + HIGHER_ORDER_METRICS
 #%%
 P = 25
 N = 75
@@ -104,6 +105,7 @@ def determine_optima(metrics_list, M, stepsize):
 
 df = get_baseline()
 df = df[df["Metric"] != "PT"]
+df["Metric"].replace({"ACC": "Acc", "BACC": "Bacc"}, inplace=True)
 
 df_pivot = pd.pivot_table(data = df.round({"Theta":2}), values = "Score", 
                           columns = "Metric", index = "Theta").round(5).abs().sort_index(ascending=False)

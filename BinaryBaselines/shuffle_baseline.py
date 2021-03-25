@@ -118,9 +118,9 @@ def measure_score(y_true, y_pred, measure, beta=1):
     if np.unique(np.array(y_pred)) not in np.array([0, 1]):
         raise ValueError("y_pred should only contain zeros and ones.")
 
-    P = sum(y_true)
-    M = len(y_true)
-    N = M - P
+    P = np.int64(sum(y_true))
+    M = np.int64(len(y_true))
+    N = np.int64(M - P)
     P_predicted = sum(y_pred)
 
     TP = np.dot(y_true, y_pred)
@@ -298,17 +298,17 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [1]
 
-    if measure in name_dictionary['FP']:
-        return_statistics['Max Expected Value'] = N
-        return_statistics['Argmax Expected Value'] = [1]
-        return_statistics['Min Expected Value'] = 0
-        return_statistics['Argmin Expected Value'] = [0]
-
     if measure in name_dictionary['FN']:
         return_statistics['Max Expected Value'] = P
         return_statistics['Argmax Expected Value'] = [0]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [1]
+        
+    if measure in name_dictionary['FP']:
+        return_statistics['Max Expected Value'] = N
+        return_statistics['Argmax Expected Value'] = [1]
+        return_statistics['Min Expected Value'] = 0
+        return_statistics['Argmin Expected Value'] = [0]
 
     if measure in name_dictionary['TPR']:
         return_statistics['Max Expected Value'] = 1
@@ -322,17 +322,17 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [1]
 
-    if measure in name_dictionary['FPR']:
-        return_statistics['Max Expected Value'] = 1
-        return_statistics['Argmax Expected Value'] = [1]
-        return_statistics['Min Expected Value'] = 0
-        return_statistics['Argmin Expected Value'] = [0]
-
     if measure in name_dictionary['FNR']:
         return_statistics['Max Expected Value'] = 1
         return_statistics['Argmax Expected Value'] = [0]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [1]
+        
+    if measure in name_dictionary['FPR']:
+        return_statistics['Max Expected Value'] = 1
+        return_statistics['Argmax Expected Value'] = [1]
+        return_statistics['Min Expected Value'] = 0
+        return_statistics['Argmin Expected Value'] = [0]
 
     if measure in name_dictionary['PPV']:
         return_statistics['Max Expected Value'] = P/M
@@ -362,18 +362,6 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Min Expected Value'] = P/M
         return_statistics['Argmin Expected Value'] = [i/M for i in range(0, M)]
 
-    if measure in name_dictionary['ACC']:
-        return_statistics['Max Expected Value'] = max((N/M, P/M))
-        return_statistics['Argmax Expected Value'] = [int((P >= N))]
-        return_statistics['Min Expected Value'] = min((N/M, P/M))
-        return_statistics['Argmin Expected Value'] = [int((P < N))]
-
-    if measure in name_dictionary['BACC']:
-        return_statistics['Max Expected Value'] = max((N/M, P/M))
-        return_statistics['Argmax Expected Value'] = [int((P >= N))]
-        return_statistics['Min Expected Value'] = min((N/M, P/M))
-        return_statistics['Argmin Expected Value'] = [int((P < N))]
-
     if measure in name_dictionary['FBETA']:
         beta_squared = beta ** 2
         return_statistics['Max Expected Value'] = (
@@ -381,13 +369,7 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Argmax Expected Value'] = [1]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [0]
-
-    if measure in name_dictionary['MCC']:
-        return_statistics['Max Expected Value'] = 0
-        return_statistics['Argmax Expected Value'] = [i/M for i in range(1, M)]
-        return_statistics['Min Expected Value'] = 0
-        return_statistics['Argmin Expected Value'] = [i/M for i in range(1, M)]
-
+        
     if measure in name_dictionary['J']:
         return_statistics['Max Expected Value'] = 0
         return_statistics['Argmax Expected Value'] = [
@@ -397,6 +379,24 @@ def optimized_basic_baseline(y_true, measure, beta=1):
             i/M for i in range(0, M + 1)]
 
     if measure in name_dictionary['MK']:
+        return_statistics['Max Expected Value'] = 0
+        return_statistics['Argmax Expected Value'] = [i/M for i in range(1, M)]
+        return_statistics['Min Expected Value'] = 0
+        return_statistics['Argmin Expected Value'] = [i/M for i in range(1, M)]
+        
+    if measure in name_dictionary['ACC']:
+        return_statistics['Max Expected Value'] = max((N/M, P/M))
+        return_statistics['Argmax Expected Value'] = [int((P >= N))] #Dit moet worden aangepast als P = N
+        return_statistics['Min Expected Value'] = min((N/M, P/M))
+        return_statistics['Argmin Expected Value'] = [int((P < N))] #Dit meot worden aangepast
+
+    if measure in name_dictionary['BACC']:
+        return_statistics['Max Expected Value'] = 0.5
+        return_statistics['Argmax Expected Value'] = [i/M for i in range(0, M+1)]
+        return_statistics['Min Expected Value'] = 0.5
+        return_statistics['Argmin Expected Value'] = [i/M for i in range(0, M+1)]
+
+    if measure in name_dictionary['MCC']:
         return_statistics['Max Expected Value'] = 0
         return_statistics['Argmax Expected Value'] = [i/M for i in range(1, M)]
         return_statistics['Min Expected Value'] = 0
@@ -462,18 +462,18 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [0]
 
-    if measure in name_dictionary['PT']:
-        result = [np.nan] * (M + 1)
-        for i in [1, M - 1]:
-            theta = i / M
-            rounded_m_theta = round(M * theta)
-            TP_rv = hypergeom(M=M, n=P, N=rounded_m_theta)
-            result[i] = sum([((math.sqrt((k / P) * (-(k - rounded_m_theta) / N)) + ((k - rounded_m_theta) / N)) / ((k / P) + ((k - rounded_m_theta) / N)))
-                             * TP_rv.pmf(k) if ((k / P) + ((k - rounded_m_theta) / N)) != 0 else 0 for k in range(int(max(0, rounded_m_theta - N)), int(min((P + 1, rounded_m_theta + 1))))])
-        return_statistics['Max Expected Value'] = np.nanmax(result)
-        return_statistics['Argmax Expected Value'] = [1 / M]
-        return_statistics['Min Expected Value'] = np.nanmin(result)
-        return_statistics['Argmin Expected Value'] = [(M - 1) / M]
+    #if measure in name_dictionary['PT']:
+    #    result = [np.nan] * (M + 1)
+    #    for i in [1, M - 1]:
+    #        theta = i / M
+    #        rounded_m_theta = round(M * theta)
+    #        TP_rv = hypergeom(M=M, n=P, N=rounded_m_theta)
+    #        result[i] = sum([((math.sqrt((k / P) * (-(k - rounded_m_theta) / N)) + ((k - rounded_m_theta) / N)) / ((k / P) + ((k - rounded_m_theta) / N)))
+    #                         * TP_rv.pmf(k) if ((k / P) + ((k - rounded_m_theta) / N)) != 0 else 0 for k in range(int(max(0, rounded_m_theta - N)), int(min((P + 1, rounded_m_theta + 1))))])
+    #    return_statistics['Max Expected Value'] = np.nanmax(result)
+    #    return_statistics['Argmax Expected Value'] = [1 / M]
+    #    return_statistics['Min Expected Value'] = np.nanmin(result)
+    #    return_statistics['Argmin Expected Value'] = [(M - 1) / M]
 
     return return_statistics
 
