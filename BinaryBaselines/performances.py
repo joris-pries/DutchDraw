@@ -16,6 +16,7 @@ HIGHER_ORDER_METRICS = ['Bacc', 'FBETA', 'MCC', 'J', 'MK',
                         'KAPPA', 'FM', 'G2', 'TS'] #PT
 
 performance_measures = BASE_MEASURES + BASE_METRICS + HIGHER_ORDER_METRICS
+
 #%%
 P = 25
 N = 75
@@ -87,6 +88,7 @@ def plot_heatmap_extrema(df):
     plt.xticks(rotation=70)
     plt.rcParams.update({'font.size': 12})
     plt.show()
+
 # https://www-nature-com.vu-nl.idm.oclc.org/articles/nmeth.1618
 def determine_optima(metrics_list, M, stepsize):
     results = []
