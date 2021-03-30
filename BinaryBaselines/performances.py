@@ -27,7 +27,10 @@ def get_baseline(y_true):
                 outcome = basic_baseline_given_theta(theta/M, y_true, measure, beta=1)["Mean"]
             except:
                 outcome = np.nan
-            results.append([measure, theta/M, outcome])
+            if (measure == "FBETA" and theta == 0):
+                results.append([measure, theta/M, np.nan])
+            else:
+                results.append([measure, theta/M, outcome])
     df = pd.DataFrame(results, columns = ["Metric","Theta","Score"])
     return df
 
@@ -76,16 +79,16 @@ def plot_heatmap_extrema(df, M, P, N):
     cmap[4] = (0,158/255,115/255) #Groen
     ticks = int(M / 4)
     
-    ax = sns.heatmap(df[performance_measures].T, cmap = cmap, linewidths=.005, 
+    ax = sns.heatmap(df[performance_measures].T, cmap = cmap, linewidths=.005,  yticklabels = performance_measures,
                      xticklabels = ticks ,cbar=False)
     colorbar = ax.collections[0].colorbar 
     #colorbar.set_ticks([colorbar.vmin + 4 / 5 * (0.5 + i) for i in range(5)])
     #colorbar.set_ticklabels(["N.D.","Min","Min = Max","Not-optimal","Max"])
     #plt.title(r"Optimal Expectations Measures with P=" + str(P) + " and N=" + str(N))
-    plt.ylabel(r"$\theta$")
-    plt.xlabel("Measure")
+    plt.xlabel(r"$\theta$")
+    plt.ylabel("Measure")
 
-#    plt.savefig("Visualization_P-{}_N-{}.jpg".format(P, N), dpi = 300, bbox_inches='tight')
+    plt.savefig("C:/Users/Etienne/Dropbox/PhD/Papers/Dutch Shuffle/Code\Results/Visualization_P-{}_N-{}.jpg".format(P, N), dpi = 300, bbox_inches='tight')
     plt.show()
 
 # https://www-nature-com.vu-nl.idm.oclc.org/articles/nmeth.1618 Color blind colors
@@ -115,7 +118,7 @@ for P, N in zip(P_list, N_list):
     df["Metric"].replace({"ACC": "Acc", "BACC": "Bacc"}, inplace=True)
 
     df_pivot = pd.pivot_table(data = df.round({"Theta":2}), values = "Score", 
-                          columns = "Metric", index = "Theta").round(5).abs().sort_index(ascending=False)
+                          columns = "Metric", index = "Theta").round(5).abs().sort_index(ascending=True)
 
     df_extrema = translate_scores_to_extrema(df_pivot)
     plot_heatmap_extrema(df_extrema, M, P, N)
