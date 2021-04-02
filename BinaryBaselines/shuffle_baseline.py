@@ -246,6 +246,9 @@ def optimized_basic_baseline(y_true, measure, beta=1):
             If `measure` is not in `all_names_except([''])`.
         ValueError
             If `y_true` does not only contain zeros and ones.
+        ValueError
+            If measure equals "FBETA" and beta < 0.
+
 
     See also:
     --------
@@ -281,9 +284,9 @@ def optimized_basic_baseline(y_true, measure, beta=1):
     if np.unique(np.array(y_true)) not in np.array([0, 1]):
         raise ValueError("y_true should only contain zeros and ones.")
 
-    P = sum(y_true)
-    M = len(y_true)
-    N = M - P
+    P = np.int64(sum(y_true))
+    M = np.int64(len(y_true))
+    N = np.int64(M - P)
     return_statistics = {}
 
     if measure in name_dictionary['TP']:
@@ -367,6 +370,8 @@ def optimized_basic_baseline(y_true, measure, beta=1):
             i/M for i in range(0, M)]
 
     if measure in name_dictionary['FBETA']:
+        if beta < 0:
+            raise ValueError("Beta should be positive.")
         beta2 = beta ** 2
         return_statistics['Max Expected Value'] = (
             1 + beta2) * P / (beta2 * P + M)
