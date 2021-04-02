@@ -9,8 +9,8 @@ from tqdm import tqdm
 import time
 import sys
 
-__all__ = ['select_all_names_except', 'basic_baseline', 'basic_baseline_given_theta',
-           'measure_score', 'measure_dictionary', 'optimized_basic_baseline',
+__all__ = ['select_all_names_except', 'baseline_functions', 'baseline_functions_given_theta',
+           'measure_score', 'measure_dictionary', 'optimized_baseline_statistics',
            'round_if_close', 'select_names']
 
 # %%
@@ -211,7 +211,7 @@ def measure_score(y_true, y_pred, measure, beta=1):
         return TP / (TP + FN + FP)
 
 
-def optimized_basic_baseline(y_true, measure, beta=1):
+def optimized_baseline_statistics(y_true, measure, beta=1):
     """
     This function determines the optimal `theta` that maximizes or minimizes
     the measure on the `y_true`. It also determines the corresponding extreme value.
@@ -246,7 +246,7 @@ def optimized_basic_baseline(y_true, measure, beta=1):
     See also:
     --------
         select_all_names_except
-        basic_baseline
+        baseline_functions
 
 
     Example:
@@ -254,7 +254,7 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
         >>> y_true = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
-        >>> optimal_baseline = optimized_basic_baseline(y_true, measure='FBETA', beta=1)
+        >>> optimal_baseline = optimized_baseline_statistics(y_true, measure='FBETA', beta=1)
         >>> print('Max Expected Value: {:06.4f}'.format(optimal_baseline['Max Expected Value']))
         Max Expected Value: 0.1805
         >>> print('Argmax Expected Value: {:06.4f}'.format(optimal_baseline['Argmax Expected Value']))
@@ -572,7 +572,7 @@ def add_docstring(docstring):
     return _add_docstring
 
 
-def basic_baseline(y_true, measure, beta=1):
+def baseline_functions(y_true, measure, beta=1):
     """
     This function returns a dictionary of functions that can be used to determine
     statistics (such as expectation and variance) for all possible values of `theta`.
@@ -615,7 +615,7 @@ def basic_baseline(y_true, measure, beta=1):
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
         >>> y_true = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
-        >>> baseline = basic_baseline(y_true, 'MK')
+        >>> baseline = baseline_functions(y_true, 'MK')
         >>> print(baseline.keys())
         dict_keys(['Distribution', 'Domain', 'Fast Expectation Function', 'Variance Function', 'Expectation Function'])
     """
@@ -888,9 +888,9 @@ def basic_baseline(y_true, measure, beta=1):
     return return_functions
 
 
-def basic_baseline_given_theta(theta, y_true, measure, beta=1):
+def baseline_functions_given_theta(theta, y_true, measure, beta=1):
     """
-    This function determines the mean and variance of the baseline for a given `theta` using `basic_baseline`.
+    This function determines the mean and variance of the baseline for a given `theta` using `baseline_functions`.
 
     Args:
     --------
@@ -912,50 +912,65 @@ def basic_baseline_given_theta(theta, y_true, measure, beta=1):
 
     See also:
     --------
-        basic_baseline
+        baseline_functions
 
     Example:
     --------
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
         >>> y_true = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
-        >>> baseline = basic_baseline_given_theta(theta= 0.9, y_true=y_true, measure='FBETA', beta=1)
+        >>> baseline = baseline_functions_given_theta(theta= 0.9, y_true=y_true, measure='FBETA', beta=1)
         >>> print('Mean: {:06.4f} and Variance: {:06.4f}'.format(baseline['Mean'], baseline['Variance']))
         Mean: 0.1805 and Variance: 0.0000
     """
 
-    baseline = basic_baseline(y_true=y_true,
+    baseline = baseline_functions(y_true=y_true,
                               measure=measure, beta=beta)
     return {'Mean': baseline['Expectation Function'](theta), 'Variance': baseline['Variance Function'](theta)}
 
 # %%
 
-def DutchDraw_baseline_statistics(y_true = None, measure= '', theta = 'optimal', M = None, P = None, M_knowledge = True, P_knowledge = True, beta = 1):
+def return_baseline_information(measure = '', M_knowledge = True, P_knowledge = True):
+    if measure in select_names(['ACC', 'FM', 'FBETA']) and M_knowledge == False and P_knowledge == False:
+        return False
+    if measure in select_names(['ACC', 'FM', 'FBETA']) and M_knowledge == False and P_knowledge == False:
+        return False
+
+
+
+def DutchDraw_baseline(y_true = None, measure= '', theta = 'optimal', M = None, P = None, M_knowledge = True, P_knowledge = True, beta = 1):
     if y_true is None and (M is None or P is None):
         raise ValueError("Either y_true or M and P must be given")
+
+    if M_knowledge == False and P_knowledge == True:
+        raise ValueError("This case has not been investigated. If M is unknown, P must also be unknown.")
 
     if y_true is None and M is not None and P is not None:
         y_true = P * [1] + (M - P) * [0]
 
     if theta == 'optimal':
-        return optimized_basic_baseline(y_true, measure, beta)
+        return optimized_baseline_statistics(y_true, measure, beta)
 
     elif theta == 'all':
-        return basic_baseline(y_true, measure, beta)
+        return baseline_functions(y_true, measure, beta)
 
     else:
-        return basic_baseline_given_theta(theta, y_true, measure, beta)
+        return baseline_functions_given_theta(theta, y_true, measure, beta)
 
 # TODO: Nog iets doen met M_knowledge en P_knowledge
 
-import Dutch_Draw
 
-from Dutch_Draw import DDclassifier(y_true = None, measure= '', theta = 'optimal', M = None, P = None, M_knowledge = True, P_knowledge = True, beta = 1)
+#def DutchDrawClassifier(M = None, theta = 'optimal',  measure= '', beta = 1):
+#    #Je moet sws M hebben om een y_pred op te stellen.
 
-DutchDraw_baseline_statistics(y_true, M, )
-DutchDraw_classifier()
-dummy_classifier
-#Stel je weet M of je weet niets
+
+
+
+
+optimized_baseline_statistics(y_true, measure, beta)
+
+
+
 
 
 
