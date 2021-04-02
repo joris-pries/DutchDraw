@@ -369,8 +369,8 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Max Expected Value'] = (
             1 + beta_squared) * P / (beta_squared * P + M)
         return_statistics['Argmax Expected Value'] = [1]
-        return_statistics['Min Expected Value'] = 0
-        return_statistics['Argmin Expected Value'] = [0]
+        return_statistics['Min Expected Value'] = (1 + beta_squared) * P / (M * (beta_squared * P + 1))
+        return_statistics['Argmin Expected Value'] = [1/M]
         
     if measure in name_dictionary['J']:
         return_statistics['Max Expected Value'] = 0
@@ -385,12 +385,16 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Argmax Expected Value'] = [i/M for i in range(1, M)]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [i/M for i in range(1, M)]
-        
+
     if measure in name_dictionary['ACC']:
         return_statistics['Max Expected Value'] = max((N/M, P/M))
-        return_statistics['Argmax Expected Value'] = [int((P >= N))] #Dit moet worden aangepast als P = N
         return_statistics['Min Expected Value'] = min((N/M, P/M))
-        return_statistics['Argmin Expected Value'] = [int((P < N))] #Dit meot worden aangepast
+        if P == N:
+            return_statistics['Argmax Expected Value'] = [i/M for i in range(0, M+1)]
+            return_statistics['Argmin Expected Value'] = [i/M for i in range(0, M+1)]
+        else:
+            return_statistics['Argmax Expected Value'] = [int((P >= N))]
+            return_statistics['Argmin Expected Value'] = [int((P < N))] 
 
     if measure in name_dictionary['BACC']:
         return_statistics['Max Expected Value'] = 0.5

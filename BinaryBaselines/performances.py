@@ -22,7 +22,8 @@ performance_measures = BASE_MEASURES + BASE_METRICS + HIGHER_ORDER_METRICS
 
 
 #%%
-def get_baseline():
+def get_baseline(y_true):
+    M = len(y_true)
     results = []
     for measure in performance_measures:
         for theta in range(M+1):
@@ -30,7 +31,10 @@ def get_baseline():
                 outcome = basic_baseline_given_theta(theta/M, y_true, measure, beta=1)["Mean"]
             except:
                 outcome = np.nan
-            results.append([measure, theta/M, outcome])
+            if (measure == "FBETA" and theta == 0):
+                results.append([measure, theta/M, np.nan])
+            else:
+                results.append([measure, theta/M, outcome])
     df = pd.DataFrame(results, columns = ["Metric","Theta","Score"])
     return df
 
@@ -77,11 +81,10 @@ def plot_heatmap_extrema(df):
     cmap[2] = (230/255,159/255,0/255) # Oranje
     cmap[3] = (245/255,245/255,245/255)    #Grijs
     cmap[4] = (0,158/255,115/255) #Groen
-    if M == 20:
-        help_xtick = 5
-    if M == 100:
-        help_xtick = 25
-    ax = sns.heatmap(df[performance_measures].T, cmap = cmap, linewidths=.005, yticklabels = performance_measures ,cbar=False, xticklabels= help_xtick)
+    ticks = int(M / 4)
+
+    ax = sns.heatmap(df[performance_measures].T, cmap = cmap, linewidths=.005,  yticklabels = performance_measures,
+                     xticklabels = ticks ,cbar=False)
     colorbar = ax.collections[0].colorbar
     #colorbar.set_ticks([colorbar.vmin + 4 / 5 * (0.5 + i) for i in range(5)])
     #colorbar.set_ticklabels(["N.D.","Min","Min = Max","Not-optimal","Max"])
@@ -89,9 +92,10 @@ def plot_heatmap_extrema(df):
     plt.xlabel(r"$\theta$")
     plt.ylabel("Measure")
 
-    plt.savefig("Visualization_P-{}_N-{}.jpg".format(P, N), dpi = 300, bbox_inches='tight')
+    plt.savefig("C:/Users/Etienne/Dropbox/PhD/Papers/Dutch Shuffle/Code\Results/Visualization_P-{}_N-{}.jpg".format(P, N), dpi = 300, bbox_inches='tight')
     plt.show()
-# https://www-nature-com.vu-nl.idm.oclc.org/articles/nmeth.1618
+
+# https://www-nature-com.vu-nl.idm.oclc.org/articles/nmeth.1618 Color blind colors
 def determine_optima(metrics_list, M, stepsize):
     results = []
     for measure in metrics_list:
@@ -116,40 +120,31 @@ for P, N in zip(P_list, N_list):
 
 
 
-df = get_baseline()
-df = df[df["Metric"] != "PT"]
-df["Metric"].replace({"ACC": "Acc", "BACC": "Bacc"}, inplace=True)
+P_list = [10, 50, 5, 25]
+N_list = [10, 50, 15, 75]
+for P, N in zip(P_list, N_list):
+    M = P + N
+    y_true = [1] * P + [0] * N
 
+    df = get_baseline(y_true)
+    df = df[df["Metric"] != "PT"]
+    df["Metric"].replace({"ACC": "Acc", "BACC": "Bacc"}, inplace=True)
 
+    df_pivot = pd.pivot_table(data = df.round({"Theta":2}), values = "Score",
+                          columns = "Metric", index = "Theta").round(5).abs().sort_index(ascending=True)
 
     df_extrema = translate_scores_to_extrema(df_pivot)
-    plot_heatmap_extrema(df_extrema)
+    plot_heatmap_extrema(df_extrema, M, P, N)
 
+    if False:
+        plot_metrics_over_theta(df, BASE_MEASURES , "Amount")
+        plot_metrics_over_theta(df, BASE_METRICS , "Score")
+        plot_metrics_over_theta(df, HIGHER_ORDER_METRICS, "Score")
 
-
-
-#%%
-
-# plot_metrics_over_theta(df, BASE_MEASURES , "Amount")
-# plot_metrics_over_theta(df, BASE_METRICS , "Score")
-# plot_metrics_over_theta(df, HIGHER_ORDER_METRICS, "Score")
-
-
-# #%%
-
-# plot_heatmap(df_pivot, BASE_MEASURES, P, N)
-# plot_heatmap(df_pivot, BASE_METRICS, P, N)
-# plot_heatmap(df_pivot, HIGHER_ORDER_METRICS, P, N)
-
-# #%%
-# M = 100
-# df = determine_optima([x for x in HIGHER_ORDER_METRICS if x != "G2"], M, 1)
-
-# plt.figure(figsize = (8,8))
-# sns.lineplot(x = "P", y = "E_max", hue = "Metric", data = df, alpha=0.7 )
-# plt.title(r"Expectation Base Measures over different $\theta$ with M:" + str(M))
-# plt.ylabel("Maximum Expected Score")
-# plt.show()
+    if False:
+        plot_heatmap(df_pivot, BASE_MEASURES, P, N)
+        plot_heatmap(df_pivot, BASE_METRICS, P, N)
+        plot_heatmap(df_pivot, HIGHER_ORDER_METRICS, P, N)
 
 
 
