@@ -1028,5 +1028,119 @@ def generate_y_true(M, P):
     return [1] * P + [0] * (M - P)
 
 
+def DutchDrawClassifier(y_true=None, theta='max',  measure='', beta = 1, 
+                        M_known = True, P_known = True, E_P_x_E_N = None):
+    """
+    This function gives the outcome of the Dutch Draw classifier given some parameters
+    
+    Args:
+    --------
+        y_true (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the true labels.
+        
+        theta (float): Parameter for the shuffle baseline. Can be a float between 0 or 1 or 
+        it can be the optimal theta (min or max).
+
+        measure (string): Measure name, see `select_all_names_except([''])` for possible measure names.
+
+        beta (float): Default is 1. Parameter for the F-beta score.
+    
+        M_known (boolean): Indicated whether we know M or not. Default is true.
+        
+        P_known (boolean): Indicated whether we know P or not. Default is true.
+        
+        E_P_x_E_N (string): With this parameter, if we do not know P, we can still say something about P.
+        The x shows whether or not the expected P is bigger (>), smaller (<) or equal (=) to the expected number of 
+        negatives. If this is unknown, we can set it None. 
+
+    Returns:
+    --------
+        y_pred: prediction 1-dimensional boolean containing predicted labels.
+
+    See also:
+    --------
+        optimized_baseline_statistics
+
+    Example:
+    --------
+        >>> import random
+        >>> random.seed(123) # To ensure similar outputs
+        >>> y_true = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
+        >>>
+    """
+    if y_true is None :
+        raise ValueError("y_true must be given")
+        
+    if isinstance(y_true, np.ndarray):
+        y_true = y_true.tolist()
+
+    if np.unique(np.array(y_true)) not in np.array([0, 1]):
+        raise ValueError("y_true should only contain zeros and ones.")
+
+    if isinstance(theta, float):
+        if theta < 0 or theta > 1:
+            raise ValueError("theta must be between 0 and 1.")
+    else:
+        if not theta in ["min","max"]: 
+            raise ValueError("theta must be float, 'min' or 'max'.")
+
+    if measure not in select_all_names_except(['']):
+        raise ValueError("This measure name is not recognized.")
+        
+    if beta < 0:
+        raise ValueError("beta must be positive or 0.")
+    
+    if not isinstance(M_known, bool):
+        raise ValueError("M_known must be boolean")
+        
+    if not isinstance(P_known, bool):
+        raise ValueError("P_known must be boolean")        
+    
+    if not E_P_x_E_N in [None, "<","=",">"]:
+        raise ValueError("Variable E_P_x_E_N contains non-ommited value.")
+
+    M = len(y_true)
+
+    if isinstance(theta, float):
+        return [1] * round(M * theta) + [0] * round(M * ( 1- theta) )  
+    
+    if measure == "FM" or measure == "FBETA":
+        if not M_known and not P_known:
+            if theta == "max":
+                return [1] * M
+            if theta == "min":
+                return [1] + [0] * (M - 1)
+
+    if measure == "ACC":
+        if not M_known and not P_known:
+            if theta == "max":
+                
+                y_pred = []
+                while len(y_pred) < M:
+                    y_pred.append(0)
+                    y_pred.append(1)
+                return y_pred[:M]
+                
+            if theta == "min":
+                return [1] * M
+        if M_known and not P_known: 
+            if theta == "max":
+                if E_P_x_E_N == None :
+                    y_pred = [1] * math.ceil(M * 0.5) + [0] * math.ceil(M * 0.5) 
+                    return y_pred[:M]
+                if E_P_x_E_N in ["<","="]:
+                    return [0] * M
+                if E_P_x_E_N == ">":
+                    return [1] * M
+            if theta == "min":
+                if E_P_x_E_N in [None,">"]:
+                    return [0] * M
+                if E_P_x_E_N in ["<","="]:
+                    return [1] * M
+        
+    if theta == "max":
+        t = optimized_baseline_statistics(y_true, measure, beta)["Argmax Expected Value"][0]
+    if theta == "min":
+        t = optimized_baseline_statistics(y_true, measure, beta)["Argmin Expected Value"][0]      
+    return [1] * round(M * t) + [0] * round(M * (1 - t))
 
 
