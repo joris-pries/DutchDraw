@@ -211,7 +211,7 @@ def measure_score(y_true, y_pred, measure, beta=1):
         return TP / (TP + FN + FP)
 
 
-def optimized_baseline_statistics(y_true, measure, beta=1):
+def optimized_baseline_statistics(y_true, measure, beta=1, M_knowledge = True, P_knowledge = True):
     """
     This function determines the optimal `theta` that maximizes or minimizes
     the measure on the `y_true`. It also determines the corresponding extreme value.
@@ -223,6 +223,10 @@ def optimized_baseline_statistics(y_true, measure, beta=1):
         measure (string): Measure name, see `select_all_names_except([''])` for possible measure names.
 
         beta (float): Default is 1. Parameter for the F-beta score.
+
+        M_knowledge (bool): True if knowledge of the number of samples can be used in determining optimality.
+
+        P_knowledge (bool): True if knowledge of the number of positive labels can be used in determining optimality.
 
     Returns:
     --------
@@ -238,6 +242,8 @@ def optimized_baseline_statistics(y_true, measure, beta=1):
 
     Raises:
     --------
+        ValueError
+            If the combination of M_knowledge, P_knowledge and measure leads to no known statistics.
         ValueError
             If `measure` is not in `select_all_names_except([''])`.
         ValueError
@@ -266,6 +272,9 @@ def optimized_baseline_statistics(y_true, measure, beta=1):
     """
 
     measure = measure.upper()
+
+    if return_baseline_information(measure, M_knowledge, P_knowledge) == False:
+        raise ValueError("No known statistics in this case.")
 
     # convert np.array to list
     if isinstance(y_true, np.ndarray):
@@ -572,7 +581,7 @@ def add_docstring(docstring):
     return _add_docstring
 
 
-def baseline_functions(y_true, measure, beta=1):
+def baseline_functions(y_true, measure, beta=1, M_knowledge = True, P_knowledge = True):
     """
     This function returns a dictionary of functions that can be used to determine
     statistics (such as expectation and variance) for all possible values of `theta`.
@@ -584,6 +593,10 @@ def baseline_functions(y_true, measure, beta=1):
         measure (string): Measure name, see `select_all_names_except([''])` for possible measure names.
 
         beta (float): Default is 1. Parameter for the F-beta score.
+
+        M_knowledge (bool): True if knowledge of the number of samples can be used in determining optimality.
+
+        P_knowledge (bool): True if knowledge of the number of positive labels can be used in determining optimality.
 
     Returns:
     --------
@@ -599,6 +612,8 @@ def baseline_functions(y_true, measure, beta=1):
 
     Raises:
     --------
+        ValueError
+            If the combination of M_knowledge, P_knowledge and measure leads to no known statistics.
         ValueError
             If `measure` is not in `select_all_names_except([''])`.
         ValueError
@@ -888,7 +903,7 @@ def baseline_functions(y_true, measure, beta=1):
     return return_functions
 
 
-def baseline_functions_given_theta(theta, y_true, measure, beta=1):
+def baseline_functions_given_theta(theta, y_true, measure, beta=1, M_knowledge = True, P_knowledge = True):
     """
     This function determines the mean and variance of the baseline for a given `theta` using `baseline_functions`.
 
@@ -902,6 +917,10 @@ def baseline_functions_given_theta(theta, y_true, measure, beta=1):
 
         beta (float): Default is 1. Parameter for the F-beta score.
 
+        M_knowledge (bool): True if knowledge of the number of samples can be used in determining optimality.
+
+        P_knowledge (bool): True if knowledge of the number of positive labels can be used in determining optimality.
+
     Returns:
     --------
         dict: Containing `Mean` and `Variance`
@@ -909,6 +928,11 @@ def baseline_functions_given_theta(theta, y_true, measure, beta=1):
             - `Mean` (float): Expected baseline given `theta`.
 
             - `Variance` (float): Variance baseline given `theta`.
+
+    Raises:
+    --------
+        ValueError
+            If the combination of M_knowledge, P_knowledge and measure leads to no known statistics.
 
     See also:
     --------
@@ -931,11 +955,12 @@ def baseline_functions_given_theta(theta, y_true, measure, beta=1):
 # %%
 
 def return_baseline_information(measure = '', M_knowledge = True, P_knowledge = True):
-    if measure in select_names(['ACC', 'FM', 'FBETA']) and M_knowledge == False and P_knowledge == False:
+    if measure in select_names(['ACC']) and (P_knowledge == False or M_knowledge == False):
         return False
-    if measure in select_names(['ACC', 'FM', 'FBETA']) and M_knowledge == False and P_knowledge == False:
+    if measure in select_names(['FM', 'FBETA']) and M_knowledge == False and P_knowledge == False:
         return False
-
+    else:
+        return True
 
 
 def DutchDraw_baseline(y_true = None, measure= '', theta = 'optimal', M = None, P = None, M_knowledge = True, P_knowledge = True, beta = 1):
@@ -949,13 +974,13 @@ def DutchDraw_baseline(y_true = None, measure= '', theta = 'optimal', M = None, 
         y_true = P * [1] + (M - P) * [0]
 
     if theta == 'optimal':
-        return optimized_baseline_statistics(y_true, measure, beta)
+        return optimized_baseline_statistics(y_true, measure, beta, M_knowledge = True, P_knowledge = True)
 
     elif theta == 'all':
-        return baseline_functions(y_true, measure, beta)
+        return baseline_functions(y_true, measure, beta, M_knowledge = True, P_knowledge = True)
 
     else:
-        return baseline_functions_given_theta(theta, y_true, measure, beta)
+        return baseline_functions_given_theta(theta, y_true, measure, beta, M_knowledge = True, P_knowledge = True)
 
 # TODO: Nog iets doen met M_knowledge en P_knowledge
 
@@ -963,11 +988,6 @@ def DutchDraw_baseline(y_true = None, measure= '', theta = 'optimal', M = None, 
 #def DutchDrawClassifier(M = None, theta = 'optimal',  measure= '', beta = 1):
 #    #Je moet sws M hebben om een y_pred op te stellen.
 
-
-
-
-
-optimized_baseline_statistics(y_true, measure, beta)
 
 
 

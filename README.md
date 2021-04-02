@@ -54,9 +54,9 @@ This package contains multiple functions. Let `y_true` be the actual labels and 
 If:
 
 * You want to determine an included measure --> `measure_score(y_true, y_pred, measure)`
-* You want to get statistics of a baseline given `theta` --> `basic_baseline_given_theta(theta, y_true, measure)`
-* You want to get statistics of the optimal baseline --> `optimized_basic_baseline(y_true, measure)`
-* You want the baseline without specifying `theta` --> `basic_baseline(y_true, measure)`
+* You want to get statistics of a baseline given `theta` --> `baseline_functions_given_theta(theta, y_true, measure)`
+* You want to get statistics of the optimal baseline --> `optimized_baseline_statistics(y_true, measure)`
+* You want the baseline without specifying `theta` --> `baseline_functions(y_true, measure)`
 
 ### List of all included measures
 
@@ -145,7 +145,7 @@ Note that `FBETA` is the only measure that requires an additional parameter valu
 
 ### Get basic baseline given `theta`
 
-To obtain the basic baseline given `theta` use `basic_baseline_given_theta(theta, y_true, measure, beta = 1)`.
+To obtain the basic baseline given `theta` use `baseline_functions_given_theta(theta, y_true, measure, beta = 1)`.
 
 #### Input
 
@@ -159,7 +159,7 @@ To obtain the basic baseline given `theta` use `basic_baseline_given_theta(theta
 
 #### Output
 
-The function `basic_baseline_given_theta` gives the following output:
+The function `baseline_functions_given_theta` gives the following output:
 
 * `dict`: Containing `Mean` and `Variance`
   * `Mean` (float): Expected baseline given `theta`.
@@ -170,7 +170,7 @@ The function `basic_baseline_given_theta` gives the following output:
 To evaluate the performance of a model, we want to obtain a baseline for the F<sub>2</sub> score (FBETA).
 
 ```python
-results_baseline = bbl.basic_baseline_given_theta(theta = 0.5, y_true = y_true, measure = 'FBETA', beta = 2)
+results_baseline = bbl.baseline_functions_given_theta(theta = 0.5, y_true = y_true, measure = 'FBETA', beta = 2)
 ```
 
 This gives us the mean and variance of the baseline.
@@ -191,7 +191,7 @@ Variance: 0.0001
 
 ### Get basic baseline
 
-To obtain the basic baseline without specifying `theta` use `basic_baseline(y_true, measure, beta = 1)`.
+To obtain the basic baseline without specifying `theta` use `baseline_functions(y_true, measure, beta = 1)`.
 
 #### Input
 
@@ -203,7 +203,7 @@ To obtain the basic baseline without specifying `theta` use `basic_baseline(y_tr
 
 #### Output
 
-The function `basic_baseline` gives the following output:
+The function `baseline_functions` gives the following output:
 
 * `dict`: Containing `Distribution`, `Domain`, `(Fast) Expectation Function` and `Variance Function`.
 
@@ -220,7 +220,7 @@ The function `basic_baseline` gives the following output:
 Next, we determine the baseline without specifying `theta`. This returns a number of functions that can be used for different values of `theta`.
 
 ```python
-baseline = bbl.basic_baseline(y_true = y_true, measure = 'G2')
+baseline = bbl.baseline_functions(y_true = y_true, measure = 'G2')
 print(baseline.keys())
 ```
 
@@ -280,7 +280,7 @@ with output:
 
 ### Get optimal baseline
 
-To obtain the optimal baseline use `optimized_basic_baseline(y_true, measure = possible_names, beta = 1)`.
+To obtain the optimal baseline use `optimized_baseline_statistics(y_true, measure = possible_names, beta = 1)`.
 
 #### Input
 
@@ -292,7 +292,7 @@ To obtain the optimal baseline use `optimized_basic_baseline(y_true, measure = p
 
 #### Output
 
-The function `optimized_basic_baseline` gives the following output:
+The function `optimized_baseline_statistics` gives the following output:
 
 * dict: Containing `Max Expected Value`, `Argmax Expected Value`, `Min Expected Value` and `Argmin Expected Value`.
   * `Max Expected Value` (float): Maximum of the expected values for all `theta`.
@@ -307,7 +307,7 @@ Note that `theta_star = round(theta * M) / M`.
 To evaluate the performance of a model, we want to obtain the optimal baseline for the F<sub>2</sub> score (FBETA).
 
 ```python
-optimal_baseline = bbl.optimized_basic_baseline(y_true, measure = 'FBETA', beta = 1)
+optimal_baseline = bbl.optimized_baseline_statistics(y_true, measure = 'FBETA', beta = 1)
 
 print('Max Expected Value: {:06.4f}'.format(optimal_baseline['Max Expected Value']))
 print('Argmax Expected Value: {:06.4f}'.format(*optimal_baseline['Argmax Expected Value']))
@@ -350,18 +350,18 @@ print('F2 Score: {:06.4f}'.format(bbl.measure_score(y_true, y_pred, measure= 'FB
 
 print('')
 ######################################################
-# Example function: basic_baseline_given_theta
-print('\033[94mExample function: `basic_baseline_given_theta`\033[0m')
-results_baseline = bbl.basic_baseline_given_theta(theta = 0.5, y_true = y_true, measure = 'FBETA', beta = 2)
+# Example function: baseline_functions_given_theta
+print('\033[94mExample function: `baseline_functions_given_theta`\033[0m')
+results_baseline = bbl.baseline_functions_given_theta(theta = 0.5, y_true = y_true, measure = 'FBETA', beta = 2)
 
 print('Mean: {:06.4f}'.format(results_baseline['Mean']))
 print('Variance: {:06.4f}'.format(results_baseline['Variance']))
 
 print('')
 ######################################################
-# Example function: basic_baseline
-print('\033[94mExample function: `basic_baseline`\033[0m')
-baseline = bbl.basic_baseline(y_true = y_true, measure = 'G2')
+# Example function: baseline_functions
+print('\033[94mExample function: `baseline_functions`\033[0m')
+baseline = bbl.baseline_functions(y_true = y_true, measure = 'G2')
 print(baseline.keys())
 
 
@@ -395,9 +395,9 @@ plt.show()
 
 print('')
 ######################################################
-# Example function: optimized_basic_baseline
-print('\033[94mExample function: `optimized_basic_baseline`\033[0m')
-optimal_baseline = bbl.optimized_basic_baseline(y_true, measure = 'FBETA', beta = 1)
+# Example function: optimized_baseline_statistics
+print('\033[94mExample function: `optimized_baseline_statistics`\033[0m')
+optimal_baseline = bbl.optimized_baseline_statistics(y_true, measure = 'FBETA', beta = 1)
 
 print('Max Expected Value: {:06.4f}'.format(optimal_baseline['Max Expected Value']))
 print('Argmax Expected Value: {:06.4f}'.format(*optimal_baseline['Argmax Expected Value']))

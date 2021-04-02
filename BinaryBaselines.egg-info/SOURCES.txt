@@ -1,7 +1,7 @@
 README.md
 setup.py
 BinaryBaselines/__init__.py
-BinaryBaselines/shuffle_baseline.py
+BinaryBaselines/DutchDraw.py
 BinaryBaselines.egg-info/PKG-INFO
 BinaryBaselines.egg-info/SOURCES.txt
 BinaryBaselines.egg-info/dependency_links.txt
