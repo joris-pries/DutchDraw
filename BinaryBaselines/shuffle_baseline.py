@@ -39,8 +39,7 @@ name_dictionary = {
     'FM': ['GMEAN1', 'G MEAN 1', 'G1', 'FOWLKES-MALLOWS',
            'FOWLKES MALLOWS', 'FOWLKES', 'MALLOWS', 'FM'],
     'G2': ['GMEAN2', 'G MEAN 2', 'G2'],
-    'TS': ['THREAT SCORE', 'CRITICAL SUCCES INDEX', 'TS', 'CSI'],
-    'PT': ['PREVALENCE THRESHOLD', 'PT']
+    'TS': ['THREAT SCORE', 'CRITICAL SUCCES INDEX', 'TS', 'CSI']
 }
 
 
@@ -207,12 +206,7 @@ def measure_score(y_true, y_pred, measure, beta=1):
         TPR = TP / P
         TNR = TN / N
         return math.sqrt(TPR * TNR)
-
-    if measure in name_dictionary['PT']:
-        TPR = TP / P
-        FPR = FP / N
-        return (math.sqrt(TPR * FPR) - FPR) / (TPR - FPR)
-
+    
     if measure in name_dictionary['TS']:
         return TP / (TP + FN + FP)
 
@@ -468,19 +462,6 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [0]
 
-    #if measure in name_dictionary['PT']:
-    #    result = [np.nan] * (M + 1)
-    #    for i in [1, M - 1]:
-    #        theta = i / M
-    #        rounded_m_theta = round(M * theta)
-    #        TP_rv = hypergeom(M=M, n=P, N=rounded_m_theta)
-    #        result[i] = sum([((math.sqrt((k / P) * (-(k - rounded_m_theta) / N)) + ((k - rounded_m_theta) / N)) / ((k / P) + ((k - rounded_m_theta) / N)))
-    #                         * TP_rv.pmf(k) if ((k / P) + ((k - rounded_m_theta) / N)) != 0 else 0 for k in range(int(max(0, rounded_m_theta - N)), int(min((P + 1, rounded_m_theta + 1))))])
-    #    return_statistics['Max Expected Value'] = np.nanmax(result)
-    #    return_statistics['Argmax Expected Value'] = [1 / M]
-    #    return_statistics['Min Expected Value'] = np.nanmin(result)
-    #    return_statistics['Argmin Expected Value'] = [(M - 1) / M]
-
     return return_statistics
 
 
@@ -501,10 +482,10 @@ def add_check_theta_generator(measure):
     include_1 = True
     measure = measure.upper()
     # Should 0 be included
-    if measure in select_names(['PPV', 'FDR', 'MCC', 'MK', 'PT', 'FM']):
+    if measure in select_names(['PPV', 'FDR', 'MCC', 'MK', 'FM']):
         include_0 = False
     # Should 1 be included
-    if measure in select_names(['NPV', 'FOR', 'MCC', 'MK', 'PT']):
+    if measure in select_names(['NPV', 'FOR', 'MCC', 'MK']):
         include_1 = False
 
     def add_check_theta(func):
@@ -709,7 +690,7 @@ def basic_baseline(y_true, measure, beta=1):
             return [(eval(a) * x) + eval(b) for x in range(int(max(0, rounded_m_theta - N)), int(min((P + 1, rounded_m_theta + 1))))]
         return domain_function
 
-    # Used to generate domain function for PT, TS and G2.
+    # Used to generate domain function for TS and G2.
     def generate_domain_function_given_x(given_x_function):
         @add_check_theta_generator(measure)
         def domain_function(theta):
@@ -887,44 +868,14 @@ def basic_baseline(y_true, measure, beta=1):
             TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
             return sum([TP_rv.pmf(x) * (given_x_function(x, theta) ** 2) for x in range(int(max(0, rounded_m_theta - N)), int(min((P + 1, rounded_m_theta + 1))))])
 
-    if measure in name_dictionary['PT']:
-        @add_docstring(pmf_docstring)
-        @add_check_theta_generator(measure)
-        def pmf_Y(y, theta):
-            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            rounded_m_theta = round(theta * M)
-            return TP_rv.pmf(round_if_close((rounded_m_theta * P * ((y - 1) ** 2)) / (M * (y ** 2) - 2 * P * y + P)))
-
-        def given_x_function(x, theta):
-            rounded_m_theta = round(theta * M)
-            help_1 = x / P
-            help_2 = (x - rounded_m_theta) / N
-            if help_1 + help_2 == 0:
-                return 0
-            return (math.sqrt(help_1 * (- help_2)) + help_2) / (help_1 + help_2)
-
-        @add_docstring(expectation_docstring)
-        @add_check_theta_generator(measure)
-        def expectation_function(theta):
-            rounded_m_theta = round(theta * M)
-            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            return sum([TP_rv.pmf(x) * given_x_function(x, theta) for x in range(int(max(0, rounded_m_theta - N)), int(min((P + 1, rounded_m_theta + 1))))])
-
-        @add_docstring(variance_docstring)
-        @add_check_theta_generator(measure)
-        def variance_function(theta):
-            rounded_m_theta = round(theta * M)
-            TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
-            return sum([TP_rv.pmf(x) * (given_x_function(x, theta) ** 2) for x in range(int(max(0, rounded_m_theta - N)), int(min((P + 1, rounded_m_theta + 1))))])
-
-    if measure in select_names(['G2', 'TS', 'PT']):
+    if measure in select_names(['G2', 'TS']):
         return_functions['Distribution'] = pmf_Y
         return_functions['Expectation Function'] = expectation_function
         return_functions['Variance Function'] = variance_function
         return_functions['Domain'] = generate_domain_function_given_x(
             given_x_function)
 
-    if measure in all_names_except(['G2', 'TS', 'PT']):
+    if measure in all_names_except(['G2', 'TS']):
         return_functions['Distribution'] = generate_hypergeometric_distribution(
             a, b)
         return_functions['Domain'] = generate_domain_function(a, b)
