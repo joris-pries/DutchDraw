@@ -1044,9 +1044,9 @@ def DutchDrawClassifier(y_true=None, theta='max',  measure='', beta = 1,
 
         beta (float): Default is 1. Parameter for the F-beta score.
     
-        M_known (boolean): Indicated whether we know M or not. Default is true.
+        M_known (bool): Indicated whether we know M or not. Default is true.
         
-        P_known (boolean): Indicated whether we know P or not. Default is true.
+        P_known (bool): Indicated whether we know P or not. Default is true.
         
         E_P_x_E_N (string): With this parameter, if we do not know P, we can still say something about P.
         The x shows whether or not the expected P is bigger (>), smaller (<) or equal (=) to the expected number of 
@@ -1087,13 +1087,7 @@ def DutchDrawClassifier(y_true=None, theta='max',  measure='', beta = 1,
         raise ValueError("This measure name is not recognized.")
         
     if beta < 0:
-        raise ValueError("beta must be positive or 0.")
-    
-    if not isinstance(M_known, bool):
-        raise ValueError("M_known must be boolean")
-        
-    if not isinstance(P_known, bool):
-        raise ValueError("P_known must be boolean")        
+        raise ValueError("beta must be positive or 0.")  
     
     if not E_P_x_E_N in [None, "<","=",">"]:
         raise ValueError("Variable E_P_x_E_N contains non-ommited value.")
@@ -1143,4 +1137,10 @@ def DutchDrawClassifier(y_true=None, theta='max',  measure='', beta = 1,
         t = optimized_baseline_statistics(y_true, measure, beta)["Argmin Expected Value"][0]      
     return [1] * round(M * t) + [0] * round(M * (1 - t))
 
+#%%
 
+import random
+random.seed(123) # To ensure similar outputs
+y_true = random.choices((0, 1), k=100, weights=(0.9, 0.1))
+y_pred = DutchDrawClassifier(y_true=y_true, theta='max',  measure='FBETA')
+print(y_pred)
