@@ -1,3 +1,4 @@
+# %%
 from shuffle_baseline import basic_baseline_given_theta, name_dictionary, optimized_basic_baseline
 import pandas as pd
 import seaborn as sns
@@ -8,18 +9,16 @@ import math
 performance_measures = name_dictionary.keys()
 performance_measures = [x for x in performance_measures if x != "PT"]
 
+
 #%%
 
 BASE_MEASURES = ["TP", "TN", "FN", "FP"]
-BASE_METRICS = ['TPR', 'TNR', 'FPR', 'FNR', 'PPV', 'NPV', 'FDR', 'FOR', 'ACC']
-HIGHER_ORDER_METRICS = ['BACC', 'FBETA', 'MCC', 'J', 'MK',
-                        'KAPPA', 'FM', 'G2', 'TS'] #PT
-
+BASE_METRICS = ['TPR', 'TNR', 'FPR', 'FNR', 'PPV', 'NPV', 'FDR', 'FOR', 'Acc']
+HIGHER_ORDER_METRICS = ['BAcc', 'FBeta', 'MCC', 'J', 'MK',
+                        'Kappa', 'FM', 'G2', 'TS'] #PT
+performance_measures = BASE_MEASURES + BASE_METRICS + HIGHER_ORDER_METRICS
 #%%
-P = 25
-N = 75
-M = P + N
-y_true = [1] * P + [0] * N
+
 
 #%%
 def get_baseline():
@@ -48,7 +47,7 @@ def plot_heatmap(df, metric_list, P, N):
     plt.title(r"Expectation Base Measures over different $\theta$ with P:" + str(P) + " and N:" + str(N))
     plt.ylabel(r"$\theta^*$")
     plt.show()
-    
+
 def translate_scores_to_extrema(df):
     df_ = df.copy()
 
@@ -56,7 +55,7 @@ def translate_scores_to_extrema(df):
         lower = df_[measure].min()
         lower_floor = math.floor(lower)
         upper = df_[measure].max()
-    
+
         if lower == upper:
             df_.loc[df_[measure] == lower, measure] = lower_floor - 3
         else:
@@ -68,7 +67,8 @@ def translate_scores_to_extrema(df):
     return df_
 
 def plot_heatmap_extrema(df):
-    plt.figure(figsize = (10,8))
+    plt.figure(figsize = (5,8))
+    plt.rcParams.update({'font.size': 15})
     cmap = sns.color_palette("Accent", 5)
 
     cmap[0] = (0,0,0) # Zwart
@@ -76,15 +76,19 @@ def plot_heatmap_extrema(df):
     cmap[2] = (230/255,159/255,0/255) # Oranje
     cmap[3] = (245/255,245/255,245/255)    #Grijs
     cmap[4] = (0,158/255,115/255) #Groen
-    ax = sns.heatmap(df[performance_measures], cmap = cmap, linewidths=.005, yticklabels = 25 ,cbar=False)
-    colorbar = ax.collections[0].colorbar 
+    if M == 20:
+        help_xtick = 5
+    if M == 100:
+        help_xtick = 25
+    ax = sns.heatmap(df[performance_measures].T, cmap = cmap, linewidths=.005, yticklabels = performance_measures ,cbar=False, xticklabels= help_xtick)
+    colorbar = ax.collections[0].colorbar
     #colorbar.set_ticks([colorbar.vmin + 4 / 5 * (0.5 + i) for i in range(5)])
     #colorbar.set_ticklabels(["N.D.","Min","Min = Max","Not-optimal","Max"])
     #plt.title(r"Optimal Expectations Measures with P=" + str(P) + " and N=" + str(N))
-    plt.ylabel(r"$\theta$")
-    plt.xlabel("Measure")
-    plt.xticks(rotation=70)
-    plt.rcParams.update({'font.size': 12})
+    plt.xlabel(r"$\theta$")
+    plt.ylabel("Measure")
+
+    plt.savefig("Visualization_P-{}_N-{}.jpg".format(P, N), dpi = 300, bbox_inches='tight')
     plt.show()
 # https://www-nature-com.vu-nl.idm.oclc.org/articles/nmeth.1618
 def determine_optima(metrics_list, M, stepsize):
@@ -99,39 +103,53 @@ def determine_optima(metrics_list, M, stepsize):
             results.append([measure, p, M, outcome["Min Expected Value"], outcome["Max Expected Value"]])
     df = pd.DataFrame(results, columns = ["Metric", "P", "M", "E_min", "E_max"])
     return df
-           
-#%%
-
-df = get_baseline()
-df = df[df["Metric"] != "PT"]
-
-df_pivot = pd.pivot_table(data = df.round({"Theta":2}), values = "Score", 
-                          columns = "Metric", index = "Theta").round(5).abs().sort_index(ascending=False)
-
-df_extrema = translate_scores_to_extrema(df_pivot)
-plot_heatmap_extrema(df_extrema)
 
 #%%
+P_list = [10, 50, 5, 25]
+N_list = [10, 50, 15, 75]
+for P, N in zip(P_list, N_list):
+    M = P + N
+    y_true = [1] * P + [0] * N
+    df = get_baseline()
+    df = df[df["Metric"] != "PT"]
 
-plot_metrics_over_theta(df, BASE_MEASURES , "Amount")
-plot_metrics_over_theta(df, BASE_METRICS , "Score")
-plot_metrics_over_theta(df, HIGHER_ORDER_METRICS, "Score")
+    df_pivot = pd.pivot_table(data = df.round({"Theta":2}), values = "Score",
+                            columns = "Metric", index = "Theta").round(5).abs().sort_index(ascending=True)
+
+
+    df_extrema = translate_scores_to_extrema(df_pivot)
+    plot_heatmap_extrema(df_extrema)
+
+
 
 
 #%%
 
-plot_heatmap(df_pivot, BASE_MEASURES, P, N)
-plot_heatmap(df_pivot, BASE_METRICS, P, N)
-plot_heatmap(df_pivot, HIGHER_ORDER_METRICS, P, N)
-
-#%%
-M = 100
-df = determine_optima([x for x in HIGHER_ORDER_METRICS if x != "G2"], M, 1)
-
-plt.figure(figsize = (8,8))
-sns.lineplot(x = "P", y = "E_max", hue = "Metric", data = df, alpha=0.7 )
-plt.title(r"Expectation Base Measures over different $\theta$ with M:" + str(M))
-plt.ylabel("Maximum Expected Score")
-plt.show()
+# plot_metrics_over_theta(df, BASE_MEASURES , "Amount")
+# plot_metrics_over_theta(df, BASE_METRICS , "Score")
+# plot_metrics_over_theta(df, HIGHER_ORDER_METRICS, "Score")
 
 
+# #%%
+
+# plot_heatmap(df_pivot, BASE_MEASURES, P, N)
+# plot_heatmap(df_pivot, BASE_METRICS, P, N)
+# plot_heatmap(df_pivot, HIGHER_ORDER_METRICS, P, N)
+
+# #%%
+# M = 100
+# df = determine_optima([x for x in HIGHER_ORDER_METRICS if x != "G2"], M, 1)
+
+# plt.figure(figsize = (8,8))
+# sns.lineplot(x = "P", y = "E_max", hue = "Metric", data = df, alpha=0.7 )
+# plt.title(r"Expectation Base Measures over different $\theta$ with M:" + str(M))
+# plt.ylabel("Maximum Expected Score")
+# plt.show()
+
+
+
+# %%
+
+# %%
+
+# %%
