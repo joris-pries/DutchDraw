@@ -16,6 +16,7 @@ BASE_MEASURES = ["TP", "TN", "FN", "FP"]
 BASE_METRICS = ['TPR', 'TNR', 'FPR', 'FNR', 'PPV', 'NPV', 'FDR', 'FOR', 'Acc']
 HIGHER_ORDER_METRICS = ['BAcc', 'FBeta', 'MCC', 'J', 'MK',
                         'Kappa', 'FM', 'G2', 'TS'] #PT
+
 performance_measures = BASE_MEASURES + BASE_METRICS + HIGHER_ORDER_METRICS
 #%%
 
@@ -113,8 +114,12 @@ for P, N in zip(P_list, N_list):
     df = get_baseline()
     df = df[df["Metric"] != "PT"]
 
-    df_pivot = pd.pivot_table(data = df.round({"Theta":2}), values = "Score",
-                            columns = "Metric", index = "Theta").round(5).abs().sort_index(ascending=True)
+
+
+df = get_baseline()
+df = df[df["Metric"] != "PT"]
+df["Metric"].replace({"ACC": "Acc", "BACC": "Bacc"}, inplace=True)
+
 
 
     df_extrema = translate_scores_to_extrema(df_pivot)
