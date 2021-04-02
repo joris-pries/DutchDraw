@@ -61,9 +61,9 @@ def all_names_except(name_keys):
 
 def measure_score(y_true, y_pred, measure, beta=1):
     """
-    To determine the performance of a predictive model a measure is used.
     This function determines the measure for the given input labels.
-
+    To determine the performance of a predictive model a measure is used.
+    
     Args:
     --------
         y_true (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the true labels.
@@ -84,6 +84,8 @@ def measure_score(y_true, y_pred, measure, beta=1):
             If `measure` is not in `all_names_except([''])`.
         ValueError
             If `y_true` or `y_pred` does not only contain zeros and ones.
+        ValueError
+            If measure equals "FBETA" and beta < 0.
 
     See also:
     --------
@@ -174,6 +176,8 @@ def measure_score(y_true, y_pred, measure, beta=1):
         return (TPR + TNR) / 2
 
     if measure in name_dictionary['FBETA']:
+        if beta < 0:
+            raise ValueError("Beta should be positive.")
         beta2 = beta ** 2
         return (1 + beta2) * TP / (((1 + beta2) * TP) + (beta2 * FN) + FP)
 
@@ -340,9 +344,11 @@ def optimized_basic_baseline(y_true, measure, beta=1):
 
     if measure in name_dictionary['NPV']:
         return_statistics['Max Expected Value'] = N/M
-        return_statistics['Argmax Expected Value'] = [i/M for i in range(0, M)]
+        return_statistics['Argmax Expected Value'] = [
+            i/M for i in range(0, M)]
         return_statistics['Min Expected Value'] = N/M
-        return_statistics['Argmin Expected Value'] = [i/M for i in range(0, M)]
+        return_statistics['Argmin Expected Value'] = [
+            i/M for i in range(0, M)]
 
     if measure in name_dictionary['FDR']:
         return_statistics['Max Expected Value'] = N/M
@@ -354,16 +360,18 @@ def optimized_basic_baseline(y_true, measure, beta=1):
 
     if measure in name_dictionary['FOR']:
         return_statistics['Max Expected Value'] = P/M
-        return_statistics['Argmax Expected Value'] = [i/M for i in range(0, M)]
+        return_statistics['Argmax Expected Value'] = [
+            i/M for i in range(0, M)]
         return_statistics['Min Expected Value'] = P/M
-        return_statistics['Argmin Expected Value'] = [i/M for i in range(0, M)]
+        return_statistics['Argmin Expected Value'] = [
+            i/M for i in range(0, M)]
 
     if measure in name_dictionary['FBETA']:
-        beta_squared = beta ** 2
+        beta2 = beta ** 2
         return_statistics['Max Expected Value'] = (
-            1 + beta_squared) * P / (beta_squared * P + M)
+            1 + beta2) * P / (beta2 * P + M)
         return_statistics['Argmax Expected Value'] = [1]
-        return_statistics['Min Expected Value'] = (1 + beta_squared) * P / (M * (beta_squared * P + 1))
+        return_statistics['Min Expected Value'] = (1 + beta2) * P / (M * (beta2 * P + 1))
         return_statistics['Argmin Expected Value'] = [1/M]
         
     if measure in name_dictionary['J']:
@@ -376,31 +384,39 @@ def optimized_basic_baseline(y_true, measure, beta=1):
 
     if measure in name_dictionary['MK']:
         return_statistics['Max Expected Value'] = 0
-        return_statistics['Argmax Expected Value'] = [i/M for i in range(1, M)]
+        return_statistics['Argmax Expected Value'] = [
+            i/M for i in range(1, M)]
         return_statistics['Min Expected Value'] = 0
-        return_statistics['Argmin Expected Value'] = [i/M for i in range(1, M)]
+        return_statistics['Argmin Expected Value'] = [
+            i/M for i in range(1, M)]
 
     if measure in name_dictionary['ACC']:
         return_statistics['Max Expected Value'] = max((N/M, P/M))
         return_statistics['Min Expected Value'] = min((N/M, P/M))
         if P == N:
-            return_statistics['Argmax Expected Value'] = [i/M for i in range(0, M+1)]
-            return_statistics['Argmin Expected Value'] = [i/M for i in range(0, M+1)]
+            return_statistics['Argmax Expected Value'] = [
+                i/M for i in range(0, M+1)]
+            return_statistics['Argmin Expected Value'] = [
+                i/M for i in range(0, M+1)]
         else:
             return_statistics['Argmax Expected Value'] = [int((P >= N))]
             return_statistics['Argmin Expected Value'] = [int((P < N))] 
 
     if measure in name_dictionary['BACC']:
         return_statistics['Max Expected Value'] = 0.5
-        return_statistics['Argmax Expected Value'] = [i/M for i in range(0, M+1)]
+        return_statistics['Argmax Expected Value'] = [
+            i/M for i in range(0, M+1)]
         return_statistics['Min Expected Value'] = 0.5
-        return_statistics['Argmin Expected Value'] = [i/M for i in range(0, M+1)]
+        return_statistics['Argmin Expected Value'] = [
+            i/M for i in range(0, M+1)]
 
     if measure in name_dictionary['MCC']:
         return_statistics['Max Expected Value'] = 0
-        return_statistics['Argmax Expected Value'] = [i/M for i in range(1, M)]
+        return_statistics['Argmax Expected Value'] = [
+            i/M for i in range(1, M)]
         return_statistics['Min Expected Value'] = 0
-        return_statistics['Argmin Expected Value'] = [i/M for i in range(1, M)]
+        return_statistics['Argmin Expected Value'] = [
+            i/M for i in range(1, M)]
 
     if measure in name_dictionary['KAPPA']:
         return_statistics['Max Expected Value'] = 0
