@@ -174,8 +174,8 @@ def measure_score(y_true, y_pred, measure, beta=1):
         return (TPR + TNR) / 2
 
     if measure in name_dictionary['FBETA']:
-        beta_squared = beta ** 2
-        return (1 + beta_squared) * TP / (((1 + beta_squared) * TP) + (beta_squared * FN) + FP)
+        beta2 = beta ** 2
+        return (1 + beta2) * TP / (((1 + beta2) * TP) + (beta2 * FN) + FP)
 
     if measure in name_dictionary['MCC']:
         return (TP * TN - FP * FN)/(math.sqrt((TP + FP) * (TN + FN) * P * N))
