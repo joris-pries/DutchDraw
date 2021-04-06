@@ -11,7 +11,7 @@ import sys
 
 __all__ = ['select_all_names_except', 'baseline_functions', 'baseline_functions_given_theta',
            'measure_score', 'measure_dictionary', 'optimized_baseline_statistics',
-           'round_if_close', 'select_names', 'DutchDraw_baseline']
+           'round_if_close', 'select_names', 'DutchDraw_baseline', 'DutchDraw_classifier']
 
 # %%
 
@@ -1021,7 +1021,7 @@ def generate_y_true(M, P):
     return [1] * P + [0] * (M - P)
 
 
-def DutchDrawClassifier(y_true=None, theta='max',  measure='', beta = 1,
+def DutchDraw_classifier(y_true=None, theta='max',  measure='', beta = 1,
                         M_known = True, P_known = True, E_P_x_E_N = None):
     """
     This function gives the outcome of the Dutch Draw classifier given some parameters
@@ -1055,10 +1055,7 @@ def DutchDrawClassifier(y_true=None, theta='max',  measure='', beta = 1,
 
     Example:
     --------
-        >>> import random
-        >>> random.seed(123) # To ensure similar outputs
-        >>> y_true = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
-        >>>
+
     """
     if y_true is None :
         raise ValueError("y_true must be given")
@@ -1132,8 +1129,3 @@ def DutchDrawClassifier(y_true=None, theta='max',  measure='', beta = 1,
 
 #%%
 
-import random
-random.seed(123) # To ensure similar outputs
-y_true = random.choices((0, 1), k=100, weights=(0.9, 0.1))
-y_pred = DutchDrawClassifier(y_true=y_true, theta='max',  measure='FBETA')
-print(y_pred)
