@@ -1,0 +1,7 @@
+README.md
+pyproject.toml
+setup.py
+DutchDraw.egg-info/PKG-INFO
+DutchDraw.egg-info/SOURCES.txt
+DutchDraw.egg-info/dependency_links.txt
+DutchDraw.egg-info/top_level.txt
