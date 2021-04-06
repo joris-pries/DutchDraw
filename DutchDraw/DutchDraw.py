@@ -1047,7 +1047,22 @@ def DutchDraw_classifier(y_true=None, theta='max',  measure='', beta = 1,
 
     Returns:
     --------
-        y_pred: prediction 1-dimensional boolean containing predicted labels.
+        y_pred: prediction 1-dimensional boolean containing predicted labels of the Dutch Draw.
+
+    Raises:
+    --------
+        ValueError
+            If `y_true' is not a list consisting of zeros and ones.
+        ValueError
+            If 'theta' is not a float between zero and one or "max" or "min".
+        ValueError
+            If `measure' is not considered.
+        ValueError
+            If `M_known' is False and `P_known' is True.
+        ValueError
+            If `beta' is negative.
+        ValueError
+            If `E_P_x_E_N' is not None, <, = or >.
 
     See also:
     --------
@@ -1085,6 +1100,9 @@ def DutchDraw_classifier(y_true=None, theta='max',  measure='', beta = 1,
     if measure not in select_all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
 
+    if M_known == False and P_known == True:
+        raise ValueError("This case has not been investigated. If M is unknown, P must also be unknown.")
+        
     if beta < 0:
         raise ValueError("beta must be positive or 0.")
 
