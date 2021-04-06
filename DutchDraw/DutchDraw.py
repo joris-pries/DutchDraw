@@ -1002,6 +1002,21 @@ def DutchDraw_baseline(y_true, measure= '', theta = 'optimal', M_known = True, P
         optimized_baseline_statistics
         baseline_functions
         baseline_functions_given_theta
+    
+    Example:
+    --------
+        >>> import random
+        >>> random.seed(123) # To ensure similar outputs
+        >>> y_true = random.choices((0, 1), k=1000, weights=(0.9, 0.1))
+        >>> stats =  DutchDraw_baseline(y_true, measure = 'ACC', theta = 'optimal')
+        >>> print(stats)
+        {'Max Expected Value': 0.888, 'Min Expected Value': 0.112, 'Argmax Expected Value': [0], 'Argmin Expected Value': [1]}
+        >>> stats =  DutchDraw_baseline(y_true, measure = 'FBETA', theta = 0.2)
+        >>> print(stats)
+        {'Mean': 0.1435897435897436, 'Variance': 0.0006545401417196289}
+        >>> stats =  DutchDraw_baseline(y_true, measure = 'TS', theta = 'all')
+        >>> print(stats["Expectation Function"](0.5)) #Function depends on theta, here 0.5.
+        0.10080806593812942
     """
 
 
