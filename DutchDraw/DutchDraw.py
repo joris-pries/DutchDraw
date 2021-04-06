@@ -11,7 +11,7 @@ import sys
 
 __all__ = ['select_all_names_except', 'baseline_functions', 'baseline_functions_given_theta',
            'measure_score', 'measure_dictionary', 'optimized_baseline_statistics',
-           'round_if_close', 'select_names', 'DutchDraw_baseline', 'DutchDraw_classifier']
+           'round_if_close', 'select_names', 'baseline', 'classifier']
 
 # %%
 
@@ -963,7 +963,7 @@ def return_baseline_information(measure = '', M_known = True, P_known = True):
         return True
 
 
-def DutchDraw_baseline(y_true, measure= '', theta = 'optimal', M_known = True, P_known = True, beta = 1):
+def baseline(y_true, measure= '', theta = 'optimal', M_known = True, P_known = True, beta = 1):
     """
     Statistics/information about the Dutch Draw baseline, combining the functions: optimized_baseline_statistics, baseline_functions, baseline_functions_given_theta.
 
@@ -1008,13 +1008,13 @@ def DutchDraw_baseline(y_true, measure= '', theta = 'optimal', M_known = True, P
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
         >>> y_true = random.choices((0, 1), k=1000, weights=(0.9, 0.1))
-        >>> stats =  DutchDraw_baseline(y_true, measure = 'ACC', theta = 'optimal')
+        >>> stats =  baseline(y_true, measure = 'ACC', theta = 'optimal')
         >>> print(stats)
         {'Max Expected Value': 0.888, 'Min Expected Value': 0.112, 'Argmax Expected Value': [0], 'Argmin Expected Value': [1]}
-        >>> stats =  DutchDraw_baseline(y_true, measure = 'FBETA', theta = 0.2)
+        >>> stats =  baseline(y_true, measure = 'FBETA', theta = 0.2)
         >>> print(stats)
         {'Mean': 0.1435897435897436, 'Variance': 0.0006545401417196289}
-        >>> stats =  DutchDraw_baseline(y_true, measure = 'TS', theta = 'all')
+        >>> stats =  baseline(y_true, measure = 'TS', theta = 'all')
         >>> print(stats["Expectation Function"](0.5)) #Function depends on theta, here 0.5.
         0.10080806593812942
     """
@@ -1036,7 +1036,7 @@ def generate_y_true(M, P):
     return [1] * P + [0] * (M - P)
 
 
-def DutchDraw_classifier(y_true=None, theta='max',  measure='', beta = 1,
+def classifier(y_true=None, theta='max',  measure='', beta = 1,
                         M_known = True, P_known = True, E_P_x_E_N = None):
     """
     This function gives the outcome of the Dutch Draw classifier given some parameters
@@ -1088,11 +1088,11 @@ def DutchDraw_classifier(y_true=None, theta='max',  measure='', beta = 1,
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
         >>> y_true = random.choices((0, 1), k=1000, weights=(0.9, 0.1))
-        >>> y_pred = DutchDraw_classifier(y_true=y_true, theta = "max", measure='ACC', 
+        >>> y_pred = classifier(y_true=y_true, theta = "max", measure='ACC', 
                                           P_known = False, E_P_x_E_N = ">")
         >>> print("Length y_pred:", len(y_pred), ", number of positives:", np.sum(y_pred))
         Length y_pred: 1000 , number of positives: 1000
-        >>> y_pred = DutchDraw_classifier(y_true=y_true, theta = "min", measure='TS')
+        >>> y_pred = classifier(y_true=y_true, theta = "min", measure='TS')
         >>> print("Length y_pred:", len(y_pred), ", number of positives:", np.sum(y_pred))
         Length y_pred: 1000 , number of positives: 0
     """
