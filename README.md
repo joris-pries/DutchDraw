@@ -1,20 +1,20 @@
-# BinaryBaselines
+# DutchDraw
 
-BinaryBaselines is a Python package for binary classification.
+DutchDraw is a Python package for binary classification.
 
 ## Paper
 
 This package is an implementation of the ideas from INSERTONZEPAPER, where VERHAALWATWEINDEPAPERDOEN.
 
 ### Citation
-If you have used the BinaryBaselines package, please also cite: INSERTONZEBIBTEX
+If you have used the DutchDraw package, please also cite: INSERTONZEBIBTEX
 
 ## Installation
 
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install the package
 
 ```bash
-pip install BinaryBaselines
+pip install DutchDraw
 ```
 
 ----
@@ -22,21 +22,21 @@ pip install BinaryBaselines
 ### Windows users
 
 ```bash
-python -m pip install --upgrade  --index-url https://test.pypi.org/simple/ BinaryBaselines
+python -m pip install --upgrade  --index-url https://test.pypi.org/simple/ DutchDraw
 ```
 
 <!-- ```bash
-python -m pip install BinaryBaselines
+python -m pip install DutchDraw
 ``` -->
 
 or
 
 ```bash
-py -m pip install --upgrade  --index-url https://test.pypi.org/simple/ BinaryBaselines
+py -m pip install --upgrade  --index-url https://test.pypi.org/simple/ DutchDraw
 ```
 
 <!-- ```bash
-py -m pip install BinaryBaselines
+py -m pip install DutchDraw
 ``` -->
 
 ## Method
@@ -123,7 +123,7 @@ In general, to determine the score of a measure, use `measure_score(y_true, y_pr
 To examine the performance of the predicted labels, we measure the markedness (MK) and F<sub>2</sub> score (FBETA).
 
 ```python
-import BinaryBaselines as bbl
+import DutchDraw as bbl
 
 # Measuring markedness (MK):
 print('Markedness: {:06.4f}'.format(bbl.measure_score(y_true, y_pred, measure = 'MK')))
@@ -244,7 +244,7 @@ plt.show()
 
 with output:
 
-![expectation example](BinaryBaselines/expected_value_function_example.png)
+![expectation example](DutchDraw/expected_value_function_example.png)
 
 The variance can be determined similarly
 
@@ -259,7 +259,7 @@ plt.show()
 
 with output:
 
-![expectation example](BinaryBaselines/variance_function_example.png)
+![expectation example](DutchDraw/variance_function_example.png)
 
 `Distribution` is a function with two arguments: `y` and `theta`. Let's investigate the distribution for `theta = 0.5` using `Domain`.
 
@@ -274,7 +274,7 @@ plt.show()
 
 with output:
 
-![expectation example](BinaryBaselines/pmf_example.png)
+![expectation example](DutchDraw/pmf_example.png)
 
 ----
 
@@ -329,7 +329,7 @@ Argmin Expected Value: 0.0000
 ### All example code
 
 ```python
-import BinaryBaselines as bbl
+import DutchDraw as bbl
 import random
 import numpy as np
 

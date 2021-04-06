@@ -1,8 +1,0 @@
-README.md
-setup.py
-BinaryBaselines/__init__.py
-BinaryBaselines/DutchDraw.py
-BinaryBaselines.egg-info/PKG-INFO
-BinaryBaselines.egg-info/SOURCES.txt
-BinaryBaselines.egg-info/dependency_links.txt
-BinaryBaselines.egg-info/top_level.txt
