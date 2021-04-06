@@ -1,12 +1,12 @@
- import setuptools
+import setuptools
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name = "DutchDraw", # Replace with your own username
-    version = "0.0.7",
-    author = "Etienne van de Bijl, Joris Pries",
+    version = "0.0.1",
+    author = "Etienne van de Bijl, Jan Klein, Joris Pries",
     author_email = "joris.pries@cwi.nl",
     description = "Determine (optimal) baselines for binary classification",
     long_description = long_description,
