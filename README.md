@@ -1,6 +1,6 @@
 # DutchDraw
 
-DutchDraw is a Python package for binary classification.
+DutchDraw is a Python package for constructing baselines in binary classification.
 
 ## Paper
 
@@ -45,7 +45,7 @@ To properly assess the performance of a binary classification model, the score o
 
 ### Basic baseline
 
-Let `M`  be the total number of samples, where `P` are positive and `N` are negative. Let `θ_star = round(θ * M) / M`. Randomly shuffle the samples and label the first `θ_star * M` samples as `1` and the rest as `0`. This gives a baseline for each `θ` in `[0,1]`. Our package can optimize (maximize and minimize) the baseline.
+Let `M`  be the total number of samples, where `P` are positive and `N` are negative. Say `θ` is the fraction that the Dutch Draw will predict positive, where `θ` is in `[0,1]`. Let `θ_star = round(θ * M) / M`. Then the Dutch Draw labels randomly `θ_star * M` instances positives and the others negative. Our package can optimize (maximize and minimize) the baseline.
 
 ## Reasons to use
 
@@ -57,6 +57,9 @@ If:
 * You want to get statistics of a baseline given `theta` --> `baseline_functions_given_theta(theta, y_true, measure)`
 * You want to get statistics of the optimal baseline --> `optimized_baseline_statistics(y_true, measure)`
 * You want the baseline without specifying `theta` --> `baseline_functions(y_true, measure)`
+* You want statistics from the above three cases --> `baseline(y_true, measure, theta, M_known, P_known)`
+* You want a prediction from the Dutch Draw classifier -->` classifier(y_true, theta, measure, M_known, P_known, E_P_x_E_N) `
+
 
 ### List of all included measures
 
