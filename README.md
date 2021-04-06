@@ -22,7 +22,7 @@ pip install DutchDraw
 ### Windows users
 
 ```bash
-python -m pip install --upgrade  --index-url https://test.pypi.org/simple/ DutchDraw
+python -m pip install --upgrade DutchDraw
 ```
 
 <!-- ```bash
@@ -32,7 +32,7 @@ python -m pip install DutchDraw
 or
 
 ```bash
-py -m pip install --upgrade  --index-url https://test.pypi.org/simple/ DutchDraw
+py -m pip install --upgrade DutchDraw
 ```
 
 <!-- ```bash

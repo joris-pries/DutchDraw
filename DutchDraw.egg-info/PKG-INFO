@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: DutchDraw
-Version: 0.0.1
+Version: 0.0.2
 Summary: Determine (optimal) baselines for binary classification
 Home-page: https://github.com/joris-pries/DutchDraw
 Author: Etienne van de Bijl, Jan Klein, Joris Pries
