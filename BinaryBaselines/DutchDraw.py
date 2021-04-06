@@ -9,13 +9,13 @@ from tqdm import tqdm
 import time
 import sys
 
-__all__ = ['all_names_except', 'basic_baseline', 'basic_baseline_given_theta',
-           'measure_score', 'name_dictionary', 'optimized_basic_baseline',
-           'round_if_close', 'select_names']
+__all__ = ['select_all_names_except', 'baseline_functions', 'baseline_functions_given_theta',
+           'measure_score', 'measure_dictionary', 'optimized_baseline_statistics',
+           'round_if_close', 'select_names', 'DutchDraw_baseline']
 
 # %%
 
-name_dictionary = {
+measure_dictionary = {
     'TP': ['TP'],
     'TN': ['TN'],
     'FP': ['FP'],
@@ -32,8 +32,8 @@ name_dictionary = {
     'BACC': ['BACC', 'BALANCED ACCURACY'],
     'FBETA': ['FBETA', 'FSCORE', 'F', 'F BETA', 'F BETA SCORE', 'FBETA SCORE'],
     'MCC': ['MCC', 'MATTHEW', 'MATTHEWS CORRELATION COEFFICIENT'],
-    'J': ['BM', 'BOOKMAKER INFORMEDNESS', 'INFORMEDNESS', 
-          'Youden’s J Statistic', 'J'], 
+    'J': ['BM', 'BOOKMAKER INFORMEDNESS', 'INFORMEDNESS',
+          'YOUDEN’S J STATISTIC', 'J'],
     'MK': ['MARKEDNESS', 'MK'],
     'KAPPA': ['COHEN', 'COHENS KAPPA', 'KAPPA'],
     'FM': ['GMEAN1', 'G MEAN 1', 'G1', 'FOWLKES-MALLOWS',
@@ -47,15 +47,15 @@ def select_names(name_keys):
     """
     This function creates a list of names using the name_keys as keys for the name dictionary.
     """
-    return sum([name_dictionary[key_name] for key_name in name_keys], [])
+    return sum([measure_dictionary[key_name] for key_name in name_keys], [])
 
 
-def all_names_except(name_keys):
+def select_all_names_except(name_keys):
     """
     This function creates a list of all names, except the names with name_keys
     as key in the name dictionary.
     """
-    return sum([list_names for key_name, list_names in name_dictionary.items()
+    return sum([list_names for key_name, list_names in measure_dictionary.items()
                 if key_name not in name_keys], [])
 
 
@@ -70,7 +70,7 @@ def measure_score(y_true, y_pred, measure, beta=1):
 
         y_pred (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the predicted labels.
 
-        measure (string): Measure name, see `all_names_except([''])` for possible measure names.
+        measure (string): Measure name, see `select_all_names_except([''])` for possible measure names.
 
         beta (float): Default is 1. Parameter for the F-beta score.
 
@@ -81,13 +81,13 @@ def measure_score(y_true, y_pred, measure, beta=1):
     Raises:
     --------
         ValueError
-            If `measure` is not in `all_names_except([''])`.
+            If `measure` is not in `select_all_names_except([''])`.
         ValueError
             If `y_true` or `y_pred` does not only contain zeros and ones.
 
     See also:
     --------
-        all_names_except
+        select_all_names_except
 
     Example:
     --------
@@ -110,7 +110,7 @@ def measure_score(y_true, y_pred, measure, beta=1):
     if isinstance(y_pred, np.ndarray):
         y_pred = y_pred.tolist()
 
-    if measure not in all_names_except(['']):
+    if measure not in select_all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
 
     if np.unique(np.array(y_true)) not in np.array([0, 1]):
@@ -129,89 +129,89 @@ def measure_score(y_true, y_pred, measure, beta=1):
     FN = P - TP
     TN = N - FP
 
-    if measure in name_dictionary['TP']:
+    if measure in measure_dictionary['TP']:
         return TP
 
-    if measure in name_dictionary['TN']:
+    if measure in measure_dictionary['TN']:
         return TN
 
-    if measure in name_dictionary['FP']:
+    if measure in measure_dictionary['FP']:
         return FP
 
-    if measure in name_dictionary['FN']:
+    if measure in measure_dictionary['FN']:
         return FN
 
-    if measure in name_dictionary['TPR']:
+    if measure in measure_dictionary['TPR']:
         return TP / P
 
-    if measure in name_dictionary['TNR']:
+    if measure in measure_dictionary['TNR']:
         return TN / N
 
-    if measure in name_dictionary['FPR']:
+    if measure in measure_dictionary['FPR']:
         return FP / N
 
-    if measure in name_dictionary['FNR']:
+    if measure in measure_dictionary['FNR']:
         return FN / P
 
-    if measure in name_dictionary['PPV']:
+    if measure in measure_dictionary['PPV']:
         return TP / (TP + FP)
 
-    if measure in name_dictionary['NPV']:
+    if measure in measure_dictionary['NPV']:
         return TN / (TN + FN)
 
-    if measure in name_dictionary['FDR']:
+    if measure in measure_dictionary['FDR']:
         return FP / (TP + FP)
 
-    if measure in name_dictionary['FOR']:
+    if measure in measure_dictionary['FOR']:
         return FN / (TN + FN)
 
-    if measure in name_dictionary['ACC']:
+    if measure in measure_dictionary['ACC']:
         return (TP + TN) / M
 
-    if measure in name_dictionary['BACC']:
+    if measure in measure_dictionary['BACC']:
         TPR = TP / P
         TNR = TN / N
         return (TPR + TNR) / 2
 
-    if measure in name_dictionary['FBETA']:
+    if measure in measure_dictionary['FBETA']:
         beta_squared = beta ** 2
         return (1 + beta_squared) * TP / (((1 + beta_squared) * TP) + (beta_squared * FN) + FP)
 
-    if measure in name_dictionary['MCC']:
+    if measure in measure_dictionary['MCC']:
         return (TP * TN - FP * FN)/(math.sqrt((TP + FP) * (TN + FN) * P * N))
 
-    if measure in name_dictionary['J']:
+    if measure in measure_dictionary['J']:
         TPR = TP / P
         TNR = TN / N
         return TPR + TNR - 1
 
-    if measure in name_dictionary['MK']:
+    if measure in measure_dictionary['MK']:
         PPV = TP / (TP + FP)
         NPV = TN / (TN + FN)
         return PPV + NPV - 1
 
-    if measure in name_dictionary['KAPPA']:
+    if measure in measure_dictionary['KAPPA']:
         P_o = (TP + TN) / M
         P_yes = ((TP + FP) / M) * (P / M)
         P_no = ((TN + FN) / M) * (N / M)
         P_e = P_yes + P_no
         return (P_o - P_e) / (1 - P_e)
 
-    if measure in name_dictionary['FM']:
+    if measure in measure_dictionary['FM']:
         TPR = TP / P
         PPV = TP / (TP + FP)
         return math.sqrt(TPR * PPV)
 
-    if measure in name_dictionary['G2']:
+    if measure in measure_dictionary['G2']:
         TPR = TP / P
         TNR = TN / N
         return math.sqrt(TPR * TNR)
-    
-    if measure in name_dictionary['TS']:
+
+    if measure in measure_dictionary['TS']:
         return TP / (TP + FN + FP)
 
 
-def optimized_basic_baseline(y_true, measure, beta=1):
+def optimized_baseline_statistics(y_true, measure, beta=1, M_known = True, P_known = True):
     """
     This function determines the optimal `theta` that maximizes or minimizes
     the measure on the `y_true`. It also determines the corresponding extreme value.
@@ -220,9 +220,13 @@ def optimized_basic_baseline(y_true, measure, beta=1):
     --------
         y_true (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the true labels.
 
-        measure (string): Measure name, see `all_names_except([''])` for possible measure names.
+        measure (string): Measure name, see `select_all_names_except([''])` for possible measure names.
 
         beta (float): Default is 1. Parameter for the F-beta score.
+
+        M_known (bool): True if knowledge of the number of samples can be used in determining optimality.
+
+        P_known (bool): True if knowledge of the number of positive labels can be used in determining optimality.
 
     Returns:
     --------
@@ -239,14 +243,16 @@ def optimized_basic_baseline(y_true, measure, beta=1):
     Raises:
     --------
         ValueError
-            If `measure` is not in `all_names_except([''])`.
+            If the combination of M_known, P_known and measure leads to no known statistics.
+        ValueError
+            If `measure` is not in `select_all_names_except([''])`.
         ValueError
             If `y_true` does not only contain zeros and ones.
 
     See also:
     --------
-        all_names_except
-        basic_baseline
+        select_all_names_except
+        baseline_functions
 
 
     Example:
@@ -254,7 +260,7 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
         >>> y_true = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
-        >>> optimal_baseline = optimized_basic_baseline(y_true, measure='FBETA', beta=1)
+        >>> optimal_baseline = optimized_baseline_statistics(y_true, measure='FBETA', beta=1)
         >>> print('Max Expected Value: {:06.4f}'.format(optimal_baseline['Max Expected Value']))
         Max Expected Value: 0.1805
         >>> print('Argmax Expected Value: {:06.4f}'.format(optimal_baseline['Argmax Expected Value']))
@@ -267,11 +273,14 @@ def optimized_basic_baseline(y_true, measure, beta=1):
 
     measure = measure.upper()
 
+    if return_baseline_information(measure, M_known, P_known) == False:
+        raise ValueError("No known statistics in this case.")
+
     # convert np.array to list
     if isinstance(y_true, np.ndarray):
         y_true = y_true.tolist()
 
-    if measure not in all_names_except(['']):
+    if measure not in select_all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
 
     if np.unique(np.array(y_true)) not in np.array([0, 1]):
@@ -282,55 +291,55 @@ def optimized_basic_baseline(y_true, measure, beta=1):
     N = M - P
     return_statistics = {}
 
-    if measure in name_dictionary['TP']:
+    if measure in measure_dictionary['TP']:
         return_statistics['Max Expected Value'] = P
         return_statistics['Argmax Expected Value'] = [1]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [0]
 
-    if measure in name_dictionary['TN']:
+    if measure in measure_dictionary['TN']:
         return_statistics['Max Expected Value'] = N
         return_statistics['Argmax Expected Value'] = [0]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [1]
 
-    if measure in name_dictionary['FN']:
+    if measure in measure_dictionary['FN']:
         return_statistics['Max Expected Value'] = P
         return_statistics['Argmax Expected Value'] = [0]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [1]
-        
-    if measure in name_dictionary['FP']:
+
+    if measure in measure_dictionary['FP']:
         return_statistics['Max Expected Value'] = N
         return_statistics['Argmax Expected Value'] = [1]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [0]
 
-    if measure in name_dictionary['TPR']:
+    if measure in measure_dictionary['TPR']:
         return_statistics['Max Expected Value'] = 1
         return_statistics['Argmax Expected Value'] = [1]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [0]
 
-    if measure in name_dictionary['TNR']:
+    if measure in measure_dictionary['TNR']:
         return_statistics['Max Expected Value'] = 1
         return_statistics['Argmax Expected Value'] = [0]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [1]
 
-    if measure in name_dictionary['FNR']:
+    if measure in measure_dictionary['FNR']:
         return_statistics['Max Expected Value'] = 1
         return_statistics['Argmax Expected Value'] = [0]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [1]
-        
-    if measure in name_dictionary['FPR']:
+
+    if measure in measure_dictionary['FPR']:
         return_statistics['Max Expected Value'] = 1
         return_statistics['Argmax Expected Value'] = [1]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [0]
 
-    if measure in name_dictionary['PPV']:
+    if measure in measure_dictionary['PPV']:
         return_statistics['Max Expected Value'] = P/M
         return_statistics['Argmax Expected Value'] = [
             i/M for i in range(1, M + 1)]
@@ -338,13 +347,13 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Argmin Expected Value'] = [
             i/M for i in range(1, M + 1)]
 
-    if measure in name_dictionary['NPV']:
+    if measure in measure_dictionary['NPV']:
         return_statistics['Max Expected Value'] = N/M
         return_statistics['Argmax Expected Value'] = [i/M for i in range(0, M)]
         return_statistics['Min Expected Value'] = N/M
         return_statistics['Argmin Expected Value'] = [i/M for i in range(0, M)]
 
-    if measure in name_dictionary['FDR']:
+    if measure in measure_dictionary['FDR']:
         return_statistics['Max Expected Value'] = N/M
         return_statistics['Argmax Expected Value'] = [
             i/M for i in range(1, M + 1)]
@@ -352,21 +361,21 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Argmin Expected Value'] = [
             i/M for i in range(1, M + 1)]
 
-    if measure in name_dictionary['FOR']:
+    if measure in measure_dictionary['FOR']:
         return_statistics['Max Expected Value'] = P/M
         return_statistics['Argmax Expected Value'] = [i/M for i in range(0, M)]
         return_statistics['Min Expected Value'] = P/M
         return_statistics['Argmin Expected Value'] = [i/M for i in range(0, M)]
 
-    if measure in name_dictionary['FBETA']:
+    if measure in measure_dictionary['FBETA']:
         beta_squared = beta ** 2
         return_statistics['Max Expected Value'] = (
             1 + beta_squared) * P / (beta_squared * P + M)
         return_statistics['Argmax Expected Value'] = [1]
         return_statistics['Min Expected Value'] = (1 + beta_squared) * P / (M * (beta_squared * P + 1))
         return_statistics['Argmin Expected Value'] = [1/M]
-        
-    if measure in name_dictionary['J']:
+
+    if measure in measure_dictionary['J']:
         return_statistics['Max Expected Value'] = 0
         return_statistics['Argmax Expected Value'] = [
             i/M for i in range(0, M + 1)]
@@ -374,13 +383,13 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Argmin Expected Value'] = [
             i/M for i in range(0, M + 1)]
 
-    if measure in name_dictionary['MK']:
+    if measure in measure_dictionary['MK']:
         return_statistics['Max Expected Value'] = 0
         return_statistics['Argmax Expected Value'] = [i/M for i in range(1, M)]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [i/M for i in range(1, M)]
 
-    if measure in name_dictionary['ACC']:
+    if measure in measure_dictionary['ACC']:
         return_statistics['Max Expected Value'] = max((N/M, P/M))
         return_statistics['Min Expected Value'] = min((N/M, P/M))
         if P == N:
@@ -388,21 +397,21 @@ def optimized_basic_baseline(y_true, measure, beta=1):
             return_statistics['Argmin Expected Value'] = [i/M for i in range(0, M+1)]
         else:
             return_statistics['Argmax Expected Value'] = [int((P >= N))]
-            return_statistics['Argmin Expected Value'] = [int((P < N))] 
+            return_statistics['Argmin Expected Value'] = [int((P < N))]
 
-    if measure in name_dictionary['BACC']:
+    if measure in measure_dictionary['BACC']:
         return_statistics['Max Expected Value'] = 0.5
         return_statistics['Argmax Expected Value'] = [i/M for i in range(0, M+1)]
         return_statistics['Min Expected Value'] = 0.5
         return_statistics['Argmin Expected Value'] = [i/M for i in range(0, M+1)]
 
-    if measure in name_dictionary['MCC']:
+    if measure in measure_dictionary['MCC']:
         return_statistics['Max Expected Value'] = 0
         return_statistics['Argmax Expected Value'] = [i/M for i in range(1, M)]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [i/M for i in range(1, M)]
 
-    if measure in name_dictionary['KAPPA']:
+    if measure in measure_dictionary['KAPPA']:
         return_statistics['Max Expected Value'] = 0
         return_statistics['Argmax Expected Value'] = [
             i/M for i in range(0, M + 1)]
@@ -410,44 +419,44 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Argmin Expected Value'] = [
             i/M for i in range(0, M + 1)]
 
-    if measure in name_dictionary['FM']:
+    if measure in measure_dictionary['FM']:
         return_statistics['Max Expected Value'] = math.sqrt(P / M)
         return_statistics['Argmax Expected Value'] = [1]
         return_statistics['Min Expected Value'] = math.sqrt(P) / M
         return_statistics['Argmin Expected Value'] = [1/M]
 
-    if measure in name_dictionary['G2']:
+    if measure in measure_dictionary['G2']:
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [0, 1]
-        
+
         result = [np.nan] * (M + 1)
         time_to_exc = round(0.000175452 * M ** 1.8841 -0.0512485)
         print("Press Control + C to stop the code")
-        
+
         if time_to_exc < 60:
-            print("Estimated time to execute is: " + str(time_to_exc) + " seconds." ) 
+            print("Estimated time to execute is: " + str(time_to_exc) + " seconds." )
         else:
             time_to_exc = round(time_to_exc / 60)
             if time_to_exc < 60:
-                print("Estimated time to execute is: " + str(time_to_exc) + " minutes." ) 
+                print("Estimated time to execute is: " + str(time_to_exc) + " minutes." )
                 time_to_exc = round(time_to_exc / 60)
             else:
                 time_to_exc_hour = round(time_to_exc / 60)
-                print("Estimated time to execute is: " + str(time_to_exc_hour) + " hours." )  
+                print("Estimated time to execute is: " + str(time_to_exc_hour) + " hours." )
         time.sleep(2)
         try:
             for i in tqdm(range(0, M + 1)):
                 theta = i / M
                 rounded_m_theta = round(round(M * theta))
                 TP_rv = hypergeom(M=M, n=P, N=rounded_m_theta)
-                result[i] = sum([(math.sqrt(k * (N - rounded_m_theta + k) / (P * N))) * TP_rv.pmf(k) 
-                                 if TP_rv.pmf(k) > 0 else 0 for k in range(int(max(0, rounded_m_theta - N)), 
+                result[i] = sum([(math.sqrt(k * (N - rounded_m_theta + k) / (P * N))) * TP_rv.pmf(k)
+                                 if TP_rv.pmf(k) > 0 else 0 for k in range(int(max(0, rounded_m_theta - N)),
                                                                            int(min((P + 1, rounded_m_theta + 1))))])
-        except KeyboardInterrupt: 
+        except KeyboardInterrupt:
             print("\nThe code is stopped.")
             print("This means that the max expected value could not be calculated.")
             print("You only get the min and argmin.")
-            
+
             return_statistics['Max Expected Value'] = np.nan
             return_statistics['Argmax Expected Value'] = [np.nan]
             return return_statistics
@@ -456,7 +465,7 @@ def optimized_basic_baseline(y_true, measure, beta=1):
         return_statistics['Argmax Expected Value'] = [
             i/M for i, j in enumerate(result) if j == return_statistics['Max Expected Value']]
 
-    if measure in name_dictionary['TS']:
+    if measure in measure_dictionary['TS']:
         return_statistics['Max Expected Value'] = P / M
         return_statistics['Argmax Expected Value'] = [1]
         return_statistics['Min Expected Value'] = 0
@@ -572,7 +581,7 @@ def add_docstring(docstring):
     return _add_docstring
 
 
-def basic_baseline(y_true, measure, beta=1):
+def baseline_functions(y_true, measure, beta=1, M_known = True, P_known = True):
     """
     This function returns a dictionary of functions that can be used to determine
     statistics (such as expectation and variance) for all possible values of `theta`.
@@ -581,9 +590,13 @@ def basic_baseline(y_true, measure, beta=1):
     --------
         y_true (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the true labels.
 
-        measure (string): Measure name, see `all_names_except([''])` for possible measure names.
+        measure (string): Measure name, see `select_all_names_except([''])` for possible measure names.
 
         beta (float): Default is 1. Parameter for the F-beta score.
+
+        M_known (bool): True if knowledge of the number of samples can be used in determining optimality.
+
+        P_known (bool): True if knowledge of the number of positive labels can be used in determining optimality.
 
     Returns:
     --------
@@ -600,13 +613,15 @@ def basic_baseline(y_true, measure, beta=1):
     Raises:
     --------
         ValueError
-            If `measure` is not in `all_names_except([''])`.
+            If the combination of M_known, P_known and measure leads to no known statistics.
+        ValueError
+            If `measure` is not in `select_all_names_except([''])`.
         ValueError
             If `y_true` does not only contain zeros and ones.
 
     See also:
     --------
-        all_names_except
+        select_all_names_except
         select_names
         round_if_close
 
@@ -615,7 +630,7 @@ def basic_baseline(y_true, measure, beta=1):
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
         >>> y_true = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
-        >>> baseline = basic_baseline(y_true, 'MK')
+        >>> baseline = baseline_functions(y_true, 'MK')
         >>> print(baseline.keys())
         dict_keys(['Distribution', 'Domain', 'Fast Expectation Function', 'Variance Function', 'Expectation Function'])
     """
@@ -626,7 +641,7 @@ def basic_baseline(y_true, measure, beta=1):
     if isinstance(y_true, np.ndarray):
         y_true = y_true.tolist()
 
-    if measure not in all_names_except(['']):
+    if measure not in select_all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
 
     if np.unique(np.array(y_true)) not in np.array([0, 1]):
@@ -698,87 +713,87 @@ def basic_baseline(y_true, measure, beta=1):
             return np.unique([given_x_function(x, theta) for x in range(int(max(0, rounded_m_theta - N)), int(min((P + 1, rounded_m_theta + 1))))])
         return domain_function
 
-    if measure in name_dictionary['TP']:
+    if measure in measure_dictionary['TP']:
         a = '1'
         b = '0'
         expectation_string = 'theta_star * ' + str(P)
 
-    if measure in name_dictionary['TN']:
+    if measure in measure_dictionary['TN']:
         a = '1'
         b = str(N) + ' - rounded_m_theta'
         expectation_string = '(1 - theta_star) * ' + str(N)
 
-    if measure in name_dictionary['FP']:
+    if measure in measure_dictionary['FP']:
         a = '-1'
         b = 'rounded_m_theta'
         expectation_string = 'theta_star * ' + str(N)
 
-    if measure in name_dictionary['FN']:
+    if measure in measure_dictionary['FN']:
         a = '-1'
         b = str(P)
         expectation_string = '(1 - theta_star) * ' + str(P)
 
-    if measure in name_dictionary['TPR']:
+    if measure in measure_dictionary['TPR']:
         a = '1 / ' + str(P)
         b = '0'
         expectation_string = 'theta_star'
 
-    if measure in name_dictionary['TNR']:
+    if measure in measure_dictionary['TNR']:
         a = '1 / ' + str(N)
         b = '(' + str(N) + ' - rounded_m_theta) / ' + str(N)
         expectation_string = '1 - theta_star'
 
-    if measure in name_dictionary['FPR']:
+    if measure in measure_dictionary['FPR']:
         a = '-1 / ' + str(N)
         b = 'rounded_m_theta / ' + str(N)
         expectation_string = 'theta_star'
 
-    if measure in name_dictionary['FNR']:
+    if measure in measure_dictionary['FNR']:
         a = '-1 / ' + str(P)
         b = '1'
         expectation_string = '1 - theta_star'
 
-    if measure in name_dictionary['PPV']:
+    if measure in measure_dictionary['PPV']:
         a = '1 / rounded_m_theta'
         b = '0'
         expectation_string = str(P) + ' / ' + str(M)
 
-    if measure in name_dictionary['NPV']:
+    if measure in measure_dictionary['NPV']:
         a = '1 / (' + str(M) + ' - rounded_m_theta)'
         b = '(' + str(N) + ' - rounded_m_theta) / (' + \
             str(M) + ' - rounded_m_theta)'
         expectation_string = str(N) + ' / ' + str(M)
 
-    if measure in name_dictionary['FDR']:
+    if measure in measure_dictionary['FDR']:
         a = '-1 / rounded_m_theta'
         b = '1'
         expectation_string = str(N) + ' / ' + str(M)
 
-    if measure in name_dictionary['FOR']:
+    if measure in measure_dictionary['FOR']:
         a = '-1 / (' + str(M) + ' - rounded_m_theta)'
         b = '1 - ((' + str(N) + ' - rounded_m_theta) / (' + \
             str(M) + ' - rounded_m_theta))'
         expectation_string = str(P) + ' / ' + str(M)
 
-    if measure in name_dictionary['ACC']:
+    if measure in measure_dictionary['ACC']:
         a = '2 / ' + str(M)
         b = '(' + str(N) + ' - rounded_m_theta) / ' + str(M)
         expectation_string = '((1 - theta_star) * ' + str(N) + \
             ' + (theta_star * ' + str(P) + ')) / ' + str(M)
 
-    if measure in name_dictionary['BACC']:
+    if measure in measure_dictionary['BACC']:
         a = '(1 / (2 * ' + str(P) + ')) + (1 / (2 * ' + str(N) + '))'
         b = '(' + str(N) + ' - rounded_m_theta) / (2 * ' + str(N) + ')'
         expectation_string = '1 / 2'
 
-    if measure in name_dictionary['FBETA']:
+    if measure in measure_dictionary['FBETA']:
         a = '(1 + (' + str(beta) + ' ** 2)) / ((' + str(beta) + \
             ' ** 2) * ' + str(P) + ' + ' + str(M) + ' * theta_star)'
         b = '0'
         expectation_string = '((1 + (' + str(beta) + ' ** 2)) * theta_star * ' + str(
             P) + ') / (' + str(beta) + ' ** 2) * ' + str(P) + ' + ' + str(M) + ' * theta_star)'
 
-    if measure in name_dictionary['MCC']:
+    if measure in measure_dictionary['MCC']:
         a = '1 / (math.sqrt(theta_star * (1 - theta_star) * ' + \
             str(P) + ' * ' + str(N) + '))'
         b = '- theta_star * ' + \
@@ -786,17 +801,17 @@ def basic_baseline(y_true, measure, beta=1):
             str(P) + ' * ' + str(N) + '))'
         expectation_string = '0'
 
-    if measure in name_dictionary['J']:
+    if measure in measure_dictionary['J']:
         a = '(1 / ' + str(P) + ') + (1 / ' + str(N) + ')'
         b = '- rounded_m_theta / ' + str(N)
         expectation_string = '0'
 
-    if measure in name_dictionary['MK']:
+    if measure in measure_dictionary['MK']:
         a = '(1 / rounded_m_theta) + (1 / (' + str(M) + ' - rounded_m_theta))'
         b = '-' + str(P) + ' / (' + str(M) + ' - rounded_m_theta)'
         expectation_string = '0'
 
-    if measure in name_dictionary['KAPPA']:
+    if measure in measure_dictionary['KAPPA']:
         a = '2 / ((1 - theta_star) * ' + str(P) + \
             ' + theta_star * ' + str(N) + ')'
         b = '- 2 * theta_star * ' + \
@@ -804,13 +819,13 @@ def basic_baseline(y_true, measure, beta=1):
             str(P) + ' + theta_star * ' + str(N) + ')'
         expectation_string = '0'
 
-    if measure in name_dictionary['FM']:
+    if measure in measure_dictionary['FM']:
         a = '1 / (math.sqrt(' + str(P) + ' * rounded_m_theta))'
         b = '0'
         expectation_string = 'math.sqrt(theta_star * ' + \
             str(P) + ' / ' + str(M) + ')'
 
-    if measure in name_dictionary['G2']:
+    if measure in measure_dictionary['G2']:
         @add_docstring(pmf_docstring)
         @add_check_theta_generator(measure)
         def pmf_Y(y, theta):
@@ -840,7 +855,7 @@ def basic_baseline(y_true, measure, beta=1):
             TP_rv = hypergeom(M=M, n=P, N=round(theta * M))
             return sum([TP_rv.pmf(x) * (given_x_function(x, theta) ** 2) for x in range(int(max(0, rounded_m_theta - N)), int(min((P + 1, rounded_m_theta + 1))))])
 
-    if measure in name_dictionary['TS']:
+    if measure in measure_dictionary['TS']:
         @add_docstring(pmf_docstring)
         @add_check_theta_generator(measure)
         def pmf_Y(y, theta):
@@ -875,7 +890,7 @@ def basic_baseline(y_true, measure, beta=1):
         return_functions['Domain'] = generate_domain_function_given_x(
             given_x_function)
 
-    if measure in all_names_except(['G2', 'TS']):
+    if measure in select_all_names_except(['G2', 'TS']):
         return_functions['Distribution'] = generate_hypergeometric_distribution(
             a, b)
         return_functions['Domain'] = generate_domain_function(a, b)
@@ -888,9 +903,9 @@ def basic_baseline(y_true, measure, beta=1):
     return return_functions
 
 
-def basic_baseline_given_theta(theta, y_true, measure, beta=1):
+def baseline_functions_given_theta(theta, y_true, measure, beta=1, M_known = True, P_known = True):
     """
-    This function determines the mean and variance of the baseline for a given `theta` using `basic_baseline`.
+    This function determines the mean and variance of the baseline for a given `theta` using `baseline_functions`.
 
     Args:
     --------
@@ -898,9 +913,13 @@ def basic_baseline_given_theta(theta, y_true, measure, beta=1):
 
         y_true (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the true labels.
 
-        measure (string): Measure name, see `all_names_except([''])` for possible measure names.
+        measure (string): Measure name, see `select_all_names_except([''])` for possible measure names.
 
         beta (float): Default is 1. Parameter for the F-beta score.
+
+        M_known (bool): True if knowledge of the number of samples can be used in determining optimality.
+
+        P_known (bool): True if knowledge of the number of positive labels can be used in determining optimality.
 
     Returns:
     --------
@@ -910,22 +929,211 @@ def basic_baseline_given_theta(theta, y_true, measure, beta=1):
 
             - `Variance` (float): Variance baseline given `theta`.
 
+    Raises:
+    --------
+        ValueError
+            If the combination of M_known, P_known and measure leads to no known statistics.
+
     See also:
     --------
-        basic_baseline
+        baseline_functions
 
     Example:
     --------
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
         >>> y_true = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
-        >>> baseline = basic_baseline_given_theta(theta= 0.9, y_true=y_true, measure='FBETA', beta=1)
+        >>> baseline = baseline_functions_given_theta(theta= 0.9, y_true=y_true, measure='FBETA', beta=1)
         >>> print('Mean: {:06.4f} and Variance: {:06.4f}'.format(baseline['Mean'], baseline['Variance']))
         Mean: 0.1805 and Variance: 0.0000
     """
 
-    baseline = basic_baseline(y_true=y_true,
+    baseline = baseline_functions(y_true=y_true,
                               measure=measure, beta=beta)
     return {'Mean': baseline['Expectation Function'](theta), 'Variance': baseline['Variance Function'](theta)}
 
 # %%
+
+def return_baseline_information(measure = '', M_known = True, P_known = True):
+    if measure in select_names(['ACC']) and (P_known == False or M_known == False):
+        return False
+    if measure in select_names(['FM', 'FBETA']) and M_known == False and P_known == False:
+        return False
+    else:
+        return True
+
+
+def DutchDraw_baseline(y_true, measure= '', theta = 'optimal', M_known = True, P_known = True, beta = 1):
+    """
+    Statistics/information about the Dutch Draw baseline, combining the functions: optimized_baseline_statistics, baseline_functions, baseline_functions_given_theta.
+
+    Args:
+    --------
+        y_true (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the true labels.
+
+        measure (string): Measure name, see `select_all_names_except([''])` for possible measure names.
+
+        theta (float or string):
+
+            - 'optimal' (default): statistics of the optimal baseline are returned. (See `optimized_baseline_statistics`).
+
+            - 'all': functions of the baseline are returned for all theta. (See `baseline_functions`).
+
+            - float: statistics of the baseline for this given `theta`. (See `baseline_functions_given_theta`).
+
+
+        M_known (bool): True if knowledge of the number of samples can be used in determining optimality.
+
+        P_known (bool): True if knowledge of the number of positive labels can be used in determining optimality.
+
+        beta (float): Default is 1. Parameter for the F-beta score.
+
+    Returns:
+    --------
+        Dependent on theta. See `optimized_baseline_statistics`, `baseline_functions` and `baseline_functions_given_theta`.
+
+    Raises:
+    --------
+        ValueError
+            If `M_known` is False and `P_known` is True
+
+    See also:
+    --------
+        optimized_baseline_statistics
+        baseline_functions
+        baseline_functions_given_theta
+    """
+
+
+    if M_known == False and P_known == True:
+        raise ValueError("This case has not been investigated. If M is unknown, P must also be unknown.")
+
+    if theta == 'optimal':
+        return optimized_baseline_statistics(y_true, measure, beta, M_known = True, P_known = True)
+
+    elif theta == 'all':
+        return baseline_functions(y_true, measure, beta, M_known = True, P_known = True)
+
+    else:
+        return baseline_functions_given_theta(theta, y_true, measure, beta, M_known = True, P_known = True)
+
+def generate_y_true(M, P):
+    return [1] * P + [0] * (M - P)
+
+
+def DutchDrawClassifier(y_true=None, theta='max',  measure='', beta = 1,
+                        M_known = True, P_known = True, E_P_x_E_N = None):
+    """
+    This function gives the outcome of the Dutch Draw classifier given some parameters
+
+    Args:
+    --------
+        y_true (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the true labels.
+
+        theta (float): Parameter for the shuffle baseline. Can be a float between 0 or 1 or
+        it can be the optimal theta (min or max).
+
+        measure (string): Measure name, see `select_all_names_except([''])` for possible measure names.
+
+        beta (float): Default is 1. Parameter for the F-beta score.
+
+        M_known (bool): True if knowledge of the number of samples can be used in determining optimality.
+
+        P_known (bool): True if knowledge of the number of positive labels can be used in determining optimality.
+
+        E_P_x_E_N (string): With this parameter, if we do not know P, we can still say something about P.
+        The x shows whether or not the expected P is bigger (>), smaller (<) or equal (=) to the expected number of
+        negatives. If this is unknown, we can set it None.
+
+    Returns:
+    --------
+        y_pred: prediction 1-dimensional boolean containing predicted labels.
+
+    See also:
+    --------
+        optimized_baseline_statistics
+
+    Example:
+    --------
+        >>> import random
+        >>> random.seed(123) # To ensure similar outputs
+        >>> y_true = random.choices((0, 1), k=10000, weights=(0.9, 0.1))
+        >>>
+    """
+    if y_true is None :
+        raise ValueError("y_true must be given")
+
+    if isinstance(y_true, np.ndarray):
+        y_true = y_true.tolist()
+
+    if np.unique(np.array(y_true)) not in np.array([0, 1]):
+        raise ValueError("y_true should only contain zeros and ones.")
+
+    if isinstance(theta, float):
+        if theta < 0 or theta > 1:
+            raise ValueError("theta must be between 0 and 1.")
+    else:
+        if not theta in ["min","max"]:
+            raise ValueError("theta must be float, 'min' or 'max'.")
+
+    if measure not in select_all_names_except(['']):
+        raise ValueError("This measure name is not recognized.")
+
+    if beta < 0:
+        raise ValueError("beta must be positive or 0.")
+
+    if not E_P_x_E_N in [None, "<","=",">"]:
+        raise ValueError("Variable E_P_x_E_N contains non-ommited value.")
+
+    M = len(y_true)
+
+    if isinstance(theta, float):
+        return [1] * round(M * theta) + [0] * round(M * ( 1- theta) )
+
+    if measure == "FM" or measure == "FBETA":
+        if not M_known and not P_known:
+            if theta == "max":
+                return [1] * M
+            if theta == "min":
+                return [1] + [0] * (M - 1)
+
+    if measure == "ACC":
+        if not M_known and not P_known:
+            if theta == "max":
+
+                y_pred = []
+                while len(y_pred) < M:
+                    y_pred.append(0)
+                    y_pred.append(1)
+                return y_pred[:M]
+
+            if theta == "min":
+                return [1] * M
+        if M_known and not P_known:
+            if theta == "max":
+                if E_P_x_E_N == None :
+                    y_pred = [1] * math.ceil(M * 0.5) + [0] * math.ceil(M * 0.5)
+                    return y_pred[:M]
+                if E_P_x_E_N in ["<","="]:
+                    return [0] * M
+                if E_P_x_E_N == ">":
+                    return [1] * M
+            if theta == "min":
+                if E_P_x_E_N in [None,">"]:
+                    return [0] * M
+                if E_P_x_E_N in ["<","="]:
+                    return [1] * M
+
+    if theta == "max":
+        t = optimized_baseline_statistics(y_true, measure, beta)["Argmax Expected Value"][0]
+    if theta == "min":
+        t = optimized_baseline_statistics(y_true, measure, beta)["Argmin Expected Value"][0]
+    return [1] * round(M * t) + [0] * round(M * (1 - t))
+
+#%%
+
+import random
+random.seed(123) # To ensure similar outputs
+y_true = random.choices((0, 1), k=100, weights=(0.9, 0.1))
+y_pred = DutchDrawClassifier(y_true=y_true, theta='max',  measure='FBETA')
+print(y_pred)

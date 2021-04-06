@@ -1,17 +1,17 @@
-import setuptools
+ import setuptools
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name = "BinaryBaselines", # Replace with your own username
-    version = "0.0.6",
-    author = "Joris Pries",
+    name = "DutchDraw", # Replace with your own username
+    version = "0.0.7",
+    author = "Etienne van de Bijl, Joris Pries",
     author_email = "joris.pries@cwi.nl",
     description = "Determine (optimal) baselines for binary classification",
     long_description = long_description,
     long_description_content_type = "text/markdown",
-    url = "https://github.com/joris-pries/BinaryBaselines",
+    url = "https://github.com/joris-pries/DutchDraw",
     packages = setuptools.find_packages(),
     classifiers = [
         "Programming Language :: Python :: 3",

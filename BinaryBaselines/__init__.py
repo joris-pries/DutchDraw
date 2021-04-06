@@ -1,2 +1,2 @@
-from . import shuffle_baseline
-from .shuffle_baseline import *
+from . import DutchDraw
+from .DutchDraw import *

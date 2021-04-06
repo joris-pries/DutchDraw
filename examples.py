@@ -1,5 +1,5 @@
 # %%
-import BinaryBaselines as bbl
+import DutchDraw as DD
 import random
 import numpy as np
 
@@ -13,25 +13,25 @@ y_true = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
 # Example function: measure_score
 print('\033[94mExample function: `measure_score`\033[0m')
 # Measuring markedness (MK):
-print('Markedness: {:06.4f}'.format(bbl.measure_score(y_true, y_pred, measure = 'MK')))
+print('Markedness: {:06.4f}'.format(DD.measure_score(y_true, y_pred, measure = 'MK')))
 
 # Measuring FBETA for beta = 2:
-print('F2 Score: {:06.4f}'.format(bbl.measure_score(y_true, y_pred, measure= 'FBETA', beta = 2)))
+print('F2 Score: {:06.4f}'.format(DD.measure_score(y_true, y_pred, measure= 'FBETA', beta = 2)))
 
 print('')
 ######################################################
-# Example function: basic_baseline_given_theta
-print('\033[94mExample function: `basic_baseline_given_theta`\033[0m')
-results_baseline = bbl.basic_baseline_given_theta(theta = 0.5, y_true = y_true, measure = 'FBETA', beta = 2)
+# Example function: baseline_functions_given_theta
+print('\033[94mExample function: `baseline_functions_given_theta`\033[0m')
+results_baseline = DD.baseline_functions_given_theta(theta = 0.5, y_true = y_true, measure = 'FBETA', beta = 2)
 
 print('Mean: {:06.4f}'.format(results_baseline['Mean']))
 print('Variance: {:06.4f}'.format(results_baseline['Variance']))
 
 print('')
 ######################################################
-# Example function: basic_baseline
-print('\033[94mExample function: `basic_baseline`\033[0m')
-baseline = bbl.basic_baseline(y_true = y_true, measure = 'G2')
+# Example function: baseline_functions
+print('\033[94mExample function: `baseline_functions`\033[0m')
+baseline = DD.baseline_functions(y_true = y_true, measure = 'G2')
 print(baseline.keys())
 
 
@@ -65,9 +65,9 @@ plt.show()
 
 print('')
 ######################################################
-# Example function: optimized_basic_baseline
-print('\033[94mExample function: `optimized_basic_baseline`\033[0m')
-optimal_baseline = bbl.optimized_basic_baseline(y_true, measure = 'FBETA', beta = 1)
+# Example function: optimized_baseline_statistics
+print('\033[94mExample function: `optimized_baseline_statistics`\033[0m')
+optimal_baseline = DD.optimized_baseline_statistics(y_true, measure = 'FBETA', beta = 1)
 
 print('Max Expected Value: {:06.4f}'.format(optimal_baseline['Max Expected Value']))
 print('Argmax Expected Value: {:06.4f}'.format(*optimal_baseline['Argmax Expected Value']))

@@ -6,8 +6,8 @@ from scipy.stats import hypergeom
 import numpy as np
 from functools import wraps
 
-__all__ = ['all_names_except', 'basic_baseline', 'basic_baseline_given_theta', 'measure_score', 'name_dictionary',
-           'optimized_basic_baseline', 'round_if_close', 'select_names']
+__all__ = ['all_names_except', 'baseline_functions', 'baseline_functions_given_theta', 'measure_score', 'name_dictionary',
+           'optimized_baseline_statistics', 'round_if_close', 'select_names']
 
 # %%
 
@@ -72,7 +72,7 @@ def measure_score(true_labels, predicted_labels, measure, beta=1):
 
     Raises:
     --------
-        ValueError 
+        ValueError
             If `measure` is not in `all_names_except([''])`.
         ValueError
             If `true_labels` or `predicted_labels` does not only contain zeros and ones.
@@ -210,7 +210,7 @@ def measure_score(true_labels, predicted_labels, measure, beta=1):
         return(TP / (TP + FN + FP))
 
 
-def optimized_basic_baseline(true_labels, measure, beta=1):
+def optimized_baseline_statistics(true_labels, measure, beta=1):
     """
     This function determines the optimal `theta` that maximizes or minimizes the measure on the `true_labels`. It also determines the corresponding extreme value.
 
@@ -224,7 +224,7 @@ def optimized_basic_baseline(true_labels, measure, beta=1):
 
     Returns:
     --------
-        dict: Containing `Max Expected Value`, `Argmax Expected Value`, `Min Expected Value` and `Argmin Expected Value`. 
+        dict: Containing `Max Expected Value`, `Argmax Expected Value`, `Min Expected Value` and `Argmin Expected Value`.
 
             - `Max Expected Value` (float): Maximum of the expected values for all `theta`.
 
@@ -236,7 +236,7 @@ def optimized_basic_baseline(true_labels, measure, beta=1):
 
     Raises:
     --------
-        ValueError 
+        ValueError
             If `measure` is not in `all_names_except([''])`.
         ValueError
             If `true_labels` does not only contain zeros and ones.
@@ -246,7 +246,7 @@ def optimized_basic_baseline(true_labels, measure, beta=1):
     See also:
     --------
         all_names_except
-        basic_baseline
+        baseline_functions
 
 
     Example:
@@ -254,7 +254,7 @@ def optimized_basic_baseline(true_labels, measure, beta=1):
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
         >>> true_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
-        >>> optimal_baseline = optimized_basic_baseline(true_labels, measure = 'FBETA', beta = 1)
+        >>> optimal_baseline = optimized_baseline_statistics(true_labels, measure = 'FBETA', beta = 1)
         >>> print('Max Expected Value: {:06.4f}'.format(optimal_baseline['Max Expected Value']))
         Max Expected Value: 0.1805
         >>> print('Argmax Expected Value: {:06.4f}'.format(optimal_baseline['Argmax Expected Value']))
@@ -482,9 +482,9 @@ def add_check_theta_generator(measure):
     return add_check_theta
 
 
-def basic_baseline(true_labels, measure, beta=1):
+def baseline_functions(true_labels, measure, beta=1):
     """
-    This function returns a dictionary of functions that can be used to determine statistics (such as expectation and variance) for all possible values of `theta`. 
+    This function returns a dictionary of functions that can be used to determine statistics (such as expectation and variance) for all possible values of `theta`.
 
     Args:
     --------
@@ -496,7 +496,7 @@ def basic_baseline(true_labels, measure, beta=1):
 
     Returns:
     --------
-        dict: Containing `Distribution`, `Domain`, `(Fast) Expectation Function` and `Variance Function`. 
+        dict: Containing `Distribution`, `Domain`, `(Fast) Expectation Function` and `Variance Function`.
 
             - `Distribution` (function): Pmf of the measure, given by: `pmf_Y(y, theta)`, where `y` is a measure score and `theta` is the parameter of the shuffle baseline.
 
@@ -508,7 +508,7 @@ def basic_baseline(true_labels, measure, beta=1):
 
     Raises:
     --------
-        ValueError 
+        ValueError
             If `measure` is not in `all_names_except([''])`.
         ValueError
             If `true_labels` does not only contain zeros and ones.
@@ -526,7 +526,7 @@ def basic_baseline(true_labels, measure, beta=1):
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
         >>> true_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
-        >>> baseline = basic_baseline(true_labels, 'MK')
+        >>> baseline = baseline_functions(true_labels, 'MK')
         >>> print(baseline.keys())
         dict_keys(['Distribution', 'Domain', 'Fast Expectation Function', 'Variance Function', 'Expectation Function'])
     """
@@ -815,9 +815,9 @@ def basic_baseline(true_labels, measure, beta=1):
     return(return_functions)
 
 
-def basic_baseline_given_theta(theta, true_labels, measure, beta=1):
+def baseline_functions_given_theta(theta, true_labels, measure, beta=1):
     """
-    This function determines the mean and variance of the baseline for a given `theta` using `basic_baseline`.
+    This function determines the mean and variance of the baseline for a given `theta` using `baseline_functions`.
 
     Args:
     --------
@@ -839,19 +839,19 @@ def basic_baseline_given_theta(theta, true_labels, measure, beta=1):
 
     See also:
     --------
-        basic_baseline
+        baseline_functions
 
     Example:
     --------
         >>> import random
         >>> random.seed(123) # To ensure similar outputs
         >>> true_labels = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
-        >>> baseline = basic_baseline_given_theta(theta= 0.9,true_labels= true_labels, measure= 'FBETA', beta= 1)
+        >>> baseline = baseline_functions_given_theta(theta= 0.9,true_labels= true_labels, measure= 'FBETA', beta= 1)
         >>> print('Mean: {:06.4f} and Variance: {:06.4f}'.format(baseline['Mean'], baseline['Variance']))
         Mean: 0.1805 and Variance: 0.0000
     """
 
-    baseline = basic_baseline(true_labels=true_labels,
+    baseline = baseline_functions(true_labels=true_labels,
                               measure=measure, beta=beta)
     return({'Mean': baseline['Expectation Function'](theta), 'Variance': baseline['Variance Function'](theta)})
 
