@@ -1,6 +1,6 @@
 # DutchDraw
 
-DutchDraw is a Python package for binary classification.
+DutchDraw is a Python package for constructing baselines in binary classification.
 
 ## Paper
 
@@ -45,7 +45,7 @@ To properly assess the performance of a binary classification model, the score o
 
 ### Basic baseline
 
-Let `M`  be the total number of samples, where `P` are positive and `N` are negative. Let `θ_star = round(θ * M) / M`. Randomly shuffle the samples and label the first `θ_star * M` samples as `1` and the rest as `0`. This gives a baseline for each `θ` in `[0,1]`. Our package can optimize (maximize and minimize) the baseline.
+Let `M`  be the total number of samples, where `P` are positive and `N` are negative. Say `θ` is the fraction that the Dutch Draw will predict positive, where `θ` is in `[0,1]`. Let `θ_star = round(θ * M) / M`. Then the Dutch Draw labels randomly `θ_star * M` instances positives and the others negative. Our package can optimize (maximize and minimize) the baseline.
 
 ## Reasons to use
 
@@ -57,6 +57,9 @@ If:
 * You want to get statistics of a baseline given `theta` --> `baseline_functions_given_theta(theta, y_true, measure)`
 * You want to get statistics of the optimal baseline --> `optimized_baseline_statistics(y_true, measure)`
 * You want the baseline without specifying `theta` --> `baseline_functions(y_true, measure)`
+* You want statistics from the above three cases --> `baseline(y_true, measure, theta, M_known, P_known)`
+* You want a prediction from the Dutch Draw classifier -->` classifier(y_true, theta, measure, M_known, P_known, E_P_x_E_N) `
+
 
 ### List of all included measures
 
@@ -84,7 +87,6 @@ If:
 | G1, GMEAN1, G MEAN 1, FOWLKES-MALLOWS, FOWLKES MALLOWS, FOWLKES, MALLOWS |                                                                             sqrt(TPR * PPV)                                                                             |
 | G2, GMEAN2, G MEAN 2                                                     |                                                                             sqrt(TPR * TNR)                                                                             |
 | TS, THREAT SCORE, CRITICAL SUCCES INDEX, CSI                             |                                                                           TP / (TP + FN + FP)                                                                           |
-| PT, PREVALENCE THRESHOLD                                                 |                                                                  (sqrt(TPR * FPR) - FPR) / (TPR - FPR)                                                                  |
 
 ## Usage
 
@@ -123,13 +125,13 @@ In general, to determine the score of a measure, use `measure_score(y_true, y_pr
 To examine the performance of the predicted labels, we measure the markedness (MK) and F<sub>2</sub> score (FBETA).
 
 ```python
-import DutchDraw as bbl
+import DutchDraw as dutchdraw
 
 # Measuring markedness (MK):
-print('Markedness: {:06.4f}'.format(bbl.measure_score(y_true, y_pred, measure = 'MK')))
+print('Markedness: {:06.4f}'.format(dutchdraw.measure_score(y_true, y_pred, measure = 'MK')))
 
 # Measuring FBETA for beta = 2:
-print('F2 Score: {:06.4f}'.format(bbl.measure_score(y_true, y_pred, measure = 'FBETA', beta = 2)))
+print('F2 Score: {:06.4f}'.format(dutchdraw.measure_score(y_true, y_pred, measure = 'FBETA', beta = 2)))
 ```
 
 This returns as output
@@ -170,7 +172,7 @@ The function `baseline_functions_given_theta` gives the following output:
 To evaluate the performance of a model, we want to obtain a baseline for the F<sub>2</sub> score (FBETA).
 
 ```python
-results_baseline = bbl.baseline_functions_given_theta(theta = 0.5, y_true = y_true, measure = 'FBETA', beta = 2)
+results_baseline = dutchdraw.baseline_functions_given_theta(theta = 0.5, y_true = y_true, measure = 'FBETA', beta = 2)
 ```
 
 This gives us the mean and variance of the baseline.
@@ -220,7 +222,7 @@ The function `baseline_functions` gives the following output:
 Next, we determine the baseline without specifying `theta`. This returns a number of functions that can be used for different values of `theta`.
 
 ```python
-baseline = bbl.baseline_functions(y_true = y_true, measure = 'G2')
+baseline = dutchdraw.baseline_functions(y_true = y_true, measure = 'G2')
 print(baseline.keys())
 ```
 
@@ -307,7 +309,7 @@ Note that `theta_star = round(theta * M) / M`.
 To evaluate the performance of a model, we want to obtain the optimal baseline for the F<sub>2</sub> score (FBETA).
 
 ```python
-optimal_baseline = bbl.optimized_baseline_statistics(y_true, measure = 'FBETA', beta = 1)
+optimal_baseline = dutchdraw.optimized_baseline_statistics(y_true, measure = 'FBETA', beta = 1)
 
 print('Max Expected Value: {:06.4f}'.format(optimal_baseline['Max Expected Value']))
 print('Argmax Expected Value: {:06.4f}'.format(*optimal_baseline['Argmax Expected Value']))
@@ -329,7 +331,7 @@ Argmin Expected Value: 0.0000
 ### All example code
 
 ```python
-import DutchDraw as bbl
+import DutchDraw as dutchdraw
 import random
 import numpy as np
 
@@ -343,16 +345,16 @@ y_true = random.choices((0,1), k = 10000, weights = (0.9, 0.1))
 # Example function: measure_score
 print('\033[94mExample function: `measure_score`\033[0m')
 # Measuring markedness (MK):
-print('Markedness: {:06.4f}'.format(bbl.measure_score(y_true, y_pred, measure = 'MK')))
+print('Markedness: {:06.4f}'.format(dutchdraw.measure_score(y_true, y_pred, measure = 'MK')))
 
 # Measuring FBETA for beta = 2:
-print('F2 Score: {:06.4f}'.format(bbl.measure_score(y_true, y_pred, measure= 'FBETA', beta = 2)))
+print('F2 Score: {:06.4f}'.format(dutchdraw.measure_score(y_true, y_pred, measure= 'FBETA', beta = 2)))
 
 print('')
 ######################################################
 # Example function: baseline_functions_given_theta
 print('\033[94mExample function: `baseline_functions_given_theta`\033[0m')
-results_baseline = bbl.baseline_functions_given_theta(theta = 0.5, y_true = y_true, measure = 'FBETA', beta = 2)
+results_baseline = dutchdraw.baseline_functions_given_theta(theta = 0.5, y_true = y_true, measure = 'FBETA', beta = 2)
 
 print('Mean: {:06.4f}'.format(results_baseline['Mean']))
 print('Variance: {:06.4f}'.format(results_baseline['Variance']))
@@ -361,7 +363,7 @@ print('')
 ######################################################
 # Example function: baseline_functions
 print('\033[94mExample function: `baseline_functions`\033[0m')
-baseline = bbl.baseline_functions(y_true = y_true, measure = 'G2')
+baseline = dutchdraw.baseline_functions(y_true = y_true, measure = 'G2')
 print(baseline.keys())
 
 
@@ -397,7 +399,7 @@ print('')
 ######################################################
 # Example function: optimized_baseline_statistics
 print('\033[94mExample function: `optimized_baseline_statistics`\033[0m')
-optimal_baseline = bbl.optimized_baseline_statistics(y_true, measure = 'FBETA', beta = 1)
+optimal_baseline = dutchdraw.optimized_baseline_statistics(y_true, measure = 'FBETA', beta = 1)
 
 print('Max Expected Value: {:06.4f}'.format(optimal_baseline['Max Expected Value']))
 print('Argmax Expected Value: {:06.4f}'.format(*optimal_baseline['Argmax Expected Value']))
