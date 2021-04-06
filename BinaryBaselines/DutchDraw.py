@@ -211,7 +211,7 @@ def measure_score(y_true, y_pred, measure, beta=1):
         return TP / (TP + FN + FP)
 
 
-def optimized_baseline_statistics(y_true, measure, beta=1, M_knowledge = True, P_knowledge = True):
+def optimized_baseline_statistics(y_true, measure, beta=1, M_known = True, P_known = True):
     """
     This function determines the optimal `theta` that maximizes or minimizes
     the measure on the `y_true`. It also determines the corresponding extreme value.
@@ -224,9 +224,9 @@ def optimized_baseline_statistics(y_true, measure, beta=1, M_knowledge = True, P
 
         beta (float): Default is 1. Parameter for the F-beta score.
 
-        M_knowledge (bool): True if knowledge of the number of samples can be used in determining optimality.
+        M_known (bool): True if knowledge of the number of samples can be used in determining optimality.
 
-        P_knowledge (bool): True if knowledge of the number of positive labels can be used in determining optimality.
+        P_known (bool): True if knowledge of the number of positive labels can be used in determining optimality.
 
     Returns:
     --------
@@ -243,7 +243,7 @@ def optimized_baseline_statistics(y_true, measure, beta=1, M_knowledge = True, P
     Raises:
     --------
         ValueError
-            If the combination of M_knowledge, P_knowledge and measure leads to no known statistics.
+            If the combination of M_known, P_known and measure leads to no known statistics.
         ValueError
             If `measure` is not in `select_all_names_except([''])`.
         ValueError
@@ -273,7 +273,7 @@ def optimized_baseline_statistics(y_true, measure, beta=1, M_knowledge = True, P
 
     measure = measure.upper()
 
-    if return_baseline_information(measure, M_knowledge, P_knowledge) == False:
+    if return_baseline_information(measure, M_known, P_known) == False:
         raise ValueError("No known statistics in this case.")
 
     # convert np.array to list
@@ -581,7 +581,7 @@ def add_docstring(docstring):
     return _add_docstring
 
 
-def baseline_functions(y_true, measure, beta=1, M_knowledge = True, P_knowledge = True):
+def baseline_functions(y_true, measure, beta=1, M_known = True, P_known = True):
     """
     This function returns a dictionary of functions that can be used to determine
     statistics (such as expectation and variance) for all possible values of `theta`.
@@ -594,9 +594,9 @@ def baseline_functions(y_true, measure, beta=1, M_knowledge = True, P_knowledge 
 
         beta (float): Default is 1. Parameter for the F-beta score.
 
-        M_knowledge (bool): True if knowledge of the number of samples can be used in determining optimality.
+        M_known (bool): True if knowledge of the number of samples can be used in determining optimality.
 
-        P_knowledge (bool): True if knowledge of the number of positive labels can be used in determining optimality.
+        P_known (bool): True if knowledge of the number of positive labels can be used in determining optimality.
 
     Returns:
     --------
@@ -613,7 +613,7 @@ def baseline_functions(y_true, measure, beta=1, M_knowledge = True, P_knowledge 
     Raises:
     --------
         ValueError
-            If the combination of M_knowledge, P_knowledge and measure leads to no known statistics.
+            If the combination of M_known, P_known and measure leads to no known statistics.
         ValueError
             If `measure` is not in `select_all_names_except([''])`.
         ValueError
@@ -903,7 +903,7 @@ def baseline_functions(y_true, measure, beta=1, M_knowledge = True, P_knowledge 
     return return_functions
 
 
-def baseline_functions_given_theta(theta, y_true, measure, beta=1, M_knowledge = True, P_knowledge = True):
+def baseline_functions_given_theta(theta, y_true, measure, beta=1, M_known = True, P_known = True):
     """
     This function determines the mean and variance of the baseline for a given `theta` using `baseline_functions`.
 
@@ -917,9 +917,9 @@ def baseline_functions_given_theta(theta, y_true, measure, beta=1, M_knowledge =
 
         beta (float): Default is 1. Parameter for the F-beta score.
 
-        M_knowledge (bool): True if knowledge of the number of samples can be used in determining optimality.
+        M_known (bool): True if knowledge of the number of samples can be used in determining optimality.
 
-        P_knowledge (bool): True if knowledge of the number of positive labels can be used in determining optimality.
+        P_known (bool): True if knowledge of the number of positive labels can be used in determining optimality.
 
     Returns:
     --------
@@ -932,7 +932,7 @@ def baseline_functions_given_theta(theta, y_true, measure, beta=1, M_knowledge =
     Raises:
     --------
         ValueError
-            If the combination of M_knowledge, P_knowledge and measure leads to no known statistics.
+            If the combination of M_known, P_known and measure leads to no known statistics.
 
     See also:
     --------
@@ -954,16 +954,16 @@ def baseline_functions_given_theta(theta, y_true, measure, beta=1, M_knowledge =
 
 # %%
 
-def return_baseline_information(measure = '', M_knowledge = True, P_knowledge = True):
-    if measure in select_names(['ACC']) and (P_knowledge == False or M_knowledge == False):
+def return_baseline_information(measure = '', M_known = True, P_known = True):
+    if measure in select_names(['ACC']) and (P_known == False or M_known == False):
         return False
-    if measure in select_names(['FM', 'FBETA']) and M_knowledge == False and P_knowledge == False:
+    if measure in select_names(['FM', 'FBETA']) and M_known == False and P_known == False:
         return False
     else:
         return True
 
 
-def DutchDraw_baseline(y_true, measure= '', theta = 'optimal', M_knowledge = True, P_knowledge = True, beta = 1):
+def DutchDraw_baseline(y_true, measure= '', theta = 'optimal', M_known = True, P_known = True, beta = 1):
     """
     Statistics/information about the Dutch Draw baseline, combining the functions: optimized_baseline_statistics, baseline_functions, baseline_functions_given_theta.
 
@@ -982,9 +982,9 @@ def DutchDraw_baseline(y_true, measure= '', theta = 'optimal', M_knowledge = Tru
             - float: statistics of the baseline for this given `theta`. (See `baseline_functions_given_theta`).
 
 
-        M_knowledge (bool): True if knowledge of the number of samples can be used in determining optimality.
+        M_known (bool): True if knowledge of the number of samples can be used in determining optimality.
 
-        P_knowledge (bool): True if knowledge of the number of positive labels can be used in determining optimality.
+        P_known (bool): True if knowledge of the number of positive labels can be used in determining optimality.
 
         beta (float): Default is 1. Parameter for the F-beta score.
 
@@ -995,7 +995,7 @@ def DutchDraw_baseline(y_true, measure= '', theta = 'optimal', M_knowledge = Tru
     Raises:
     --------
         ValueError
-            If `M_knowledge` is False and `P_knowledge` is True
+            If `M_known` is False and `P_known` is True
 
     See also:
     --------
@@ -1005,52 +1005,45 @@ def DutchDraw_baseline(y_true, measure= '', theta = 'optimal', M_knowledge = Tru
     """
 
 
-    if M_knowledge == False and P_knowledge == True:
+    if M_known == False and P_known == True:
         raise ValueError("This case has not been investigated. If M is unknown, P must also be unknown.")
 
     if theta == 'optimal':
-        return optimized_baseline_statistics(y_true, measure, beta, M_knowledge = True, P_knowledge = True)
+        return optimized_baseline_statistics(y_true, measure, beta, M_known = True, P_known = True)
 
     elif theta == 'all':
-        return baseline_functions(y_true, measure, beta, M_knowledge = True, P_knowledge = True)
+        return baseline_functions(y_true, measure, beta, M_known = True, P_known = True)
 
     else:
-        return baseline_functions_given_theta(theta, y_true, measure, beta, M_knowledge = True, P_knowledge = True)
-
-# TODO: Nog iets doen met M_knowledge en P_knowledge
-
-
-#def DutchDrawClassifier(M = None, theta = 'optimal',  measure= '', beta = 1):
-#    #Je moet sws M hebben om een y_pred op te stellen.
-
+        return baseline_functions_given_theta(theta, y_true, measure, beta, M_known = True, P_known = True)
 
 def generate_y_true(M, P):
     return [1] * P + [0] * (M - P)
 
 
-def DutchDrawClassifier(y_true=None, theta='max',  measure='', beta = 1, 
+def DutchDrawClassifier(y_true=None, theta='max',  measure='', beta = 1,
                         M_known = True, P_known = True, E_P_x_E_N = None):
     """
     This function gives the outcome of the Dutch Draw classifier given some parameters
-    
+
     Args:
     --------
         y_true (list or numpy.ndarray): 1-dimensional boolean list/numpy.ndarray containing the true labels.
-        
-        theta (float): Parameter for the shuffle baseline. Can be a float between 0 or 1 or 
+
+        theta (float): Parameter for the shuffle baseline. Can be a float between 0 or 1 or
         it can be the optimal theta (min or max).
 
         measure (string): Measure name, see `select_all_names_except([''])` for possible measure names.
 
         beta (float): Default is 1. Parameter for the F-beta score.
-    
-        M_known (boolean): Indicated whether we know M or not. Default is true.
-        
+
+        M_known (boolean): Indicated `M` can. Default is true.
+
         P_known (boolean): Indicated whether we know P or not. Default is true.
-        
+
         E_P_x_E_N (string): With this parameter, if we do not know P, we can still say something about P.
-        The x shows whether or not the expected P is bigger (>), smaller (<) or equal (=) to the expected number of 
-        negatives. If this is unknown, we can set it None. 
+        The x shows whether or not the expected P is bigger (>), smaller (<) or equal (=) to the expected number of
+        negatives. If this is unknown, we can set it None.
 
     Returns:
     --------
@@ -1069,7 +1062,7 @@ def DutchDrawClassifier(y_true=None, theta='max',  measure='', beta = 1,
     """
     if y_true is None :
         raise ValueError("y_true must be given")
-        
+
     if isinstance(y_true, np.ndarray):
         y_true = y_true.tolist()
 
@@ -1080,29 +1073,29 @@ def DutchDrawClassifier(y_true=None, theta='max',  measure='', beta = 1,
         if theta < 0 or theta > 1:
             raise ValueError("theta must be between 0 and 1.")
     else:
-        if not theta in ["min","max"]: 
+        if not theta in ["min","max"]:
             raise ValueError("theta must be float, 'min' or 'max'.")
 
     if measure not in select_all_names_except(['']):
         raise ValueError("This measure name is not recognized.")
-        
+
     if beta < 0:
         raise ValueError("beta must be positive or 0.")
-    
+
     if not isinstance(M_known, bool):
         raise ValueError("M_known must be boolean")
-        
+
     if not isinstance(P_known, bool):
-        raise ValueError("P_known must be boolean")        
-    
+        raise ValueError("P_known must be boolean")
+
     if not E_P_x_E_N in [None, "<","=",">"]:
         raise ValueError("Variable E_P_x_E_N contains non-ommited value.")
 
     M = len(y_true)
 
     if isinstance(theta, float):
-        return [1] * round(M * theta) + [0] * round(M * ( 1- theta) )  
-    
+        return [1] * round(M * theta) + [0] * round(M * ( 1- theta) )
+
     if measure == "FM" or measure == "FBETA":
         if not M_known and not P_known:
             if theta == "max":
@@ -1113,19 +1106,19 @@ def DutchDrawClassifier(y_true=None, theta='max',  measure='', beta = 1,
     if measure == "ACC":
         if not M_known and not P_known:
             if theta == "max":
-                
+
                 y_pred = []
                 while len(y_pred) < M:
                     y_pred.append(0)
                     y_pred.append(1)
                 return y_pred[:M]
-                
+
             if theta == "min":
                 return [1] * M
-        if M_known and not P_known: 
+        if M_known and not P_known:
             if theta == "max":
                 if E_P_x_E_N == None :
-                    y_pred = [1] * math.ceil(M * 0.5) + [0] * math.ceil(M * 0.5) 
+                    y_pred = [1] * math.ceil(M * 0.5) + [0] * math.ceil(M * 0.5)
                     return y_pred[:M]
                 if E_P_x_E_N in ["<","="]:
                     return [0] * M
@@ -1136,11 +1129,11 @@ def DutchDrawClassifier(y_true=None, theta='max',  measure='', beta = 1,
                     return [0] * M
                 if E_P_x_E_N in ["<","="]:
                     return [1] * M
-        
+
     if theta == "max":
         t = optimized_baseline_statistics(y_true, measure, beta)["Argmax Expected Value"][0]
     if theta == "min":
-        t = optimized_baseline_statistics(y_true, measure, beta)["Argmin Expected Value"][0]      
+        t = optimized_baseline_statistics(y_true, measure, beta)["Argmin Expected Value"][0]
     return [1] * round(M * t) + [0] * round(M * (1 - t))
 
 
