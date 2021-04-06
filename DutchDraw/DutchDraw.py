@@ -1055,7 +1055,16 @@ def DutchDraw_classifier(y_true=None, theta='max',  measure='', beta = 1,
 
     Example:
     --------
-
+        >>> import random
+        >>> random.seed(123) # To ensure similar outputs
+        >>> y_true = random.choices((0, 1), k=1000, weights=(0.9, 0.1))
+        >>> y_pred = DutchDraw_classifier(y_true=y_true, theta = "max", measure='ACC', 
+                                          P_known = False, E_P_x_E_N = ">")
+        >>> print("Length y_pred:", len(y_pred), ", number of positives:", np.sum(y_pred))
+        Length y_pred: 1000 , number of positives: 1000
+        >>> y_pred = DutchDraw_classifier(y_true=y_true, theta = "min", measure='TS')
+        >>> print("Length y_pred:", len(y_pred), ", number of positives:", np.sum(y_pred))
+        Length y_pred: 1000 , number of positives: 0
     """
     if y_true is None :
         raise ValueError("y_true must be given")
@@ -1126,6 +1135,7 @@ def DutchDraw_classifier(y_true=None, theta='max',  measure='', beta = 1,
     if theta == "min":
         t = optimized_baseline_statistics(y_true, measure, beta)["Argmin Expected Value"][0]
     return [1] * round(M * t) + [0] * round(M * (1 - t))
+
 
 #%%
 
