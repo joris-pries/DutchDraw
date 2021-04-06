@@ -1,6 +1,8 @@
 README.md
 pyproject.toml
 setup.py
+DutchDraw/DutchDraw.py
+DutchDraw/__init__.py
 DutchDraw.egg-info/PKG-INFO
 DutchDraw.egg-info/SOURCES.txt
 DutchDraw.egg-info/dependency_links.txt
