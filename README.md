@@ -1,4 +1,4 @@
-# DutchDraw
+# The DutchDraw package
 
 DutchDraw is a Python package for constructing baselines in binary classification.
 
