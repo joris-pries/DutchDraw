@@ -4,11 +4,11 @@ DutchDraw is a Python package for constructing baselines in binary classificatio
 
 ## Paper
 
-This package is an implementation of the ideas from `The Dutch Draw: Constructing a Universal Baseline for Binary Prediction Models', where VERHAALWATWEINDEPAPERDOEN.
+This package is an implementation of the ideas from `The Dutch Draw: Constructing a Universal Baseline for Binary Prediction Models', where a new baseline approach is given to give perspective to a performance score. This baseline is quick, simple, yet effective.
 
 ### Citation
 
-If you have used the DutchDraw package, please also cite: INSERTONZEBIBTEX
+If you have used the DutchDraw package, please also cite: (Coming soon)
 
 ## Installation
 
