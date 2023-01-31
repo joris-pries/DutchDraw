@@ -467,7 +467,10 @@ def optimized_baseline_statistics(y_true, measure, beta=1, M_known = True, P_kno
 
     if measure in measure_dictionary['TS']:
         return_statistics['Max Expected Value'] = P / M
-        return_statistics['Argmax Expected Value'] = [1]
+        if P == 1:
+            return_statistics['Argmax Expected Value'] = [i/M for i in range(1, M+1)]
+        else:
+            return_statistics['Argmax Expected Value'] = [1]
         return_statistics['Min Expected Value'] = 0
         return_statistics['Argmin Expected Value'] = [0]
 
